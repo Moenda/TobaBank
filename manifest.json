@@ -1,0 +1,17 @@
+{
+  "name": "TobaBank",
+  "short_name": "TobaBank",
+  "description": "App para controlar metas diárias, gastos e parcelas.",
+  "start_url": "./TobaBank.html",
+  "display": "standalone",
+  "background_color": "#121212",
+  "theme_color": "#121212",
+  "icons": [
+    {
+      "src": "TobaBank-icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}
