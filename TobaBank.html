@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
@@ -592,6 +592,11 @@
                 <div class="form-group">
                     <input type="number" id="inputMetaDiaria" class="form-input" value="150">
                 </div>
+                <div class="form-group">
+                    <label class="form-label">Dia de Início da Contagem</label>
+                    <input type="number" id="inputDiaInicioContagem" class="form-input" min="1" max="31" value="1">
+                    <p style="font-size: 11px; color: var(--text-muted); margin-top: 6px;">Para o primeiro mês, o teto considera apenas os dias a partir deste valor até o fim do mês.</p>
+                </div>
                 <div class="preset-container">
                     <button class="preset-btn" onclick="setMetaPreset(80)">R$ 80</button>
                     <button class="preset-btn" onclick="setMetaPreset(120)">R$ 120</button>
@@ -600,6 +605,7 @@
                     <button class="preset-btn" onclick="setMetaPreset(300)">R$ 300</button>
                 </div>
                 <button class="btn" onclick="salvarMeta()">Salvar Meta</button>
+                <button class="btn btn-outline" style="margin-top: 8px;" onclick="salvarConfiguracoes()">Salvar Configurações</button>
             </div>
 
             <div class="card">
@@ -608,7 +614,9 @@
                     Os dados ficam salvos localmente neste aparelho. Exporte um arquivo de segurança.
                 </p>
                 <button class="btn btn-outline" style="margin-bottom: 10px;" onclick="exportarBackup()">📥 Exportar Backup (JSON)</button>
-                <button class="btn btn-outline" onclick="triggerImport()">📤 Restaurar Backup (JSON)</button>
+                <button class="btn btn-outline" style="margin-bottom: 10px;" onclick="triggerImport()">📤 Restaurar Backup (JSON)</button>
+                <button class="btn btn-outline" style="margin-bottom: 10px;" onclick="carregarDadosTeste()">🧪 Carregar Dados de Teste</button>
+                <button class="btn btn-outline" onclick="atualizarHistoricoFechado()">🔧 Atualizar Histórico do Cofre</button>
                 <input type="file" id="fileImport" style="display: none;" accept=".json" onchange="importarBackup(event)">
             </div>
 
@@ -665,6 +673,10 @@
             <div class="form-group">
                 <label class="form-label">Descrição</label>
                 <input type="text" id="gastoDesc" class="form-input" placeholder="Ex: Almocinho, Mercado, Gasolina">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Data do Lançamento</label>
+                <input type="date" id="gastoData" class="form-input">
             </div>
             <div class="form-group">
                 <label class="form-label">Categoria</label>
@@ -739,6 +751,15 @@
         </div>
     </div>
 
+    <!-- MODAL: Detalhes do Mês -->
+    <div class="modal" id="modalHistoricoMes">
+        <div class="modal-body">
+            <h3 style="margin-bottom: 16px;">Detalhes do Mês</h3>
+            <div id="historicoMesContent"></div>
+            <button class="btn btn-outline" style="margin-top: 12px;" onclick="closeModal('modalHistoricoMes')">Fechar</button>
+        </div>
+    </div>
+
     <!-- MODAL: Gasto na Viagem -->
     <div class="modal" id="modalViagemGasto">
         <div class="modal-body">
@@ -759,8 +780,46 @@
 
     <script>
         // State
+        const dadosDeExemplo = {
+            metaDiaria: 100,
+            diaInicioContagem: 15,
+            gastos: [
+                { id: 1001, valor: 18, descricao: 'Almoço', categoria: 'Alimentação', data: '03/7' },
+                { id: 1002, valor: 42, descricao: 'Mercado da semana', categoria: 'Mercado', data: '05/7' },
+                { id: 1003, valor: 26, descricao: 'Gasolina', categoria: 'Combustível', data: '08/7' },
+                { id: 1004, valor: 15, descricao: 'Lanche', categoria: 'Lazer', data: '12/7' },
+                { id: 1005, valor: 11, descricao: 'Farmácia', categoria: 'Saúde', data: '15/7' },
+                { id: 1006, valor: 24, descricao: 'Conta de luz', categoria: 'Contas', data: '18/7' },
+                { id: 1007, valor: 9, descricao: 'Ração do pet', categoria: 'Pets', data: '22/7' }
+            ],
+            parcelas: [
+                { id: 2001, descricao: 'Celular', valorParcela: 200, totalParcelas: 6, parcelasPagas: 3, categoria: 'Outros', mesPrimeiraParcela: '2026-03' },
+                { id: 2002, descricao: 'TV', valorParcela: 180, totalParcelas: 10, parcelasPagas: 2, categoria: 'Casa', mesPrimeiraParcela: '2026-04' },
+                { id: 2003, descricao: 'Carro', valorParcela: 150, totalParcelas: 4, parcelasPagas: 1, categoria: 'Contas', mesPrimeiraParcela: '2026-07' }
+            ],
+            viagens: [
+                {
+                    id: 3001,
+                    nome: 'Viagem de Julho',
+                    teto: 400,
+                    gastos: [
+                        { id: 3002, valor: 120, descricao: 'Hotel' },
+                        { id: 3003, valor: 85, descricao: 'Jantar' }
+                    ]
+                }
+            ],
+            cofre: 245.5,
+            ultimoMes: '2026-07',
+            mesesFechados: [
+                { mes: '2026-03', saldo: 112, gastoTotal: 88, gastos: [{ id: 4001, valor: 32, descricao: 'Mercado', categoria: 'Mercado', data: '10/03' }, { id: 4002, valor: 56, descricao: 'Transporte', categoria: 'Transporte', data: '20/03' }] },
+                { mes: '2026-04', saldo: 96, gastoTotal: 104, gastos: [{ id: 4003, valor: 48, descricao: 'Restaurante', categoria: 'Alimentação', data: '12/04' }, { id: 4004, valor: 56, descricao: 'Cinema', categoria: 'Lazer', data: '24/04' }] },
+                { mes: '2026-05', saldo: 132, gastoTotal: 68, gastos: [{ id: 4005, valor: 38, descricao: 'Combustível', categoria: 'Transporte', data: '08/05' }, { id: 4006, valor: 30, descricao: 'Farmácia', categoria: 'Saúde', data: '14/05' }] },
+                { mes: '2026-06', saldo: 118, gastoTotal: 82, gastos: [{ id: 4007, valor: 41, descricao: 'Conta de luz', categoria: 'Contas', data: '05/06' }, { id: 4008, valor: 41, descricao: 'Lanche', categoria: 'Lazer', data: '19/06' }] }
+            ]
+        };
         let state = {
             metaDiaria: 150,
+            diaInicioContagem: 1,
             gastos: [],
             parcelas: [],
             viagens: [],
@@ -791,16 +850,26 @@
             const saved = localStorage.getItem('tobabank_data');
             if (saved) {
                 try { state = JSON.parse(saved); } catch(e){}
+            } else {
+                state = JSON.parse(JSON.stringify(dadosDeExemplo));
             }
-            if(!state.metaDiaria) state.metaDiaria = 150;
+            if(!state.metaDiaria) state.metaDiaria = 100;
+            if(!state.diaInicioContagem) state.diaInicioContagem = 1;
             if(!state.gastos) state.gastos = [];
             if(!state.parcelas) state.parcelas = [];
             if(!state.viagens) state.viagens = [];
             if(!state.cofre) state.cofre = 0;
             if(!state.ultimoMes) state.ultimoMes = null;
+            if(!state.mesesFechados) state.mesesFechados = [];
+
+            const migracao = normalizarMesesFechados();
+            if (migracao) {
+                localStorage.setItem('tobabank_data', JSON.stringify(state));
+            }
 
             const now = new Date();
             document.getElementById('inputMetaDiaria').value = state.metaDiaria;
+            document.getElementById('inputDiaInicioContagem').value = state.diaInicioContagem || 1;
             document.getElementById('parcelaPrimeiraMes').value = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
             const monthNames = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
             document.getElementById('currentMonthBadge').innerText = monthNames[now.getMonth()] + " " + now.getFullYear();
@@ -820,6 +889,43 @@
         function saveState() {
             localStorage.setItem('tobabank_data', JSON.stringify(state));
             renderAll();
+        }
+
+        function normalizarMesesFechados() {
+            if (!Array.isArray(state.mesesFechados)) {
+                state.mesesFechados = [];
+            }
+
+            let mudou = false;
+            state.mesesFechados = state.mesesFechados.map(item => {
+                if (!item || typeof item !== 'object') return item;
+
+                const gastosAntigos = Array.isArray(item.gastos)
+                    ? item.gastos
+                    : (Array.isArray(item.transacoes) ? item.transacoes : (Array.isArray(item.itens) ? item.itens : []));
+
+                if (gastosAntigos.length > 0) {
+                    return { ...item, gastos: gastosAntigos.map(g => ({ ...g })) };
+                }
+
+                if (Number(item.gastoTotal || 0) > 0) {
+                    mudou = true;
+                    return {
+                        ...item,
+                        gastos: [{
+                            id: Date.now() + Math.random(),
+                            valor: Number(item.gastoTotal || 0),
+                            descricao: `Resumo de ${item.mes || 'mês'}`,
+                            categoria: 'Outros',
+                            data: item.mes ? item.mes.replace('-', '/') : ''
+                        }]
+                    };
+                }
+
+                return { ...item, gastos: [] };
+            });
+
+            return mudou;
         }
 
         function renderAll() {
@@ -843,12 +949,80 @@
         }
 
         // Modals
-        function openModal(id) { document.getElementById(id).classList.add('active'); }
+        function openModal(id) {
+            if (id === 'modalGasto') {
+                const input = document.getElementById('gastoData');
+                if (input) {
+                    input.value = new Date().toISOString().split('T')[0];
+                }
+            }
+            document.getElementById(id).classList.add('active');
+        }
         function closeModal(id) { document.getElementById(id).classList.remove('active'); }
 
         // Formatting
         function formatMoney(val) {
             return "R$ " + Number(val || 0).toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+        }
+
+        function parseDataValor(valor) {
+            if (!valor) return null;
+            if (typeof valor === 'string' && valor.includes('-')) {
+                const [year, month, day] = valor.split('-').map(Number);
+                return { year, month, day, raw: valor };
+            }
+            if (typeof valor === 'string' && valor.includes('/')) {
+                const [day, month, yearPart] = valor.split('/').map(Number);
+                const year = yearPart && yearPart > 1000 ? yearPart : new Date().getFullYear();
+                return { year, month, day, raw: valor };
+            }
+            return null;
+        }
+
+        function getGastosDoMes(date = new Date()) {
+            const mesAtual = getMesAtualKey(date);
+            return state.gastos.filter(g => {
+                const parsed = parseDataValor(g.data);
+                if (!parsed) return false;
+                const mesKey = `${parsed.year}-${String(parsed.month).padStart(2, '0')}`;
+                return mesKey === mesAtual;
+            });
+        }
+
+        function abrirDetalhesMes(mesKey) {
+            const item = (state.mesesFechados || []).find(x => x.mes === mesKey);
+            if (!item) return;
+            const gastos = (Array.isArray(item.gastos) ? item.gastos : []).slice().sort((a, b) => Number(a.valor) - Number(b.valor));
+            const categorias = {};
+            gastos.forEach(g => {
+                categorias[g.categoria] = (categorias[g.categoria] || 0) + Number(g.valor || 0);
+            });
+            const categoriasHtml = Object.entries(categorias).map(([cat, val]) => `
+                <div style="display:flex; justify-content:space-between; padding:6px 0; border-bottom:1px solid var(--border-color);">
+                    <span>${cat}</span>
+                    <strong>${formatMoney(val)}</strong>
+                </div>
+            `).join('');
+            const transacoesHtml = gastos.map(g => `
+                <div style="display:flex; justify-content:space-between; padding:6px 0; border-bottom:1px solid var(--border-color);">
+                    <div>
+                        <div style="font-weight:600;">${g.descricao || 'Transação'}</div>
+                        <div style="font-size:12px; color:var(--text-muted);">${g.categoria} • ${g.data || 'Sem data'}</div>
+                    </div>
+                    <strong style="color:var(--danger);">${formatMoney(g.valor)}</strong>
+                </div>
+            `).join('');
+            document.getElementById('historicoMesContent').innerHTML = `
+                <div style="margin-bottom: 12px;">
+                    <div class="card-title">Resumo por categoria</div>
+                    ${categoriasHtml || '<p style="font-size:13px; color:var(--text-muted);">Nenhuma categoria registrada para este fechamento.</p>'}
+                </div>
+                <div>
+                    <div class="card-title">Transações</div>
+                    ${transacoesHtml || '<p style="font-size:13px; color:var(--text-muted);">Nenhuma transação registrada para este fechamento.</p>'}
+                </div>
+            `;
+            openModal('modalHistoricoMes');
         }
 
         // TAB 1: INÍCIO
@@ -868,6 +1042,33 @@
                 : 'Déficit diário já carregado para o próximo dia';
             document.getElementById('homeSaldoHoje').innerText = formatMoney(calc.saldoMes);
             document.getElementById('homeSaldoHoje').style.color = calc.saldoMes >= 0 ? 'var(--accent)' : 'var(--danger)';
+
+            const mesesFechados = (state.mesesFechados || []).map(item => `
+                <button data-mes-fechado="${item.mes}" style="width:100%; border:none; background:transparent; color:inherit; text-align:left; padding:6px 0;">
+                    <div style="display:flex; justify-content:space-between; font-size:12px; color:var(--text-muted);">
+                        <span>${item.mes}</span>
+                        <strong style="color:var(--accent);">${formatMoney(item.saldo || 0)}</strong>
+                    </div>
+                </button>
+            `).join('');
+
+            document.getElementById('homeSummaryContent').innerHTML = `
+                <div class="item-row">
+                    <div>
+                        <div class="item-title">Saldo do Mês</div>
+                        <div class="item-sub">Sobra dos dias com a meta diária aplicada</div>
+                    </div>
+                    <div class="item-val" id="homeSaldoHoje">${formatMoney(calc.saldoMes)}</div>
+                </div>
+                <div style="margin-top: 12px;">
+                    <div class="item-title" style="font-size: 13px; margin-bottom: 6px;">Meses Fechados</div>
+                    ${mesesFechados ? mesesFechados : '<div class="item-sub">Nenhum mês fechado ainda.</div>'}
+                </div>
+            `;
+
+            document.querySelectorAll('[data-mes-fechado]').forEach(btn => {
+                btn.addEventListener('click', () => abrirDetalhesMes(btn.getAttribute('data-mes-fechado')));
+            });
         }
 
         // TAB 2: MÊS ATIVO
@@ -887,18 +1088,21 @@
             const now = new Date();
             const currentDay = now.getDate();
             const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
+            const diaInicio = Number(state.diaInicioContagem || 1);
+            const diasConsiderados = Math.max(1, daysInMonth - Math.max(currentDay, diaInicio) + 1);
 
             const totalParcelasMensal = getParcelasAtivasNoMes(now).reduce((acc, p) => acc + Number(p.valorParcela), 0);
             const impactoDiarioParcelas = totalParcelasMensal / daysInMonth;
             const metaLiquida = Math.max(0, state.metaDiaria - impactoDiarioParcelas);
 
-            const gastoNoMes = state.gastos.reduce((acc, g) => acc + Number(g.valor), 0);
+            const gastosMes = getGastosDoMes(now);
+            const gastoNoMes = gastosMes.reduce((acc, g) => acc + Number(g.valor), 0);
             const gastosPorDia = {};
-            state.gastos.forEach(g => {
-                if (!g.data) return;
-                const [diaStr, mesStr] = String(g.data).split('/');
-                const dia = Number(diaStr);
-                const mes = Number(mesStr);
+            gastosMes.forEach(g => {
+                const parsed = parseDataValor(g.data);
+                if (!parsed) return;
+                const dia = Number(parsed.day);
+                const mes = Number(parsed.month);
                 if (mes === now.getMonth() + 1 && dia >= 1 && dia <= currentDay) {
                     gastosPorDia[dia] = (gastosPorDia[dia] || 0) + Number(g.valor || 0);
                 }
@@ -906,7 +1110,8 @@
 
             let saldoMes = 0;
             let saldoAcumuladoDia = 0;
-            for (let dia = 1; dia <= currentDay; dia++) {
+            const diaInicial = Math.max(1, diaInicio);
+            for (let dia = diaInicial; dia <= currentDay; dia++) {
                 const gastoDoDia = gastosPorDia[dia] || 0;
                 const saldoDoDia = saldoAcumuladoDia + metaLiquida - gastoDoDia;
                 saldoMes += saldoDoDia > 0 ? saldoDoDia : 0;
@@ -916,13 +1121,14 @@
             const gastoHoje = gastosPorDia[currentDay] || 0;
             const saldoHoje = saldoAcumuladoDia + metaLiquida - gastoHoje;
 
-            const diasRestantes = Math.max(1, daysInMonth - currentDay + 1);
-            const saldoTotalRestanteMes = (metaLiquida * daysInMonth) - gastoNoMes;
+            const diasRestantes = Math.max(1, daysInMonth - Math.max(currentDay, diaInicio) + 1);
+            const saldoTotalRestanteMes = (metaLiquida * diasRestantes) - gastoNoMes;
             const mediaDiaRestante = Math.max(0, saldoTotalRestanteMes / diasRestantes);
 
             return {
                 currentDay,
                 daysInMonth,
+                diasConsiderados,
                 totalParcelasMensal,
                 impactoDiarioParcelas,
                 metaLiquida,
@@ -957,12 +1163,13 @@
 
             // Gastos List
             const listEl = document.getElementById('gastosList');
-            if(state.gastos.length === 0) {
+            const gastosMes = getGastosDoMes();
+            if(gastosMes.length === 0) {
                 listEl.innerHTML = '<p style="font-size:13px; color:var(--text-muted); text-align:center; padding:10px;">Nenhum gasto cadastrado este mês.</p>';
                 return;
             }
 
-            listEl.innerHTML = state.gastos.slice().reverse().map((g, idx) => `
+            listEl.innerHTML = gastosMes.slice().reverse().map((g, idx) => `
                 <div class="item-row">
                     <div class="item-info">
                         <div class="item-icon">${categoryIcons[g.categoria] || '📦'}</div>
@@ -973,7 +1180,7 @@
                     </div>
                     <div style="display:flex; align-items:center; gap:10px;">
                         <div class="item-val" style="color:var(--danger);">${formatMoney(g.valor)}</div>
-                        <button style="background:none; border:none; color:var(--text-muted); cursor:pointer; font-size:16px;" onclick="removerGasto(${state.gastos.length - 1 - idx})">✕</button>
+                        <button style="background:none; border:none; color:var(--text-muted); cursor:pointer; font-size:16px;" onclick="removerGasto(${state.gastos.findIndex(x => x.id === g.id)})">✕</button>
                     </div>
                 </div>
             `).join('');
@@ -987,7 +1194,7 @@
             }
 
             const catMap = {};
-            state.gastos.forEach(g => {
+            getGastosDoMes().forEach(g => {
                 catMap[g.categoria] = (catMap[g.categoria] || 0) + Number(g.valor);
             });
 
@@ -1018,20 +1225,23 @@
             const val = parseFloat(document.getElementById('gastoValor').value);
             const desc = document.getElementById('gastoDesc').value.trim();
             const cat = document.getElementById('gastoCategoria').value;
+            const dataInput = document.getElementById('gastoData').value;
 
             if(!val || val <= 0) return alert('Digite um valor válido!');
 
             const now = new Date();
+            const dataSelecionada = dataInput || `${String(now.getFullYear())}-${String(now.getMonth()+1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
             state.gastos.push({
                 id: Date.now(),
                 valor: val,
                 descricao: desc,
                 categoria: cat,
-                data: `${now.getDate()}/${now.getMonth()+1}`
+                data: dataSelecionada
             });
 
             document.getElementById('gastoValor').value = '';
             document.getElementById('gastoDesc').value = '';
+            document.getElementById('gastoData').value = '';
             closeModal('modalGasto');
             saveState();
         }
@@ -1319,9 +1529,40 @@
             }
         }
 
+        function atualizarHistoricoFechado() {
+            const migracao = normalizarMesesFechados();
+            if (migracao || (state.mesesFechados || []).length > 0) {
+                localStorage.setItem('tobabank_data', JSON.stringify(state));
+                renderAll();
+                alert('Histórico do cofre atualizado com sucesso!');
+            } else {
+                alert('Nenhum histórico para atualizar.');
+            }
+        }
+
+        function salvarConfiguracoes() {
+            const dia = parseInt(document.getElementById('inputDiaInicioContagem').value);
+            if(dia >= 1 && dia <= 31) {
+                state.diaInicioContagem = dia;
+                saveState();
+                alert('Configurações salvas com sucesso!');
+            } else {
+                alert('Informe um dia válido entre 1 e 31.');
+            }
+        }
+
+        function carregarDadosTeste() {
+            if(confirm('Deseja carregar os dados de teste? Isso vai substituir os dados atuais.')) {
+                state = JSON.parse(JSON.stringify(dadosDeExemplo));
+                saveState();
+                alert('Dados de teste carregados com sucesso!');
+            }
+        }
+
         function fecharMes(options = {}) {
             const { silent = false } = options;
             const calc = getMesCalculos();
+            const mesAtual = getCurrentMonthKey();
             const shouldClose = silent || confirm(`Deseja fechar o mês atual?
 
 Saldo acumulado hoje: ${formatMoney(calc.saldoHoje)}.`);
@@ -1330,8 +1571,21 @@ Saldo acumulado hoje: ${formatMoney(calc.saldoHoje)}.`);
                 if(calc.saldoHoje > 0) {
                     state.cofre += calc.saldoHoje;
                 }
+                if(!state.mesesFechados) state.mesesFechados = [];
+                const indice = state.mesesFechados.findIndex(item => item.mes === mesAtual);
+                const fechamento = {
+                    mes: mesAtual,
+                    saldo: calc.saldoHoje,
+                    gastoTotal: calc.gastoNoMes,
+                    gastos: getGastosDoMes().map(g => ({ ...g }))
+                };
+                if(indice >= 0) {
+                    state.mesesFechados[indice] = fechamento;
+                } else {
+                    state.mesesFechados.push(fechamento);
+                }
                 state.gastos = []; // zera gastos do mês
-                state.ultimoMes = getCurrentMonthKey();
+                state.ultimoMes = mesAtual;
                 saveState();
                 if(!silent) {
                     alert('Mês fechado! O saldo positivo foi enviado para o Cofre da Vitória! 🚀');
