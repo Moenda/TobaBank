@@ -13,8 +13,6 @@
     <link rel="manifest" href="manifest.json">
     <link rel="icon" type="image/png" href="TobaBank-icon.png">
     <link rel="apple-touch-icon" href="TobaBank-icon.png">
-    <link rel="icon" sizes="192x192" type="image/png" href="TobaBank-icon-192.png">
-    <link rel="icon" sizes="512x512" type="image/png" href="TobaBank-icon-512.png">
     <style>
         :root {
             --bg-color: #121212;
@@ -170,6 +168,31 @@
             font-size: 18px;
             font-weight: 700;
             margin-top: 4px;
+        }
+
+        /* Projection Horizontal Scroll */
+        .projection-scroll {
+            display: flex;
+            gap: 10px;
+            overflow-x: auto;
+            padding-bottom: 8px;
+            margin-top: 10px;
+            scrollbar-width: thin;
+        }
+
+        .projection-card {
+            min-width: 110px;
+            background: var(--card-sub);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 12px 10px;
+            text-align: center;
+            flex-shrink: 0;
+        }
+
+        .projection-card.active-month {
+            border-color: var(--accent);
+            background: rgba(16, 185, 129, 0.08);
         }
 
         /* Buttons */
@@ -343,7 +366,7 @@
             cursor: pointer;
             background: none;
             border: none;
-            width: 20%;
+            width: 16.6%;
         }
 
         .nav-item.active {
@@ -351,7 +374,7 @@
         }
 
         .nav-icon {
-            font-size: 20px;
+            font-size: 18px;
         }
 
         /* FAB */
@@ -469,21 +492,22 @@
             <div class="grid-3">
                 <div class="stat-box">
                     <div class="card-title">Meta Diária</div>
-                    <div class="stat-value" id="homeMetaDiaria">R$ 150,00</div>
+                    <div class="stat-value" id="homeMetaDiaria">R$ 100,00</div>
                 </div>
                 <div class="stat-box">
                     <div class="card-title">Saldo Diário</div>
                     <div class="stat-value" style="color: var(--accent);" id="homeSaldoDiario">R$ 0,00</div>
-                    <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;" id="homeSaldoDiarioSub">Meta líquida menos o que já foi adicionado</div>
+                    <div style="font-size: 10px; color: var(--text-muted); margin-top: 4px;" id="homeSaldoDiarioSub">Meta líquida menos gastos de hoje</div>
                 </div>
                 <div class="stat-box">
                     <div class="card-title">Parcelas/Mês</div>
                     <div class="stat-value" style="color: #ef4444;" id="homeParcelasTotal">R$ 0,00</div>
+                    <div style="font-size: 10px; color: var(--text-muted); margin-top: 4px;" id="homeImpactoDiarioSub">Impacto: -R$ 0,00/dia</div>
                 </div>
             </div>
 
             <div class="card" style="margin-top: 16px;">
-                <div class="card-title">Resumo do Mês</div>
+                <div class="card-title">Resumo do Mês Ativo</div>
                 <div id="homeSummaryContent">
                     <div class="item-row">
                         <div>
@@ -505,7 +529,7 @@
                 <div class="card-sub">
                     <div style="display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 4px;">
                         <span>Meta Diária Bruta:</span>
-                        <strong id="mesMetaBruta">R$ 150,00</strong>
+                        <strong id="mesMetaBruta">R$ 100,00</strong>
                     </div>
                     <div style="display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 4px; color: var(--danger);">
                         <span>Comprometido c/ Parcelas:</span>
@@ -513,7 +537,7 @@
                     </div>
                     <div style="border-top: 1px dashed var(--border-color); padding-top: 6px; margin-top: 6px; display: flex; justify-content: space-between; font-size: 13px; color: var(--accent);">
                         <span>Limite Real Livre/dia:</span>
-                        <strong id="mesMetaLiquida">R$ 150,00/dia</strong>
+                        <strong id="mesMetaLiquida">R$ 100,00/dia</strong>
                     </div>
                 </div>
 
@@ -545,7 +569,7 @@
             <div class="card">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
                     <div class="card-title" style="margin-bottom:0;">Histórico do Mês</div>
-                    <span style="font-size: 11px; color: var(--text-muted);">Troca automática ao entrar em um novo mês</span>
+                    <span style="font-size: 11px; color: var(--text-muted);">Mês corrente</span>
                 </div>
                 <div id="gastosList">
                     <!-- Items JS -->
@@ -566,6 +590,18 @@
                 </div>
             </div>
 
+            <!-- PROJEÇÃO DE PARCELAS FUTURAS -->
+            <div class="card" style="margin-top: 12px;">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <div class="card-title" style="margin-bottom: 0;">🔮 Mapa de Faturas Futuras</div>
+                    <span style="font-size: 11px; color: var(--accent);">Steve Jorge Projeção</span>
+                </div>
+                <p style="font-size: 12px; color: var(--text-muted); margin-top: 4px;">Veja como sua fatura vai caindo nos próximos meses para planejar novas compras:</p>
+                <div class="projection-scroll" id="projecaoParcelasList">
+                    <!-- Gerado via JS -->
+                </div>
+            </div>
+
             <div style="background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.2); padding: 12px; border-radius: 12px; margin: 12px 0; font-size: 12px; color: #fca5a5;">
                 ⚠️ Suas parcelas ativas reduzem automaticamente o seu teto diário disponível no Mês Ativo!
             </div>
@@ -577,7 +613,25 @@
             </div>
         </div>
 
-        <!-- TAB 4: VIAGENS & EVENTOS -->
+        <!-- TAB 4: INVESTIMENTOS -->
+        <div id="tab-investimentos" class="tab-content">
+            <div class="card">
+                <div class="card-title">Patrimônio Investido</div>
+                <div class="main-amount" id="invTotalPatrimonio">R$ 0,00</div>
+                <div style="display: flex; justify-content: space-between; font-size: 12px; margin-top: 8px;">
+                    <span style="color: var(--text-muted);">Rendimento Bruto Acumulado:</span>
+                    <strong style="color: var(--accent);" id="invRendimentoTotal">+R$ 0,00 (+0.0%)</strong>
+                </div>
+            </div>
+
+            <button class="btn" style="margin-bottom: 16px;" onclick="openModal('modalInvestimento')">+ Novo Investimento</button>
+
+            <div id="investimentosList">
+                <!-- Lista de Investimentos JS -->
+            </div>
+        </div>
+
+        <!-- TAB 5: VIAGENS & EVENTOS -->
         <div id="tab-viagens" class="tab-content">
             <button class="btn" style="margin-bottom: 16px;" onclick="openModal('modalViagem')">+ Nova Viagem / Evento</button>
             <div id="viagensList">
@@ -585,29 +639,25 @@
             </div>
         </div>
 
-        <!-- TAB 5: AJUSTES -->
+        <!-- TAB 6: AJUSTES -->
         <div id="tab-ajustes" class="tab-content">
-            <div class="card">
-                <div class="card-title">Meta Diária Padrão</div>
+            <!-- 1. META DIÁRIA NO TOPO -->
+            <div class="card" style="border-color: var(--accent);">
+                <div class="card-title" style="color: var(--accent);">🎯 Meta Diária Padrão</div>
                 <div class="form-group">
-                    <input type="number" id="inputMetaDiaria" class="form-input" value="150">
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Dia de Início da Contagem</label>
-                    <input type="number" id="inputDiaInicioContagem" class="form-input" min="1" max="31" value="1">
-                    <p style="font-size: 11px; color: var(--text-muted); margin-top: 6px;">Para o primeiro mês, o teto considera apenas os dias a partir deste valor até o fim do mês.</p>
+                    <input type="number" id="inputMetaDiaria" class="form-input" value="100">
                 </div>
                 <div class="preset-container">
                     <button class="preset-btn" onclick="setMetaPreset(80)">R$ 80</button>
+                    <button class="preset-btn" onclick="setMetaPreset(100)">R$ 100</button>
                     <button class="preset-btn" onclick="setMetaPreset(120)">R$ 120</button>
                     <button class="preset-btn" onclick="setMetaPreset(150)">R$ 150</button>
                     <button class="preset-btn" onclick="setMetaPreset(200)">R$ 200</button>
-                    <button class="preset-btn" onclick="setMetaPreset(300)">R$ 300</button>
                 </div>
-                <button class="btn" onclick="salvarMeta()">Salvar Meta</button>
-                <button class="btn btn-outline" style="margin-top: 8px;" onclick="salvarConfiguracoes()">Salvar Configurações</button>
+                <button class="btn" onclick="salvarMeta()">Salvar Meta Diária</button>
             </div>
 
+            <!-- 2. BACKUP & SEGURANÇA -->
             <div class="card">
                 <div class="card-title">Backup & Segurança</div>
                 <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 12px;">
@@ -615,11 +665,23 @@
                 </p>
                 <button class="btn btn-outline" style="margin-bottom: 10px;" onclick="exportarBackup()">📥 Exportar Backup (JSON)</button>
                 <button class="btn btn-outline" style="margin-bottom: 10px;" onclick="triggerImport()">📤 Restaurar Backup (JSON)</button>
-                <button class="btn btn-outline" style="margin-bottom: 10px;" onclick="carregarDadosTeste()">🧪 Carregar Dados de Teste</button>
-                <button class="btn btn-outline" onclick="atualizarHistoricoFechado()">🔧 Atualizar Histórico do Cofre</button>
                 <input type="file" id="fileImport" style="display: none;" accept=".json" onchange="importarBackup(event)">
             </div>
 
+            <!-- 3. CONFIGURAÇÃO INICIAL -->
+            <div class="card">
+                <div class="card-title">🚀 Configuração Inicial & Primeiro Uso</div>
+                <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 12px; line-height: 1.4;">
+                    Ajuste o dia em que o app começa a contabilizar seu teto mensal (útil se você começou a usar no meio do mês ou quer incluir notas passadas).
+                </p>
+                <div class="form-group">
+                    <label class="form-label">Dia Inicial da Contagem</label>
+                    <input type="number" id="inputDiaInicioContagem" class="form-input" min="1" max="31" value="1">
+                </div>
+                <button class="btn btn-outline" onclick="salvarConfiguracoes()">Salvar Dia de Início</button>
+            </div>
+
+            <!-- 4. ZONA DE RISCO -->
             <div class="card" style="border-color: rgba(239, 68, 68, 0.4);">
                 <div class="card-title" style="color: var(--danger);">Zona de Risco</div>
                 <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 12px;">Apaga todos os dados localmente. Esta ação não pode ser desfeita.</p>
@@ -640,11 +702,15 @@
         </button>
         <button class="nav-item" onclick="switchTab('mes')">
             <span class="nav-icon">📅</span>
-            <span>Mês Ativo</span>
+            <span>Mês</span>
         </button>
         <button class="nav-item" onclick="switchTab('parcelas')">
             <span class="nav-icon">💳</span>
             <span>Parcelas</span>
+        </button>
+        <button class="nav-item" onclick="switchTab('investimentos')">
+            <span class="nav-icon">📈</span>
+            <span>Investir</span>
         </button>
         <button class="nav-item" onclick="switchTab('viagens')">
             <span class="nav-icon">✈️</span>
@@ -734,6 +800,54 @@
         </div>
     </div>
 
+    <!-- MODAL: Novo Investimento -->
+    <div class="modal" id="modalInvestimento">
+        <div class="modal-body">
+            <h3 style="margin-bottom: 16px;">Novo Investimento</h3>
+            <div class="form-group">
+                <label class="form-label">Nome do Investimento</label>
+                <input type="text" id="invNome" class="form-input" placeholder="Ex: CDB Caixinha, Ações / FIIs, Crypto">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Valor Inicial Aportado (R$)</label>
+                <input type="number" step="0.01" id="invAporteInicial" class="form-input" placeholder="1000,00">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Mês / Data Inicial</label>
+                <input type="month" id="invMesInicial" class="form-input">
+            </div>
+            <button class="btn" onclick="salvarInvestimento()">Cadastrar Investimento</button>
+            <button class="btn btn-outline" style="margin-top: 8px;" onclick="closeModal('modalInvestimento')">Cancelar</button>
+        </div>
+    </div>
+
+    <!-- MODAL: Atualizar Saldo do Investimento -->
+    <div class="modal" id="modalAtualizarSaldoInv">
+        <div class="modal-body">
+            <h3 style="margin-bottom: 16px;">Atualizar Saldo Mensal</h3>
+            <input type="hidden" id="activeInvId">
+            <div class="form-group">
+                <label class="form-label">Mês de Referência</label>
+                <input type="month" id="invAtualizarMes" class="form-input">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Novo Saldo Total no Fim do Mês (R$)</label>
+                <input type="number" step="0.01" id="invAtualizarSaldo" class="form-input" placeholder="1050,00">
+            </div>
+            <button class="btn" onclick="salvarAtualizacaoSaldoInv()">Salvar Saldo</button>
+            <button class="btn btn-outline" style="margin-top: 8px;" onclick="closeModal('modalAtualizarSaldoInv')">Cancelar</button>
+        </div>
+    </div>
+
+    <!-- MODAL: Detalhes do Investimento -->
+    <div class="modal" id="modalDetalhesInv">
+        <div class="modal-body">
+            <h3 id="invDetalhesTitulo" style="margin-bottom: 16px;">Detalhes do Investimento</h3>
+            <div id="invDetalhesContent"></div>
+            <button class="btn btn-outline" style="margin-top: 16px;" onclick="closeModal('modalDetalhesInv')">Fechar</button>
+        </div>
+    </div>
+
     <!-- MODAL: Nova Viagem -->
     <div class="modal" id="modalViagem">
         <div class="modal-body">
@@ -754,9 +868,9 @@
     <!-- MODAL: Detalhes do Mês -->
     <div class="modal" id="modalHistoricoMes">
         <div class="modal-body">
-            <h3 style="margin-bottom: 16px;">Detalhes do Mês</h3>
+            <h3 id="modalHistoricoTitulo" style="margin-bottom: 16px;">Detalhes do Mês</h3>
             <div id="historicoMesContent"></div>
-            <button class="btn btn-outline" style="margin-top: 12px;" onclick="closeModal('modalHistoricoMes')">Fechar</button>
+            <button class="btn btn-outline" style="margin-top: 16px;" onclick="closeModal('modalHistoricoMes')">Fechar</button>
         </div>
     </div>
 
@@ -779,53 +893,137 @@
     </div>
 
     <script>
-        // State
+        // FUNÇÕES UTILITÁRIAS DE DATA (DEFINIDAS PRIMEIRO!)
+        function getMesAtualKey(date = new Date()) {
+            return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+        }
+
+        function getCurrentMonthKey() {
+            return getMesAtualKey(new Date());
+        }
+
+        function getDaysInMonth(year, month1Based) {
+            return new Date(year, month1Based, 0).getDate();
+        }
+
+        // BATABASEEE OFICIAL COMPLETO (TESTES 2026)
         const dadosDeExemplo = {
             metaDiaria: 100,
-            diaInicioContagem: 15,
+            diaInicioContagem: 1,
             gastos: [
-                { id: 1001, valor: 18, descricao: 'Almoço', categoria: 'Alimentação', data: '03/7' },
-                { id: 1002, valor: 42, descricao: 'Mercado da semana', categoria: 'Mercado', data: '05/7' },
-                { id: 1003, valor: 26, descricao: 'Gasolina', categoria: 'Combustível', data: '08/7' },
-                { id: 1004, valor: 15, descricao: 'Lanche', categoria: 'Lazer', data: '12/7' },
-                { id: 1005, valor: 11, descricao: 'Farmácia', categoria: 'Saúde', data: '15/7' },
-                { id: 1006, valor: 24, descricao: 'Conta de luz', categoria: 'Contas', data: '18/7' },
-                { id: 1007, valor: 9, descricao: 'Ração do pet', categoria: 'Pets', data: '22/7' }
+                { id: 1001, valor: 420.00, descricao: 'Mercado Carrefour', categoria: 'Mercado', data: '2026-07-02' },
+                { id: 1002, valor: 180.00, descricao: 'Petz (Gon e Killua)', categoria: 'Pets', data: '2026-07-06' },
+                { id: 1003, valor: 240.00, descricao: 'Kérastase Anti-Queda', categoria: 'Outros', data: '2026-07-10' },
+                { id: 1004, valor: 250.00, descricao: 'Gasolina V-Power (208 GT)', categoria: 'Combustível', data: '2026-07-15' },
+                { id: 1005, valor: 195.00, descricao: 'Jantar Namorada', categoria: 'Lazer', data: '2026-07-20' },
+                { id: 1006, valor: 135.00, descricao: 'iFood FDS', categoria: 'Alimentação', data: '2026-07-25' }
             ],
             parcelas: [
-                { id: 2001, descricao: 'Celular', valorParcela: 200, totalParcelas: 6, parcelasPagas: 3, categoria: 'Outros', mesPrimeiraParcela: '2026-03' },
-                { id: 2002, descricao: 'TV', valorParcela: 180, totalParcelas: 10, parcelasPagas: 2, categoria: 'Casa', mesPrimeiraParcela: '2026-04' },
-                { id: 2003, descricao: 'Carro', valorParcela: 150, totalParcelas: 4, parcelasPagas: 1, categoria: 'Contas', mesPrimeiraParcela: '2026-07' }
+                { id: 2001, descricao: 'Pneu Peugeot 208 GT', valorParcela: 250, totalParcelas: 6, parcelasPagas: 4, categoria: 'Outros', mesPrimeiraParcela: '2026-03' },
+                { id: 2002, descricao: 'Ar Condicionado', valorParcela: 180, totalParcelas: 10, parcelasPagas: 3, categoria: 'Casa', mesPrimeiraParcela: '2026-04' },
+                { id: 2003, descricao: 'Seguro Auto', valorParcela: 150, totalParcelas: 12, parcelasPagas: 1, categoria: 'Contas', mesPrimeiraParcela: '2026-07' }
+            ],
+            investimentos: [
+                {
+                    id: 5001,
+                    nome: 'CDB Caixinha 110% CDI',
+                    aporteInicial: 1000.00,
+                    mesInicial: '2026-03',
+                    historico: [
+                        { mes: '2026-03', saldo: 1012.00 },
+                        { mes: '2026-04', saldo: 1025.50 },
+                        { mes: '2026-05', saldo: 1040.10 },
+                        { mes: '2026-06', saldo: 1055.00 },
+                        { mes: '2026-07', saldo: 1070.00 }
+                    ]
+                },
+                {
+                    id: 5002,
+                    nome: 'Fundo Multimercado Tech (Volátil)',
+                    aporteInicial: 5000.00,
+                    mesInicial: '2026-03',
+                    historico: [
+                        { mes: '2026-03', saldo: 4820.00 }, // 🔻 Mês 1: Caiu (-R$ 180,00)
+                        { mes: '2026-04', saldo: 5180.00 }, // 🟢 Mês 2: Subiu bem (+R$ 360,00)
+                        { mes: '2026-05', saldo: 4940.00 }, // 🔻 Mês 3: Caiu de novo (-R$ 240,00)
+                        { mes: '2026-06', saldo: 5310.00 }, // 🟢 Mês 4: Porrada pra cima (+R$ 370,00)
+                        { mes: '2026-07', saldo: 5210.00 }  // 🔻 Mês 5: Leve corrigida (-R$ 100,00)
+                    ]
+                }
             ],
             viagens: [
                 {
                     id: 3001,
-                    nome: 'Viagem de Julho',
-                    teto: 400,
+                    nome: 'Praia em Ubatuba',
+                    teto: 2500,
                     gastos: [
-                        { id: 3002, valor: 120, descricao: 'Hotel' },
-                        { id: 3003, valor: 85, descricao: 'Jantar' }
+                        { id: 3002, valor: 850, descricao: 'Pousada' },
+                        { id: 3003, valor: 340, descricao: 'Quiosque & Jantar' }
                     ]
                 }
             ],
-            cofre: 245.5,
+            cofre: 3094.50,
             ultimoMes: '2026-07',
             mesesFechados: [
-                { mes: '2026-03', saldo: 112, gastoTotal: 88, gastos: [{ id: 4001, valor: 32, descricao: 'Mercado', categoria: 'Mercado', data: '10/03' }, { id: 4002, valor: 56, descricao: 'Transporte', categoria: 'Transporte', data: '20/03' }] },
-                { mes: '2026-04', saldo: 96, gastoTotal: 104, gastos: [{ id: 4003, valor: 48, descricao: 'Restaurante', categoria: 'Alimentação', data: '12/04' }, { id: 4004, valor: 56, descricao: 'Cinema', categoria: 'Lazer', data: '24/04' }] },
-                { mes: '2026-05', saldo: 132, gastoTotal: 68, gastos: [{ id: 4005, valor: 38, descricao: 'Combustível', categoria: 'Transporte', data: '08/05' }, { id: 4006, valor: 30, descricao: 'Farmácia', categoria: 'Saúde', data: '14/05' }] },
-                { mes: '2026-06', saldo: 118, gastoTotal: 82, gastos: [{ id: 4007, valor: 41, descricao: 'Conta de luz', categoria: 'Contas', data: '05/06' }, { id: 4008, valor: 41, descricao: 'Lanche', categoria: 'Lazer', data: '19/06' }] }
+                {
+                    mes: '2026-03',
+                    saldo: 715.00,
+                    gastoTotal: 2385.00,
+                    gastos: [
+                        { id: 4001, valor: 620.00, descricao: 'Supermercado Carrefour', categoria: 'Mercado', data: '2026-03-02' },
+                        { id: 4002, valor: 310.00, descricao: 'Petz - Ração N&D + Sachês', categoria: 'Pets', data: '2026-03-05' },
+                        { id: 4003, valor: 240.00, descricao: 'Posto Shell V-Power', categoria: 'Combustível', data: '2026-03-10' },
+                        { id: 4004, valor: 285.00, descricao: 'Jantar c/ Namorada', categoria: 'Lazer', data: '2026-03-15' },
+                        { id: 4005, valor: 260.00, descricao: 'Dr Jones + Kérastase', categoria: 'Outros', data: '2026-03-20' },
+                        { id: 4006, valor: 320.00, descricao: 'Shopping & Cinema', categoria: 'Lazer', data: '2026-03-24' },
+                        { id: 4007, valor: 350.00, descricao: 'Revisão Carro', categoria: 'Casa', data: '2026-03-28' }
+                    ]
+                },
+                {
+                    mes: '2026-04',
+                    saldo: 814.50,
+                    gastoTotal: 2185.50,
+                    gastos: [
+                        { id: 4008, valor: 580.00, descricao: 'Mercado Carrefour', categoria: 'Mercado', data: '2026-04-03' },
+                        { id: 4009, valor: 210.00, descricao: 'Sashimi & Japa', categoria: 'Alimentação', data: '2026-04-05' },
+                        { id: 4010, valor: 180.00, descricao: 'Petshop (Gon e Killua)', categoria: 'Pets', data: '2026-04-08' },
+                        { id: 4011, valor: 230.00, descricao: 'Gasolina (208 GT)', categoria: 'Combustível', data: '2026-04-12' },
+                        { id: 4012, valor: 210.00, descricao: 'Truss Net Mask & Cosméticos', categoria: 'Outros', data: '2026-04-15' },
+                        { id: 4013, valor: 115.50, descricao: 'iFood + Hambúrguer', categoria: 'Lazer', data: '2026-04-19' },
+                        { id: 4014, valor: 180.00, descricao: 'Luva Muay Thai', categoria: 'Outros', data: '2026-04-22' },
+                        { id: 4015, valor: 480.00, descricao: 'Feira e Compras Casa', categoria: 'Casa', data: '2026-04-27' }
+                    ]
+                },
+                {
+                    mes: '2026-05',
+                    saldo: 920.00,
+                    gastoTotal: 2080.00,
+                    gastos: [
+                        { id: 4016, valor: 730.00, descricao: 'Compras Pão de Açúcar', categoria: 'Mercado', data: '2026-05-02' },
+                        { id: 4017, valor: 140.00, descricao: 'Petz - Areia & Bifinhos', categoria: 'Pets', data: '2026-05-06' },
+                        { id: 4018, valor: 280.00, descricao: 'Abastecimento Toro', categoria: 'Combustível', data: '2026-05-10' },
+                        { id: 4019, valor: 340.00, descricao: 'Outback em Família', categoria: 'Alimentação', data: '2026-05-15' },
+                        { id: 4020, valor: 200.00, descricao: 'Mensalidade Muay Thai', categoria: 'Outros', data: '2026-05-20' },
+                        { id: 4021, valor: 390.00, descricao: 'Barbeiro & Elixir Kérastase', categoria: 'Outros', data: '2026-05-25' }
+                    ]
+                },
+                {
+                    mes: '2026-06',
+                    saldo: 645.00,
+                    gastoTotal: 2355.00,
+                    gastos: [
+                        { id: 4022, valor: 680.00, descricao: 'Carrefour + Swift', categoria: 'Mercado', data: '2026-06-03' },
+                        { id: 4023, valor: 290.00, descricao: 'Vet & Sachês Royal Canin', categoria: 'Pets', data: '2026-06-07' },
+                        { id: 4024, valor: 195.00, descricao: 'Cinema + Hamburgueria', categoria: 'Lazer', data: '2026-06-12' },
+                        { id: 4025, valor: 310.00, descricao: 'Posto Shell + Sem Parar', categoria: 'Combustível', data: '2026-06-18' },
+                        { id: 4026, valor: 180.00, descricao: 'Farmácia & Vitaminas', categoria: 'Saúde', data: '2026-06-22' },
+                        { id: 4027, valor: 700.00, descricao: 'Manutenção Eletrodoméstico', categoria: 'Casa', data: '2026-06-28' }
+                    ]
+                }
             ]
         };
-        let state = {
-            metaDiaria: 150,
-            diaInicioContagem: 1,
-            gastos: [],
-            parcelas: [],
-            viagens: [],
-            cofre: 0,
-            ultimoMes: null
-        };
+
+        let state = {};
         let editingParcelaId = null;
 
         const categoryIcons = {
@@ -840,115 +1038,77 @@
             'Outros': '📦'
         };
 
-        // Init
-        function getCurrentMonthKey() {
-            const now = new Date();
-            return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
-        }
-
         function init() {
-            const saved = localStorage.getItem('tobabank_data');
+            let saved = null;
+            try {
+                saved = localStorage.getItem('tobabank_data_v5');
+            } catch(e) {
+                console.warn('LocalStorage não acessível, usando banco em memória:', e);
+            }
+
             if (saved) {
-                try { state = JSON.parse(saved); } catch(e){}
+                try { 
+                    state = JSON.parse(saved); 
+                } catch(e) {
+                    state = JSON.parse(JSON.stringify(dadosDeExemplo));
+                }
             } else {
                 state = JSON.parse(JSON.stringify(dadosDeExemplo));
             }
-            if(!state.metaDiaria) state.metaDiaria = 100;
-            if(!state.diaInicioContagem) state.diaInicioContagem = 1;
-            if(!state.gastos) state.gastos = [];
-            if(!state.parcelas) state.parcelas = [];
-            if(!state.viagens) state.viagens = [];
-            if(!state.cofre) state.cofre = 0;
-            if(!state.ultimoMes) state.ultimoMes = null;
-            if(!state.mesesFechados) state.mesesFechados = [];
 
-            const migracao = normalizarMesesFechados();
-            if (migracao) {
-                localStorage.setItem('tobabank_data', JSON.stringify(state));
-            }
+            // RECOVERY CHECK: Garante que o banco seja preenchido com dados de exemplo
+            if (!state.gastos || state.gastos.length === 0) state.gastos = JSON.parse(JSON.stringify(dadosDeExemplo.gastos));
+            if (!state.parcelas || state.parcelas.length === 0) state.parcelas = JSON.parse(JSON.stringify(dadosDeExemplo.parcelas));
+            if (!state.investimentos || state.investimentos.length === 0) state.investimentos = JSON.parse(JSON.stringify(dadosDeExemplo.investimentos));
+            if (!state.mesesFechados || state.mesesFechados.length === 0) state.mesesFechados = JSON.parse(JSON.stringify(dadosDeExemplo.mesesFechados));
+            if (!state.cofre) state.cofre = dadosDeExemplo.cofre;
+            if (!state.metaDiaria) state.metaDiaria = 100;
+            if (!state.diaInicioContagem) state.diaInicioContagem = 1;
 
             const now = new Date();
-            document.getElementById('inputMetaDiaria').value = state.metaDiaria;
-            document.getElementById('inputDiaInicioContagem').value = state.diaInicioContagem || 1;
-            document.getElementById('parcelaPrimeiraMes').value = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+            const setVal = (id, val) => { const el = document.getElementById(id); if(el) el.value = val; };
+            setVal('inputMetaDiaria', state.metaDiaria);
+            setVal('inputDiaInicioContagem', state.diaInicioContagem || 1);
+            setVal('parcelaPrimeiraMes', `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`);
+            setVal('invMesInicial', `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`);
+            setVal('invAtualizarMes', `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`);
+            
             const monthNames = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
-            document.getElementById('currentMonthBadge').innerText = monthNames[now.getMonth()] + " " + now.getFullYear();
+            const badge = document.getElementById('currentMonthBadge');
+            if(badge) badge.innerText = monthNames[now.getMonth()] + " " + now.getFullYear();
 
-            const monthKey = getCurrentMonthKey();
-            if (state.ultimoMes && state.ultimoMes !== monthKey) {
-                state.ultimoMes = monthKey;
-                fecharMes({ silent: true });
-            } else if (!state.ultimoMes) {
-                state.ultimoMes = monthKey;
-                saveState();
-            }
+            state.ultimoMes = getCurrentMonthKey();
 
-            renderAll();
+            saveState();
         }
 
         function saveState() {
-            localStorage.setItem('tobabank_data', JSON.stringify(state));
+            try {
+                localStorage.setItem('tobabank_data_v5', JSON.stringify(state));
+            } catch(e){}
             renderAll();
-        }
-
-        function normalizarMesesFechados() {
-            if (!Array.isArray(state.mesesFechados)) {
-                state.mesesFechados = [];
-            }
-
-            let mudou = false;
-            state.mesesFechados = state.mesesFechados.map(item => {
-                if (!item || typeof item !== 'object') return item;
-
-                const gastosAntigos = Array.isArray(item.gastos)
-                    ? item.gastos
-                    : (Array.isArray(item.transacoes) ? item.transacoes : (Array.isArray(item.itens) ? item.itens : []));
-
-                if (gastosAntigos.length > 0) {
-                    return { ...item, gastos: gastosAntigos.map(g => ({ ...g })) };
-                }
-
-                if (Number(item.gastoTotal || 0) > 0) {
-                    mudou = true;
-                    return {
-                        ...item,
-                        gastos: [{
-                            id: Date.now() + Math.random(),
-                            valor: Number(item.gastoTotal || 0),
-                            descricao: `Resumo de ${item.mes || 'mês'}`,
-                            categoria: 'Outros',
-                            data: item.mes ? item.mes.replace('-', '/') : ''
-                        }]
-                    };
-                }
-
-                return { ...item, gastos: [] };
-            });
-
-            return mudou;
         }
 
         function renderAll() {
             renderInicio();
             renderMesAtivo();
             renderParcelas();
+            renderInvestimentos();
             renderViagens();
         }
 
-        // Navigation
         function switchTab(tabName) {
             document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
             document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
             
             document.getElementById('tab-' + tabName).classList.add('active');
             
-            const idx = ['inicio', 'mes', 'parcelas', 'viagens', 'ajustes'].indexOf(tabName);
+            const idx = ['inicio', 'mes', 'parcelas', 'investimentos', 'viagens', 'ajustes'].indexOf(tabName);
             if(idx !== -1) {
                 document.querySelectorAll('.nav-item')[idx].classList.add('active');
             }
         }
 
-        // Modals
         function openModal(id) {
             if (id === 'modalGasto') {
                 const input = document.getElementById('gastoData');
@@ -960,7 +1120,6 @@
         }
         function closeModal(id) { document.getElementById(id).classList.remove('active'); }
 
-        // Formatting
         function formatMoney(val) {
             return "R$ " + Number(val || 0).toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2});
         }
@@ -972,16 +1131,18 @@
                 return { year, month, day, raw: valor };
             }
             if (typeof valor === 'string' && valor.includes('/')) {
-                const [day, month, yearPart] = valor.split('/').map(Number);
-                const year = yearPart && yearPart > 1000 ? yearPart : new Date().getFullYear();
-                return { year, month, day, raw: valor };
+                const parts = valor.split('/');
+                const day = Number(parts[0]);
+                const month = Number(parts[1]);
+                const yearPart = parts[2] ? Number(parts[2]) : new Date().getFullYear();
+                return { year: yearPart, month, day, raw: valor };
             }
             return null;
         }
 
         function getGastosDoMes(date = new Date()) {
             const mesAtual = getMesAtualKey(date);
-            return state.gastos.filter(g => {
+            return (state.gastos || []).filter(g => {
                 const parsed = parseDataValor(g.data);
                 if (!parsed) return false;
                 const mesKey = `${parsed.year}-${String(parsed.month).padStart(2, '0')}`;
@@ -992,34 +1153,79 @@
         function abrirDetalhesMes(mesKey) {
             const item = (state.mesesFechados || []).find(x => x.mes === mesKey);
             if (!item) return;
-            const gastos = (Array.isArray(item.gastos) ? item.gastos : []).slice().sort((a, b) => Number(a.valor) - Number(b.valor));
+
+            document.getElementById('modalHistoricoTitulo').innerText = `Detalhes de ${mesKey}`;
+
+            const [yearStr, monthStr] = mesKey.split('-');
+            const year = parseInt(yearStr);
+            const month = parseInt(monthStr);
+            const diasNoMes = getDaysInMonth(year, month);
+            const metaDiaria = state.metaDiaria || 100;
+            const orcamentoTotal = metaDiaria * diasNoMes;
+
+            const gastos = (Array.isArray(item.gastos) ? item.gastos : []).slice();
+            const totalGasto = gastos.reduce((acc, g) => acc + Number(g.valor || 0), 0);
+            const economiaGuardada = Math.max(0, orcamentoTotal - totalGasto);
+
             const categorias = {};
             gastos.forEach(g => {
-                categorias[g.categoria] = (categorias[g.categoria] || 0) + Number(g.valor || 0);
+                const cat = g.categoria || 'Outros';
+                categorias[cat] = (categorias[cat] || 0) + Number(g.valor || 0);
             });
-            const categoriasHtml = Object.entries(categorias).map(([cat, val]) => `
-                <div style="display:flex; justify-content:space-between; padding:6px 0; border-bottom:1px solid var(--border-color);">
-                    <span>${cat}</span>
-                    <strong>${formatMoney(val)}</strong>
-                </div>
-            `).join('');
+
+            const categoriasHtml = Object.entries(categorias)
+                .sort((a,b) => b[1] - a[1])
+                .map(([cat, val]) => {
+                    const pct = totalGasto > 0 ? Math.round((val / totalGasto) * 100) : 0;
+                    return `
+                        <div style="margin-bottom: 8px;">
+                            <div style="display:flex; justify-content:space-between; font-size:13px; margin-bottom:2px;">
+                                <span>${categoryIcons[cat] || '📦'} ${cat}</span>
+                                <strong>${formatMoney(val)} (${pct}%)</strong>
+                            </div>
+                            <div class="progress-bar-bg">
+                                <div class="progress-bar-fill" style="width: ${pct}%;"></div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+
             const transacoesHtml = gastos.map(g => `
-                <div style="display:flex; justify-content:space-between; padding:6px 0; border-bottom:1px solid var(--border-color);">
+                <div style="display:flex; justify-content:space-between; align-items:center; padding:10px 0; border-bottom:1px solid var(--border-color);">
                     <div>
-                        <div style="font-weight:600;">${g.descricao || 'Transação'}</div>
-                        <div style="font-size:12px; color:var(--text-muted);">${g.categoria} • ${g.data || 'Sem data'}</div>
+                        <div style="font-weight:600; font-size:14px;">${categoryIcons[g.categoria] || '📦'} ${g.descricao || 'Transação'}</div>
+                        <div style="font-size:12px; color:var(--text-muted);">${g.categoria || 'Outros'} • ${g.data || 'Data N/A'}</div>
                     </div>
-                    <strong style="color:var(--danger);">${formatMoney(g.valor)}</strong>
+                    <strong style="color:var(--danger); font-size:14px;">${formatMoney(g.valor)}</strong>
                 </div>
             `).join('');
+
             document.getElementById('historicoMesContent').innerHTML = `
-                <div style="margin-bottom: 12px;">
-                    <div class="card-title">Resumo por categoria</div>
-                    ${categoriasHtml || '<p style="font-size:13px; color:var(--text-muted);">Nenhuma categoria registrada para este fechamento.</p>'}
+                <div style="background: var(--card-sub); padding: 14px; border-radius: 12px; border: 1px solid var(--border-color); margin-bottom: 16px;">
+                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; text-align: center;">
+                        <div>
+                            <div style="font-size: 10px; color: var(--text-muted); text-transform: uppercase;">Orçamento (${diasNoMes}d)</div>
+                            <div style="font-size: 13px; font-weight: 800; color: var(--text-main);">${formatMoney(orcamentoTotal)}</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 10px; color: var(--text-muted); text-transform: uppercase;">Total Gastos</div>
+                            <div style="font-size: 13px; font-weight: 800; color: var(--danger);">${formatMoney(totalGasto)}</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 10px; color: var(--text-muted); text-transform: uppercase;">Economia</div>
+                            <div style="font-size: 13px; font-weight: 800; color: var(--accent);">${formatMoney(economiaGuardada)}</div>
+                        </div>
+                    </div>
                 </div>
+
+                <div style="margin-bottom: 16px;">
+                    <div class="card-title">Resumo por Categoria</div>
+                    ${categoriasHtml || '<p style="font-size:13px; color:var(--text-muted);">Nenhuma categoria registrada.</p>'}
+                </div>
+
                 <div>
-                    <div class="card-title">Transações</div>
-                    ${transacoesHtml || '<p style="font-size:13px; color:var(--text-muted);">Nenhuma transação registrada para este fechamento.</p>'}
+                    <div class="card-title">Lançamentos do Mês (${gastos.length})</div>
+                    ${transacoesHtml || '<p style="font-size:13px; color:var(--text-muted);">Nenhum lançamento registrado.</p>'}
                 </div>
             `;
             openModal('modalHistoricoMes');
@@ -1031,23 +1237,29 @@
             document.getElementById('homeMetaDiaria').innerText = formatMoney(state.metaDiaria);
             
             const totalParcelasMensal = getParcelasAtivasNoMes().reduce((acc, p) => acc + Number(p.valorParcela), 0);
+            const now = new Date();
+            const daysInMonth = getDaysInMonth(now.getFullYear(), now.getMonth() + 1);
+            const impactoDiario = totalParcelasMensal / daysInMonth;
+
             document.getElementById('homeParcelasTotal').innerText = formatMoney(totalParcelasMensal);
+            document.getElementById('homeImpactoDiarioSub').innerText = `Impacto: -${formatMoney(impactoDiario)}/dia`;
 
             const calc = getMesCalculos();
             const saldoDiarioColor = calc.saldoHoje >= 0 ? 'var(--accent)' : 'var(--danger)';
             document.getElementById('homeSaldoDiario').innerText = formatMoney(calc.saldoHoje);
             document.getElementById('homeSaldoDiario').style.color = saldoDiarioColor;
-            document.getElementById('homeSaldoDiarioSub').innerText = calc.saldoHoje >= 0
-                ? 'Meta diária restante para hoje'
-                : 'Déficit diário já carregado para o próximo dia';
-            document.getElementById('homeSaldoHoje').innerText = formatMoney(calc.saldoMes);
-            document.getElementById('homeSaldoHoje').style.color = calc.saldoMes >= 0 ? 'var(--accent)' : 'var(--danger)';
 
-            const mesesFechados = (state.mesesFechados || []).map(item => `
-                <button data-mes-fechado="${item.mes}" style="width:100%; border:none; background:transparent; color:inherit; text-align:left; padding:6px 0;">
-                    <div style="display:flex; justify-content:space-between; font-size:12px; color:var(--text-muted);">
-                        <span>${item.mes}</span>
-                        <strong style="color:var(--accent);">${formatMoney(item.saldo || 0)}</strong>
+            const mesesFechados = (state.mesesFechados || []).slice().reverse().map(item => `
+                <button data-mes-fechado="${item.mes}" style="width:100%; border:none; background:var(--card-sub); color:inherit; text-align:left; padding:12px; border-radius:12px; border:1px solid var(--border-color); margin-bottom:8px; cursor:pointer;">
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <div>
+                            <div style="font-weight:700; font-size:14px; color:var(--text-main);">🗓️ Mês ${item.mes}</div>
+                            <div style="font-size:11px; color:var(--text-muted); margin-top:2px;">Gastos: ${formatMoney(item.gastoTotal || 0)}</div>
+                        </div>
+                        <div style="text-align:right;">
+                            <div style="font-size:10px; color:var(--text-muted);">Sobra pro Cofre</div>
+                            <strong style="color:var(--accent); font-size:14px;">+${formatMoney(item.saldo || 0)}</strong>
+                        </div>
                     </div>
                 </button>
             `).join('');
@@ -1055,14 +1267,14 @@
             document.getElementById('homeSummaryContent').innerHTML = `
                 <div class="item-row">
                     <div>
-                        <div class="item-title">Saldo do Mês</div>
-                        <div class="item-sub">Sobra dos dias com a meta diária aplicada</div>
+                        <div class="item-title">Saldo Acumulado do Mês Ativo</div>
+                        <div class="item-sub">Sobra acumulada das metas até hoje</div>
                     </div>
-                    <div class="item-val" id="homeSaldoHoje">${formatMoney(calc.saldoMes)}</div>
+                    <div class="item-val" style="color:${calc.saldoMes >= 0 ? 'var(--accent)' : 'var(--danger)'};">${formatMoney(calc.saldoMes)}</div>
                 </div>
-                <div style="margin-top: 12px;">
-                    <div class="item-title" style="font-size: 13px; margin-bottom: 6px;">Meses Fechados</div>
-                    ${mesesFechados ? mesesFechados : '<div class="item-sub">Nenhum mês fechado ainda.</div>'}
+                <div style="margin-top: 16px;">
+                    <div class="card-title" style="margin-bottom: 8px;">Histórico de Meses Encerrados</div>
+                    ${mesesFechados ? mesesFechados : '<div class="item-sub">Nenhum mês encerrado ainda.</div>'}
                 </div>
             `;
 
@@ -1072,24 +1284,11 @@
         }
 
         // TAB 2: MÊS ATIVO
-        function getMesAtualKey(date = new Date()) {
-            return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
-        }
-
-        function getParcelasAtivasNoMes(date = new Date()) {
-            const mesAtual = getMesAtualKey(date);
-            return state.parcelas.filter(p => {
-                if (!p.mesPrimeiraParcela) return p.parcelasPagas < p.totalParcelas;
-                return p.mesPrimeiraParcela <= mesAtual && p.parcelasPagas < p.totalParcelas;
-            });
-        }
-
         function getMesCalculos() {
             const now = new Date();
             const currentDay = now.getDate();
-            const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
+            const daysInMonth = getDaysInMonth(now.getFullYear(), now.getMonth() + 1);
             const diaInicio = Number(state.diaInicioContagem || 1);
-            const diasConsiderados = Math.max(1, daysInMonth - Math.max(currentDay, diaInicio) + 1);
 
             const totalParcelasMensal = getParcelasAtivasNoMes(now).reduce((acc, p) => acc + Number(p.valorParcela), 0);
             const impactoDiarioParcelas = totalParcelasMensal / daysInMonth;
@@ -1098,6 +1297,7 @@
             const gastosMes = getGastosDoMes(now);
             const gastoNoMes = gastosMes.reduce((acc, g) => acc + Number(g.valor), 0);
             const gastosPorDia = {};
+            
             gastosMes.forEach(g => {
                 const parsed = parseDataValor(g.data);
                 if (!parsed) return;
@@ -1111,6 +1311,7 @@
             let saldoMes = 0;
             let saldoAcumuladoDia = 0;
             const diaInicial = Math.max(1, diaInicio);
+            
             for (let dia = diaInicial; dia <= currentDay; dia++) {
                 const gastoDoDia = gastosPorDia[dia] || 0;
                 const saldoDoDia = saldoAcumuladoDia + metaLiquida - gastoDoDia;
@@ -1121,14 +1322,17 @@
             const gastoHoje = gastosPorDia[currentDay] || 0;
             const saldoHoje = saldoAcumuladoDia + metaLiquida - gastoHoje;
 
+            // CALCULINHO CERTO DA MÉDIA DIÁRIA RESTANTE
+            const diasTotaisConsiderados = daysInMonth - Math.max(1, diaInicio) + 1;
+            const orcamentoTotalMes = metaLiquida * diasTotaisConsiderados;
             const diasRestantes = Math.max(1, daysInMonth - Math.max(currentDay, diaInicio) + 1);
-            const saldoTotalRestanteMes = (metaLiquida * diasRestantes) - gastoNoMes;
+            
+            const saldoTotalRestanteMes = orcamentoTotalMes - gastoNoMes;
             const mediaDiaRestante = Math.max(0, saldoTotalRestanteMes / diasRestantes);
 
             return {
                 currentDay,
                 daysInMonth,
-                diasConsiderados,
                 totalParcelasMensal,
                 impactoDiarioParcelas,
                 metaLiquida,
@@ -1153,15 +1357,13 @@
 
             const badge = document.getElementById('mesStatusBadge');
             if(c.saldoHoje >= 0) {
-                badge.innerHTML = `<span class="badge-azul">🟢 Você está no azul! Dá para gastar até ${formatMoney(c.saldoHoje)} hoje.</span>`;
+                badge.innerHTML = `<span class="badge-azul">🟢 Você está no azul! Pode gastar até ${formatMoney(c.saldoHoje)} hoje.</span>`;
             } else {
-                badge.innerHTML = `<span class="badge-vermelho">🔴 Você estourou a meta em ${formatMoney(Math.abs(c.saldoHoje))}! Maneira nos gastos!</span>`;
+                badge.innerHTML = `<span class="badge-vermelho">🔴 Você estourou o limite em ${formatMoney(Math.abs(c.saldoHoje))}!</span>`;
             }
 
-            // Categories
             renderCategories(c.gastoNoMes);
 
-            // Gastos List
             const listEl = document.getElementById('gastosList');
             const gastosMes = getGastosDoMes();
             if(gastosMes.length === 0) {
@@ -1169,7 +1371,7 @@
                 return;
             }
 
-            listEl.innerHTML = gastosMes.slice().reverse().map((g, idx) => `
+            listEl.innerHTML = gastosMes.slice().reverse().map((g) => `
                 <div class="item-row">
                     <div class="item-info">
                         <div class="item-icon">${categoryIcons[g.categoria] || '📦'}</div>
@@ -1180,7 +1382,7 @@
                     </div>
                     <div style="display:flex; align-items:center; gap:10px;">
                         <div class="item-val" style="color:var(--danger);">${formatMoney(g.valor)}</div>
-                        <button style="background:none; border:none; color:var(--text-muted); cursor:pointer; font-size:16px;" onclick="removerGasto(${state.gastos.findIndex(x => x.id === g.id)})">✕</button>
+                        <button style="background:none; border:none; color:var(--text-muted); cursor:pointer; font-size:16px;" onclick="removerGasto(${g.id})">✕</button>
                     </div>
                 </div>
             `).join('');
@@ -1215,7 +1417,6 @@
             }).join('');
         }
 
-        // GASTO ACTIONS
         function addAtalhoGasto(v) {
             const input = document.getElementById('gastoValor');
             input.value = Number(input.value || 0) + v;
@@ -1230,7 +1431,9 @@
             if(!val || val <= 0) return alert('Digite um valor válido!');
 
             const now = new Date();
-            const dataSelecionada = dataInput || `${String(now.getFullYear())}-${String(now.getMonth()+1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+            const dataSelecionada = dataInput || `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+            
+            if(!state.gastos) state.gastos = [];
             state.gastos.push({
                 id: Date.now(),
                 valor: val,
@@ -1246,16 +1449,79 @@
             saveState();
         }
 
-        function removerGasto(idx) {
-            state.gastos.splice(idx, 1);
-            saveState();
+        function removerGasto(id) {
+            const idx = state.gastos.findIndex(x => x.id === id);
+            if(idx !== -1) {
+                state.gastos.splice(idx, 1);
+                saveState();
+            }
+        }
+
+        // PROJEÇÃO DE PARCELAS
+        function renderProjecaoParcelas() {
+            const container = document.getElementById('projecaoParcelasList');
+            const now = new Date();
+            let year = now.getFullYear();
+            let month = now.getMonth() + 1;
+            const monthNamesShort = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
+
+            let html = '';
+
+            for (let i = 0; i < 6; i++) {
+                let totalMes = 0;
+                let qtdParcelas = 0;
+
+                (state.parcelas || []).forEach(p => {
+                    if (!p.mesPrimeiraParcela) return;
+                    const [startYear, startMonth] = p.mesPrimeiraParcela.split('-').map(Number);
+                    const diff = (year - startYear) * 12 + (month - startMonth);
+                    
+                    if (diff >= 0 && diff < p.totalParcelas) {
+                        totalMes += Number(p.valorParcela);
+                        qtdParcelas++;
+                    }
+                });
+
+                const isCurrent = i === 0;
+                html += `
+                    <div class="projection-card ${isCurrent ? 'active-month' : ''}">
+                        <div style="font-size: 11px; color: ${isCurrent ? 'var(--accent)' : 'var(--text-muted)'}; font-weight: 700;">
+                            ${monthNamesShort[month - 1]}/${String(year).slice(-2)} ${isCurrent ? '(Hoje)' : ''}
+                        </div>
+                        <div style="font-size: 14px; font-weight: 800; margin-top: 4px; color: ${totalMes > 0 ? 'var(--danger)' : 'var(--accent)'}">
+                            ${formatMoney(totalMes)}
+                        </div>
+                        <div style="font-size: 10px; color: var(--text-muted); margin-top: 2px;">
+                            ${qtdParcelas} ${qtdParcelas === 1 ? 'parcela' : 'parcelas'}
+                        </div>
+                    </div>
+                `;
+
+                month++;
+                if (month > 12) {
+                    month = 1;
+                    year++;
+                }
+            }
+
+            container.innerHTML = html;
         }
 
         // PARCELAS
+        function getParcelasAtivasNoMes(date = new Date()) {
+            const mesAtual = getMesAtualKey(date);
+            return (state.parcelas || []).filter(p => {
+                if (!p.mesPrimeiraParcela) return p.parcelasPagas < p.totalParcelas;
+                return p.mesPrimeiraParcela <= mesAtual && p.parcelasPagas < p.totalParcelas;
+            });
+        }
+
         function renderParcelas() {
+            renderProjecaoParcelas();
+
             const parcelasAtivas = getParcelasAtivasNoMes();
             const faturaMensal = parcelasAtivas.reduce((acc, p) => acc + Number(p.valorParcela), 0);
-            const totalDevedor = state.parcelas.reduce((acc, p) => {
+            const totalDevedor = (state.parcelas || []).reduce((acc, p) => {
                 const rest = p.totalParcelas - p.parcelasPagas;
                 return acc + (rest > 0 ? rest * Number(p.valorParcela) : 0);
             }, 0);
@@ -1264,7 +1530,7 @@
             document.getElementById('parcelasTotalDevedor').innerText = formatMoney(totalDevedor);
 
             const listEl = document.getElementById('parcelasList');
-            if(state.parcelas.length === 0) {
+            if(!state.parcelas || state.parcelas.length === 0) {
                 listEl.innerHTML = '<p style="font-size:13px; color:var(--text-muted); text-align:center; padding:10px;">Nenhuma compra parcelada ativa.</p>';
                 return;
             }
@@ -1320,7 +1586,7 @@
                 saveBtn.innerText = 'Salvar Alterações';
                 hiddenIdEl.value = parcela.id;
                 descEl.value = parcela.descricao || '';
-                valorEl.value = parcela.valorParcela || '';
+                valorEl.value = (parcela.valorParcela * parcela.totalParcelas) || '';
                 totalEl.value = parcela.totalParcelas || '';
                 mesEl.value = parcela.mesPrimeiraParcela || '';
                 catEl.value = parcela.categoria || 'Outros';
@@ -1362,6 +1628,7 @@
             if(!desc || !valorCompra || !total || !mesPrimeiraParcela) return alert('Preencha os campos corretamente!');
 
             const valorParcela = total > 0 ? valorCompra / total : 0;
+            if(!state.parcelas) state.parcelas = [];
 
             if (editingParcelaId) {
                 const idx = state.parcelas.findIndex(p => p.id === editingParcelaId);
@@ -1391,31 +1658,178 @@
             saveState();
         }
 
-        function pagarParcela(idx) {
-            if(state.parcelas[idx].parcelasPagas < state.parcelas[idx].totalParcelas) {
-                state.parcelas[idx].parcelasPagas++;
-                // Lança como gasto no mês também
-                const p = state.parcelas[idx];
-                state.gastos.push({
-                    id: Date.now(),
-                    valor: p.valorParcela,
-                    descricao: `Parc: ${p.descricao} (${p.parcelasPagas}/${p.totalParcelas})`,
-                    categoria: p.categoria,
-                    data: `${new Date().getDate()}/${new Date().getMonth()+1}`
-                });
-                saveState();
-            }
-        }
-
         function removerParcela(idx) {
             state.parcelas.splice(idx, 1);
             saveState();
         }
 
+        // TAB 4: INVESTIMENTOS
+        function renderInvestimentos() {
+            let patrimonioTotal = 0;
+            let aporteTotalGeral = 0;
+
+            const listEl = document.getElementById('investimentosList');
+
+            if (!state.investimentos || state.investimentos.length === 0) {
+                document.getElementById('invTotalPatrimonio').innerText = formatMoney(0);
+                document.getElementById('invRendimentoTotal').innerText = "+R$ 0,00 (+0.0%)";
+                listEl.innerHTML = '<p style="font-size:13px; color:var(--text-muted); text-align:center; padding:10px;">Nenhum investimento cadastrado.</p>';
+                return;
+            }
+
+            listEl.innerHTML = state.investimentos.map((inv, idx) => {
+                const historico = inv.historico || [];
+                const saldoAtual = historico.length > 0 ? Number(historico[historico.length - 1].saldo) : Number(inv.aporteInicial);
+                const lucro = saldoAtual - Number(inv.aporteInicial);
+                const pctLucro = inv.aporteInicial > 0 ? ((lucro / inv.aporteInicial) * 100).toFixed(1) : 0;
+
+                patrimonioTotal += saldoAtual;
+                aporteTotalGeral += Number(inv.aporteInicial);
+
+                return `
+                    <div class="card">
+                        <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+                            <div>
+                                <div style="font-weight:700; font-size:16px;">📈 ${inv.nome}</div>
+                                <div class="item-sub">Aporte Inicial: ${formatMoney(inv.aporteInicial)} (${inv.mesInicial})</div>
+                            </div>
+                            <div style="text-align:right;">
+                                <div style="font-size:12px; color:var(--text-muted);">Saldo Atual</div>
+                                <div style="font-weight:800; font-size:16px; color:var(--accent);">${formatMoney(saldoAtual)}</div>
+                            </div>
+                        </div>
+
+                        <div style="background:var(--card-sub); border:1px solid var(--border-color); border-radius:10px; padding:8px 12px; margin-top:10px; display:flex; justify-content:space-between; font-size:12px;">
+                            <span>Rendimento Bruto Acumulado:</span>
+                            <strong style="color:${lucro >= 0 ? 'var(--accent)' : 'var(--danger)'}">
+                                ${lucro >= 0 ? '+' : ''}${formatMoney(lucro)} (${pctLucro}%)
+                            </strong>
+                        </div>
+
+                        <div style="display:flex; justify-content:space-between; gap:8px; margin-top:12px;">
+                            <button class="btn btn-outline" style="padding:6px 12px; font-size:12px;" onclick="abrirModalAtualizarSaldoInv(${inv.id})">+ Atualizar Mês</button>
+                            <button class="btn btn-outline" style="padding:6px 12px; font-size:12px;" onclick="abrirDetalhesInvestimento(${inv.id})">🔍 Histórico</button>
+                            <button class="btn btn-danger" style="padding:6px 12px; width:auto; font-size:12px;" onclick="removerInvestimento(${idx})">🗑</button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            const lucroTotalGeral = patrimonioTotal - aporteTotalGeral;
+            const pctTotalGeral = aporteTotalGeral > 0 ? ((lucroTotalGeral / aporteTotalGeral) * 100).toFixed(1) : 0;
+
+            document.getElementById('invTotalPatrimonio').innerText = formatMoney(patrimonioTotal);
+            document.getElementById('invRendimentoTotal').innerText = `${lucroTotalGeral >= 0 ? '+' : ''}${formatMoney(lucroTotalGeral)} (${pctTotalGeral}%)`;
+            document.getElementById('invRendimentoTotal').style.color = lucroTotalGeral >= 0 ? 'var(--accent)' : 'var(--danger)';
+        }
+
+        function salvarInvestimento() {
+            const nome = document.getElementById('invNome').value.trim();
+            const aporte = parseFloat(document.getElementById('invAporteInicial').value);
+            const mesInicial = document.getElementById('invMesInicial').value;
+
+            if(!nome || !aporte || !mesInicial) return alert('Preencha todos os campos do investimento!');
+
+            if(!state.investimentos) state.investimentos = [];
+            state.investimentos.push({
+                id: Date.now(),
+                nome: nome,
+                aporteInicial: aporte,
+                mesInicial: mesInicial,
+                historico: [{ mes: mesInicial, saldo: aporte }]
+            });
+
+            document.getElementById('invNome').value = '';
+            document.getElementById('invAporteInicial').value = '';
+            closeModal('modalInvestimento');
+            saveState();
+        }
+
+        function abrirModalAtualizarSaldoInv(id) {
+            document.getElementById('activeInvId').value = id;
+            openModal('modalAtualizarSaldoInv');
+        }
+
+        function salvarAtualizacaoSaldoInv() {
+            const id = parseInt(document.getElementById('activeInvId').value);
+            const mes = document.getElementById('invAtualizarMes').value;
+            const saldo = parseFloat(document.getElementById('invAtualizarSaldo').value);
+
+            if(!mes || isNaN(saldo)) return alert('Preencha o mês e o saldo corretamente!');
+
+            const inv = (state.investimentos || []).find(x => x.id === id);
+            if(inv) {
+                if(!inv.historico) inv.historico = [];
+                const existingIdx = inv.historico.findIndex(h => h.mes === mes);
+                if(existingIdx !== -1) {
+                    inv.historico[existingIdx].saldo = saldo;
+                } else {
+                    inv.historico.push({ mes: mes, saldo: saldo });
+                    inv.historico.sort((a,b) => a.mes.localeCompare(b.mes));
+                }
+            }
+
+            document.getElementById('invAtualizarSaldo').value = '';
+            closeModal('modalAtualizarSaldoInv');
+            saveState();
+        }
+
+        function abrirDetalhesInvestimento(id) {
+            const inv = (state.investimentos || []).find(x => x.id === id);
+            if(!inv) return;
+
+            document.getElementById('invDetalhesTitulo').innerText = `Evolução: ${inv.nome}`;
+
+            let baseAporte = inv.aporteInicial;
+            let prevSaldo = baseAporte;
+
+            const historicoHtml = (inv.historico || []).map((h, i) => {
+                const lucroDoMes = h.saldo - prevSaldo;
+                const pctDoMes = prevSaldo > 0 ? ((lucroDoMes / prevSaldo) * 100).toFixed(2) : 0;
+                
+                const lucroTotal = h.saldo - baseAporte;
+                const pctTotal = baseAporte > 0 ? ((lucroTotal / baseAporte) * 100).toFixed(2) : 0;
+
+                prevSaldo = h.saldo;
+
+                return `
+                    <div style="padding: 10px 0; border-bottom: 1px solid var(--border-color);">
+                        <div style="display:flex; justify-content:space-between; font-size:14px; font-weight:700;">
+                            <span>🗓️ Mês ${h.mes}</span>
+                            <span style="color:var(--accent);">${formatMoney(h.saldo)}</span>
+                        </div>
+                        <div style="display:flex; justify-content:space-between; font-size:12px; color:var(--text-muted); margin-top:4px;">
+                            <span>Rendimento no Mês: <strong style="color:${lucroDoMes >= 0 ? 'var(--accent)' : 'var(--danger)'}">${lucroDoMes >= 0 ? '+' : ''}${formatMoney(lucroDoMes)} (${pctDoMes}%)</strong></span>
+                            <span>Total: <strong style="color:${lucroTotal >= 0 ? 'var(--accent)' : 'var(--danger)'}">${pctTotal}%</strong></span>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            document.getElementById('invDetalhesContent').innerHTML = `
+                <div style="background:var(--card-sub); padding:12px; border-radius:12px; border:1px solid var(--border-color); margin-bottom:12px; font-size:13px;">
+                    <div>Aporte Inicial: <strong>${formatMoney(inv.aporteInicial)}</strong> em ${inv.mesInicial}</div>
+                </div>
+                <div>
+                    <div class="card-title">Histórico de Rendimento Mês a Mês</div>
+                    ${historicoHtml}
+                </div>
+            `;
+
+            openModal('modalDetalhesInv');
+        }
+
+        function removerInvestimento(idx) {
+            if(confirm('Deseja excluir este investimento?')) {
+                state.investimentos.splice(idx, 1);
+                saveState();
+            }
+        }
+
         // VIAGENS
         function renderViagens() {
             const listEl = document.getElementById('viagensList');
-            if(state.viagens.length === 0) {
+            if(!state.viagens || state.viagens.length === 0) {
                 listEl.innerHTML = '<p style="font-size:13px; color:var(--text-muted); text-align:center; padding:10px;">Nenhuma viagem ou evento criado.</p>';
                 return;
             }
@@ -1442,12 +1856,11 @@
                             <div class="progress-bar-fill" style="width: ${pct}%; background-color:${pct >= 100 ? 'var(--danger)' : 'var(--accent)'};"></div>
                         </div>
 
-                        <div style="display:flex; justify-content:space-between; align-size:center; margin-top:12px;">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-top:12px;">
                             <button class="btn" style="padding:6px 12px; width:auto; font-size:12px;" onclick="openModalViagemGasto(${v.id})">+ Add Gasto</button>
                             <button class="btn btn-danger" style="padding:6px 12px; width:auto; font-size:12px;" onclick="excluirViagem(${vIdx})">Encerrar Evento</button>
                         </div>
 
-                        <!-- Lista de gastos do evento -->
                         <div style="margin-top:12px; border-top:1px solid var(--border-color); padding-top:8px;">
                             ${(v.gastos || []).map(g => `
                                 <div style="display:flex; justify-content:space-between; font-size:12px; padding:4px 0;">
@@ -1467,6 +1880,7 @@
 
             if(!nome || !teto) return alert('Preencha o nome e o teto!');
 
+            if(!state.viagens) state.viagens = [];
             state.viagens.push({
                 id: Date.now(),
                 nome: nome,
@@ -1492,7 +1906,7 @@
 
             if(!val) return alert('Digite um valor válido!');
 
-            const v = state.viagens.find(x => x.id === id);
+            const v = (state.viagens || []).find(x => x.id === id);
             if(v) {
                 if(!v.gastos) v.gastos = [];
                 v.gastos.push({
@@ -1529,71 +1943,15 @@
             }
         }
 
-        function atualizarHistoricoFechado() {
-            const migracao = normalizarMesesFechados();
-            if (migracao || (state.mesesFechados || []).length > 0) {
-                localStorage.setItem('tobabank_data', JSON.stringify(state));
-                renderAll();
-                alert('Histórico do cofre atualizado com sucesso!');
-            } else {
-                alert('Nenhum histórico para atualizar.');
-            }
-        }
-
         function salvarConfiguracoes() {
             const dia = parseInt(document.getElementById('inputDiaInicioContagem').value);
             if(dia >= 1 && dia <= 31) {
                 state.diaInicioContagem = dia;
                 saveState();
-                alert('Configurações salvas com sucesso!');
+                alert('Dia de início configurado com sucesso!');
             } else {
                 alert('Informe um dia válido entre 1 e 31.');
             }
-        }
-
-        function carregarDadosTeste() {
-            if(confirm('Deseja carregar os dados de teste? Isso vai substituir os dados atuais.')) {
-                state = JSON.parse(JSON.stringify(dadosDeExemplo));
-                saveState();
-                alert('Dados de teste carregados com sucesso!');
-            }
-        }
-
-        function fecharMes(options = {}) {
-            const { silent = false } = options;
-            const calc = getMesCalculos();
-            const mesAtual = getCurrentMonthKey();
-            const shouldClose = silent || confirm(`Deseja fechar o mês atual?
-
-Saldo acumulado hoje: ${formatMoney(calc.saldoHoje)}.`);
-
-            if(shouldClose) {
-                if(calc.saldoHoje > 0) {
-                    state.cofre += calc.saldoHoje;
-                }
-                if(!state.mesesFechados) state.mesesFechados = [];
-                const indice = state.mesesFechados.findIndex(item => item.mes === mesAtual);
-                const fechamento = {
-                    mes: mesAtual,
-                    saldo: calc.saldoHoje,
-                    gastoTotal: calc.gastoNoMes,
-                    gastos: getGastosDoMes().map(g => ({ ...g }))
-                };
-                if(indice >= 0) {
-                    state.mesesFechados[indice] = fechamento;
-                } else {
-                    state.mesesFechados.push(fechamento);
-                }
-                state.gastos = []; // zera gastos do mês
-                state.ultimoMes = mesAtual;
-                saveState();
-                if(!silent) {
-                    alert('Mês fechado! O saldo positivo foi enviado para o Cofre da Vitória! 🚀');
-                }
-                return true;
-            }
-
-            return false;
         }
 
         function exportarBackup() {
@@ -1632,20 +1990,13 @@ Saldo acumulado hoje: ${formatMoney(calc.saldoHoje)}.`);
 
         function zerarTudo() {
             if(confirm('⚠️ ATENÇÃO: Deseja apagar TODOS os seus dados do TobaBank? Essa ação é irreversível!')) {
-                localStorage.removeItem('tobabank_data');
-                state = {
-                    metaDiaria: 150,
-                    gastos: [],
-                    parcelas: [],
-                    viagens: [],
-                    cofre: 0
-                };
-                renderAll();
-                alert('Dados zerados com sucesso!');
+                try { localStorage.removeItem('tobabank_data_v5'); } catch(e){}
+                state = JSON.parse(JSON.stringify(dadosDeExemplo));
+                saveState();
+                alert('Dados resetados com sucesso!');
             }
         }
 
-        // Run
         window.onload = init;
     </script>
 </body>
