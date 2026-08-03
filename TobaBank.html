@@ -531,7 +531,7 @@
                 <div class="card">
                     <div class="card-title">Parcelas deste Mês</div>
                     <div class="card-value text-red" id="instMonthlyTotal">R$ 0,00</div>
-                    <div class="sub-text" id="instDailyDeductionSub">Impacto diário: R$ 0,00/dia</div>
+                    <div class="sub-text" id="instDailyDeductionSub">Impacto diário: -R$ 0,00/dia</div>
                 </div>
                 <div class="card">
                     <div class="card-title">Total a Quitar (Futuro)</div>
@@ -568,7 +568,7 @@
                 </div>
 
                 <!-- Opção de Compra Parcelada -->
-                <div class="form-group">
+                <div class="form-group" id="installmentCheckboxGroup">
                     <label class="switch-container">
                         <input type="checkbox" id="isInstallmentCheckbox" onchange="toggleInstallmentFields()">
                         <span style="font-size: 0.88rem; font-weight: 600; color: #58a6ff;">💳 É uma compra parcelada?</span>
@@ -661,12 +661,7 @@
             <hr style="border: 0; border-top: 1px solid #30363d; margin: 1.2rem 0;">
 
             <div class="form-group">
-                <label>3. Teste & Ferramentas</label>
-                <button class="btn btn-secondary" onclick="generateDemoData()" style="margin-bottom: 0.5rem; background: #1f293e; border-color: #388bfd; color: #58a6ff;">🧪 Gerar Dados de Teste (Julho & Parcelas)</button>
-            </div>
-
-            <div class="form-group">
-                <label>4. Backups</label>
+                <label>3. Backups</label>
                 <div style="display: flex; gap: 10px;">
                     <button class="btn btn-secondary" onclick="exportBackup()">📥 Baixar Backup</button>
                     <button class="btn btn-secondary" onclick="document.getElementById('importFileInput').click()">📤 Restaurar</button>
@@ -675,7 +670,7 @@
             </div>
 
             <div class="form-group" style="margin-top: 1.5rem;">
-                <label style="color: #f85149;">5. Zona de Perigo</label>
+                <label style="color: #f85149;">4. Zona de Perigo</label>
                 <button class="btn btn-danger" onclick="resetAllData()">🗑️ Zerar Todos os Dados</button>
             </div>
 
@@ -689,7 +684,7 @@
         const STORAGE_KEY = 'TOBA_BANK_DB';
 
         let db = {
-            version: 4,
+            version: 6,
             config: {
                 startDate: new Date().toISOString().split('T')[0]
             },
@@ -794,7 +789,7 @@
                         const [d, m, y] = db.config.startDate.split('/');
                         db.config.startDate = `${y}-${m.padStart(2,'0')}-${d.padStart(2,'0')}`;
                     }
-                    db.version = 4;
+                    db.version = 6;
                 } catch (e) {
                     console.error("Erro ao carregar banco de dados", e);
                 }
@@ -806,6 +801,9 @@
         function saveDatabase() {
             localStorage.setItem(STORAGE_KEY, JSON.stringify(db));
             renderDashboard();
+            if (document.getElementById('tabHistory').classList.contains('active')) {
+                renderHistory();
+            }
         }
 
         // --- EVENTS & MODAIS ---
@@ -908,7 +906,7 @@
         }
 
         // --- LÓGICA DE GASTOS & PARCELAMENTOS ---
-        function openExpenseModal(id = null) {
+        function openExpenseModal(id = null, presetDateIso = null) {
             const modal = document.getElementById('expenseModal');
             const title = document.getElementById('expenseModalTitle');
             const idInput = document.getElementById('expenseIdInput');
@@ -917,6 +915,7 @@
             const catSelect = document.getElementById('expenseCategorySelect');
             const dateInput = document.getElementById('expenseDateInput');
             const isInstCheckbox = document.getElementById('isInstallmentCheckbox');
+            const instGroupEl = document.getElementById('installmentCheckboxGroup');
 
             if (id) {
                 const item = db.transactions.find(t => t.id === id);
@@ -928,17 +927,17 @@
                     catSelect.value = item.category;
                     dateInput.value = item.date;
                     isInstCheckbox.checked = false;
-                    isInstCheckbox.disabled = true; // Não edita pra vira parcela pra não quebrar id
+                    instGroupEl.style.display = 'none';
                 }
             } else {
-                title.innerText = "➕ Novo Gasto";
+                title.innerText = presetDateIso ? `➕ Adicionar Gasto em ${isoToBrDate(presetDateIso)}` : "➕ Novo Gasto";
                 idInput.value = '';
                 descInput.value = '';
                 amountInput.value = '';
                 catSelect.value = 'Alimentação';
-                dateInput.value = getTodayIsoDateStr();
+                dateInput.value = presetDateIso || getTodayIsoDateStr();
                 isInstCheckbox.checked = false;
-                isInstCheckbox.disabled = false;
+                instGroupEl.style.display = 'block';
             }
 
             toggleInstallmentFields();
@@ -954,7 +953,6 @@
             const isInstallment = document.getElementById('isInstallmentCheckbox').checked;
 
             if (isInstallment && !id) {
-                // Criação de Compra Parcelada
                 const totalInstallments = parseInt(document.getElementById('installmentCountInput').value, 10) || 2;
                 const installmentAmount = rawAmount / totalInstallments;
                 
@@ -971,7 +969,6 @@
 
                 db.installments.push(instGroup);
             } else {
-                // Gasto à vista normal
                 if (id) {
                     const index = db.transactions.findIndex(t => t.id === id);
                     if (index !== -1) {
@@ -1015,7 +1012,6 @@
                 if (!inst.startDate) return;
                 const [sYear, sMonth] = inst.startDate.split('-').map(Number);
 
-                // Quantos meses se passaram desde a 1ª parcela
                 const monthDiff = (targetYear - sYear) * 12 + (targetMonth - sMonth);
 
                 if (monthDiff >= 0 && monthDiff < inst.totalInstallments) {
@@ -1035,7 +1031,7 @@
             return result;
         }
 
-        // --- RENDERIZAÇÃO DA DASHBOARD & COFRE COM DEDUÇÃO DIÁRIA ---
+        // --- RENDERIZAÇÃO DA DASHBOARD & COFRE ---
         function renderDashboard() {
             const now = new Date();
             const currentMonthKey = getCurrentMonthKey();
@@ -1045,7 +1041,7 @@
             const totalDaysInMonth = getDaysInMonth(now.getFullYear(), now.getMonth());
             const effectiveDays = getEffectiveDaysInMonth(now.getFullYear(), now.getMonth());
 
-            // Orçamento Bruto do Mês
+            // Orçamento Bruto
             const baseDailyBudget = (db.months[currentMonthKey] || {}).dailyBudget || 0;
             const grossMonthlyBudget = baseDailyBudget * effectiveDays;
 
@@ -1053,8 +1049,7 @@
             const activeInstallmentsMonth = getActiveInstallmentsForMonth(currentMonthKey);
             const monthInstallmentsTotal = activeInstallmentsMonth.reduce((acc, p) => acc + p.amount, 0);
 
-            // DEDUÇÃO DO SALDO DIÁRIO PELAS PARCELAS
-            // Divide o valor total de parcelas do mês pelos dias do mês
+            // Dedução Diária das Parcelas
             const dailyInstallmentDeduction = totalDaysInMonth > 0 ? (monthInstallmentsTotal / totalDaysInMonth) : 0;
             const netDailyBudget = Math.max(baseDailyBudget - dailyInstallmentDeduction, 0);
 
@@ -1062,15 +1057,14 @@
             const currentMonthTransactions = db.transactions.filter(t => t.date && t.date.startsWith(currentMonthKey));
             const monthlySpentVista = currentMonthTransactions.reduce((acc, t) => acc + t.amount, 0);
             
-            // Total gasto no mês (à vista + parcelas ativas)
+            // Total gasto no mês
             const totalMonthlySpent = monthlySpentVista + monthInstallmentsTotal;
 
-            // Gasto de HOJE (à vista)
+            // Gasto de HOJE
             const todaySpent = db.transactions.filter(t => t.date === todayIso).reduce((acc, t) => acc + t.amount, 0);
-            // Disponível Hoje usa o orçamento DIÁRIO LÍQUIDO já descontando o pedaço diário da parcela!
             const todayAvailable = netDailyBudget - todaySpent;
 
-            // CÁLCULO DO COFRE (ACUMULADO ATÉ HOJE INCLUSO)
+            // Cofre Acumulado
             let daysElapsedUntilToday = 0;
             const startDateIso = db.config.startDate || todayIso;
 
@@ -1086,7 +1080,6 @@
             }
             if (daysElapsedUntilToday < 1) daysElapsedUntilToday = 1;
 
-            // O cofre usa o orçamento diário LÍQUIDO já com o desconto da parcela
             const totalAccumulatedBudgetToday = netDailyBudget * daysElapsedUntilToday;
             const vaultBalance = totalAccumulatedBudgetToday - monthlySpentVista;
 
@@ -1096,28 +1089,22 @@
             // Gastos Mês vs Orçamento
             document.getElementById('dashMonthlySpent').innerText = formatCurrency(totalMonthlySpent);
             document.getElementById('dashMonthlySpent').className = `card-value ${totalMonthlySpent > grossMonthlyBudget && grossMonthlyBudget > 0 ? 'text-red' : 'text-neutral'}`;
-            
-            let metaSubStr = `de ${formatCurrency(grossMonthlyBudget)} previstos`;
-            if (monthInstallmentsTotal > 0) {
-                metaSubStr += `<br><span style="color:#f85149;">(R$ ${monthInstallmentsTotal.toFixed(2)} em parcelas)</span>`;
-            }
-            document.getElementById('dashMonthlyMeta').innerHTML = metaSubStr;
+            document.getElementById('dashMonthlyMeta').innerText = `de ${formatCurrency(grossMonthlyBudget)} previstos`;
 
-            // Disponível Hoje (Mostrando a dedução)
+            // Disponível Hoje (Formatado com as 2 linhas e vermelho no abatimento)
             document.getElementById('dashTodayAvailable').innerText = formatCurrency(todayAvailable);
             document.getElementById('dashTodayAvailable').className = `card-value ${todayAvailable < 0 ? 'text-red' : 'text-green'}`;
             
             let todaySubStr = `Gasto hoje: ${formatCurrency(todaySpent)}`;
             if (dailyInstallmentDeduction > 0) {
-                todaySubStr += `<br><span style="color:#8b949e; font-size: 0.68rem;">Base: R$ ${baseDailyBudget.toFixed(2)} - R$ ${dailyInstallmentDeduction.toFixed(2)}/dia de parcelas</span>`;
+                todaySubStr += `<br><span style="color:#f85149; font-weight: 600;">-${formatCurrency(dailyInstallmentDeduction)}/dia parcelas</span>`;
             }
             document.getElementById('dashTodaySpentSub').innerHTML = todaySubStr;
 
             // Cofre Acumulado (Até Hoje)
             document.getElementById('dashVaultBalance').innerText = formatCurrency(vaultBalance);
             document.getElementById('dashVaultBalance').className = `card-value ${vaultBalance < 0 ? 'text-red' : 'text-green'}`;
-            
-            document.getElementById('dashVaultSub').innerHTML = `Liberado: ${formatCurrency(totalAccumulatedBudgetToday)}<br>(${daysElapsedUntilToday}d × R$ ${netDailyBudget.toFixed(2)}/dia líq.)`;
+            document.getElementById('dashVaultSub').innerHTML = `Liberado: ${formatCurrency(totalAccumulatedBudgetToday)}<br>(${daysElapsedUntilToday}d × ${formatCurrency(netDailyBudget)}/dia líq.)`;
 
             // 2. BANNER DE RECUPERAÇÃO
             const adviceBanner = document.getElementById('adviceBanner');
@@ -1133,7 +1120,7 @@
                 adviceBanner.classList.remove('active');
             }
 
-            // 3. Renderizar Barras por Categoria (Unificando à vista + parcelas ativas)
+            // 3. Renderizar Barras por Categoria
             const combinedForBars = [...currentMonthTransactions];
             activeInstallmentsMonth.forEach(p => {
                 combinedForBars.push({ category: p.category, amount: p.amount });
@@ -1141,7 +1128,7 @@
 
             renderCategoryBars(combinedForBars, totalMonthlySpent);
 
-            // 4. Renderizar Lista de Transações (À vista + Badge de Parcelas)
+            // 4. Renderizar Lista de Transações
             renderExpenseListWithInstallments(currentMonthTransactions, activeInstallmentsMonth);
         }
 
@@ -1189,7 +1176,6 @@
                 return;
             }
 
-            // Lista transações normais
             const sorted = [...transactions].sort((a, b) => new Date(b.date) - new Date(a.date));
 
             sorted.forEach(t => {
@@ -1209,7 +1195,6 @@
                 container.appendChild(itemEl);
             });
 
-            // Lista parcelas automáticas do mês
             activeInstallments.forEach(p => {
                 const itemEl = document.createElement('div');
                 itemEl.className = 'expense-item';
@@ -1349,10 +1334,7 @@
             if (pastMonthKeys.length === 0) {
                 container.innerHTML = `
                     <div class="empty-state">
-                        Nenhum mês anterior encontrado no histórico.<br><br>
-                        <button class="btn btn-secondary" onclick="generateDemoData()" style="max-width: 280px; margin: 0 auto; background: #1f293e; border-color: #388bfd; color: #58a6ff;">
-                            🧪 Gerar Dados de Teste (Julho & Parcelas)
-                        </button>
+                        Nenhum mês anterior encontrado no histórico.
                     </div>`;
                 return;
             }
@@ -1413,6 +1395,8 @@
                     `;
                 });
 
+                const presetDateForHist = `${mKey}-15`;
+
                 card.innerHTML = `
                     <div class="history-header" onclick="toggleHistoryCard('${mKey}')">
                         <div class="history-header-top">
@@ -1443,8 +1427,14 @@
                         <div class="section-title" style="margin-top: 0.8rem; font-size: 0.82rem; color: #8b949e;">
                             💸 Transações (${mTransactions.length + mActiveInstallments.length})
                         </div>
-                        <div class="expense-list">
+                        <div class="expense-list" style="margin-bottom: 1rem;">
                             ${txListHtml}
+                        </div>
+
+                        <div style="border-top: 1px solid #21262d; padding-top: 0.8rem; text-align: center;">
+                            <button class="btn btn-secondary" onclick="openExpenseModal(null, '${presetDateForHist}')" style="background: #1f293e; border-color: #388bfd; color: #58a6ff; font-size: 0.82rem; padding: 0.5rem 1rem;">
+                                ➕ Esqueci de algo em ${monthFormatted}? Adicionar Gasto
+                            </button>
                         </div>
                     </div>
                 `;
@@ -1463,46 +1453,6 @@
             if (card) {
                 card.classList.toggle('expanded');
             }
-        }
-
-        // --- GERADOR DE DADOS DE TESTE ---
-        function generateDemoData() {
-            const julyKey = '2026-07';
-            
-            if (!db.months[julyKey]) db.months[julyKey] = {};
-            db.months[julyKey].dailyBudget = 100;
-
-            db.transactions = db.transactions.filter(t => !t.date.startsWith(julyKey));
-            db.installments = db.installments.filter(i => i.id !== 'demo_inst_1');
-
-            const demoTxs = [
-                { id: 'demo1', description: 'Supermercado da Semana', amount: 380.50, category: 'Mercado', date: '2026-07-05' },
-                { id: 'demo2', description: 'Aluguel & Condomínio', amount: 1500.00, category: 'Casa - Aluguel/Condomínio', date: '2026-07-10' },
-                { id: 'demo3', description: 'Jantar com Milena 🍕', amount: 145.00, category: 'Alimentação', date: '2026-07-12' },
-                { id: 'demo4', description: 'Gasolina Peugeot 208', amount: 220.00, category: 'Transporte - Combustível', date: '2026-07-18' },
-                { id: 'demo5', description: 'Ração & Sachê Pets 🐱', amount: 180.00, category: 'Pet', date: '2026-07-22' }
-            ];
-
-            const demoInstallment = {
-                id: 'demo_inst_1',
-                description: 'Pneu Peugeot 208 🚗',
-                totalAmount: 1200.00,
-                installmentAmount: 120.00,
-                totalInstallments: 10,
-                paidInstallments: 0,
-                category: 'Transporte - Manutenção',
-                startDate: '2026-06-10'
-            };
-
-            db.transactions.push(...demoTxs);
-            db.installments.push(demoInstallment);
-            saveDatabase();
-            
-            switchTab('installments');
-            alert('🧪 Dados de teste criados com sucesso! Adicionada a compra parcelada do Pneu do Peugeot (10x R$ 120,00).');
-            
-            const configModal = document.getElementById('configModal');
-            if (configModal) configModal.classList.remove('active');
         }
 
         // --- BACKUP & ZERAR ---
