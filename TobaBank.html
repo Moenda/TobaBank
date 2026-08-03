@@ -2,2002 +2,873 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>TobaBank - Controle Financeiro</title>
-    <meta name="theme-color" content="#121212">
-    <meta name="mobile-web-app-capable" content="yes">
-    <meta name="application-name" content="TobaBank">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-title" content="TobaBank">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <link rel="manifest" href="manifest.json">
-    <link rel="icon" type="image/png" href="TobaBank-icon.png">
-    <link rel="apple-touch-icon" href="TobaBank-icon.png">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Toba Bank Revamped 🚀</title>
     <style>
-        :root {
-            --bg-color: #121212;
-            --card-bg: #1e2624;
-            --card-sub: #171d1b;
-            --accent: #10b981;
-            --accent-hover: #059669;
-            --danger: #ef4444;
-            --text-main: #f3f4f6;
-            --text-muted: #9ca3af;
-            --border-color: #2a3431;
-        }
-
         * {
-            box-sizing: border-box;
             margin: 0;
             padding: 0;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            -webkit-tap-highlight-color: transparent;
+            box-sizing: border-box;
+            font-family: system-ui, -apple-system, sans-serif;
         }
-
-        html {
-            background-color: var(--bg-color);
-        }
-
         body {
-            background-color: var(--bg-color);
-            color: var(--text-main);
-            padding-bottom: calc(80px + env(safe-area-inset-bottom));
+            background-color: #0d1117;
+            color: #f0f6fc;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
             min-height: 100vh;
-            -webkit-font-smoothing: antialiased;
-            overscroll-behavior-y: none;
+            padding: 1rem;
         }
-
-        /* Header */
-        .header {
-            padding: calc(16px + env(safe-area-inset-top)) 20px 16px 20px;
+        .container {
+            background: #161b22;
+            padding: 1.5rem;
+            border-radius: 20px;
+            border: 1px solid #30363d;
+            width: 100%;
+            max-width: 460px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            position: relative;
+            margin-bottom: 2rem;
+        }
+        
+        /* Top Header */
+        .top-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            background-color: #161c1a;
-            border-bottom: 1px solid var(--border-color);
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            box-shadow: 0 2px 16px rgba(0, 0, 0, 0.2);
+            margin-bottom: 1.2rem;
         }
-
-        .brand {
+        h1 {
+            color: #58a6ff;
+            font-size: 1.3rem;
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 6px;
         }
-
-        .logo-icon {
-            width: 40px;
-            height: 40px;
-            background: linear-gradient(135deg, #10b981, #34d399);
-            border-radius: 12px;
+        .config-btn, .add-btn {
+            background: #21262d;
+            border: 1px solid #30363d;
+            color: #f0f6fc;
+            font-size: 1.1rem;
+            padding: 0.5rem 0.8rem;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s ease;
             display: flex;
             align-items: center;
-            justify-content: center;
-            font-weight: 800;
-            font-size: 16px;
-            color: #fff;
-            letter-spacing: 0.5px;
-            box-shadow: 0 4px 10px rgba(16, 185, 129, 0.25);
+            gap: 6px;
         }
-
-        .brand-title {
-            font-size: 18px;
-            font-weight: 700;
-            letter-spacing: -0.5px;
+        .add-btn {
+            background: #238636;
+            border-color: #2ea043;
+            font-weight: 600;
+            font-size: 0.9rem;
         }
+        .add-btn:hover { background: #2ea043; }
+        .config-btn:hover { background: #30363d; transform: rotate(30deg); }
 
+        /* Badge Mês */
         .month-badge {
-            font-size: 13px;
-            color: var(--text-muted);
-            background-color: var(--border-color);
+            display: inline-block;
+            background: rgba(88, 166, 255, 0.15);
+            color: #58a6ff;
+            font-size: 0.8rem;
+            font-weight: 700;
             padding: 4px 10px;
             border-radius: 12px;
+            margin-bottom: 1rem;
+            text-transform: capitalize;
         }
 
-        /* Main Container */
-        .container {
-            padding: 16px;
-            max-width: 500px;
-            margin: 0 auto;
-            padding-bottom: 24px;
-        }
-
-        /* Cards */
-        .card {
-            background-color: var(--card-bg);
-            border-radius: 16px;
-            padding: 20px;
-            margin-bottom: 16px;
-            border: 1px solid var(--border-color);
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
-        }
-
-        .card-sub {
-            background-color: var(--card-sub);
-            border-radius: 12px;
-            padding: 14px;
-            margin-top: 12px;
-            border: 1px solid var(--border-color);
-        }
-
-        .card-title {
-            font-size: 12px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            color: var(--text-muted);
-            margin-bottom: 8px;
-            font-weight: 600;
-        }
-
-        .main-amount {
-            font-size: 32px;
-            font-weight: 800;
-            color: var(--accent);
-            margin: 6px 0;
-            letter-spacing: -1px;
-        }
-
-        .grid-2 {
+        /* Metrics Cards Grid */
+        .metrics-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 12px;
-        }
-
-        .grid-3 {
-            display: grid;
-            grid-template-columns: repeat(3, minmax(0, 1fr));
-            gap: 12px;
-        }
-
-        @media (max-width: 480px) {
-            .grid-3 {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        .stat-box {
-            background-color: var(--card-sub);
-            padding: 14px;
-            border-radius: 12px;
-            border: 1px solid var(--border-color);
-        }
-
-        .stat-value {
-            font-size: 18px;
-            font-weight: 700;
-            margin-top: 4px;
-        }
-
-        /* Projection Horizontal Scroll */
-        .projection-scroll {
-            display: flex;
             gap: 10px;
-            overflow-x: auto;
-            padding-bottom: 8px;
-            margin-top: 10px;
-            scrollbar-width: thin;
+            margin-bottom: 1.2rem;
         }
-
-        .projection-card {
-            min-width: 110px;
-            background: var(--card-sub);
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            padding: 12px 10px;
-            text-align: center;
-            flex-shrink: 0;
+        .card {
+            background: #0d1117;
+            border: 1px solid #21262d;
+            border-radius: 14px;
+            padding: 0.9rem;
         }
-
-        .projection-card.active-month {
-            border-color: var(--accent);
-            background: rgba(16, 185, 129, 0.08);
+        .card-full {
+            grid-column: span 2;
         }
-
-        /* Buttons */
-        .btn {
-            width: 100%;
-            padding: 14px;
-            border-radius: 12px;
-            border: none;
-            background-color: var(--accent);
-            color: #000;
+        .card-title {
+            font-size: 0.75rem;
+            color: #8b949e;
+            margin-bottom: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .card-value {
+            font-size: 1.25rem;
             font-weight: 700;
-            font-size: 15px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            transition: all 0.2s;
+        }
+        .text-neutral { color: #f0f6fc; }
+        .text-green { color: #3fb950; }
+        .text-red { color: #f85149; }
+        .text-blue { color: #58a6ff; }
+        .text-gold { color: #d29922; }
+
+        .sub-text {
+            font-size: 0.75rem;
+            color: #8b949e;
+            margin-top: 4px;
+            line-height: 1.35;
         }
 
-        .btn:active {
-            transform: scale(0.98);
-            opacity: 0.9;
-        }
-
-        .btn-outline {
-            background-color: transparent;
-            color: var(--text-main);
-            border: 1px solid var(--border-color);
-        }
-
-        .btn-danger {
-            background-color: rgba(239, 68, 68, 0.15);
-            color: var(--danger);
-            border: 1px solid rgba(239, 68, 68, 0.3);
-        }
-
-        .preset-btn {
-            padding: 8px 12px;
-            background-color: var(--card-sub);
-            border: 1px solid var(--border-color);
-            color: var(--text-main);
-            border-radius: 8px;
-            font-weight: 600;
-            font-size: 13px;
-            cursor: pointer;
-        }
-
-        .preset-container {
-            display: flex;
-            gap: 8px;
-            flex-wrap: wrap;
-            margin: 10px 0;
-        }
-
-        /* Forms */
-        .form-group {
-            margin-bottom: 16px;
-        }
-
-        .form-label {
-            display: block;
-            font-size: 13px;
-            color: var(--text-muted);
-            margin-bottom: 6px;
-            font-weight: 600;
-        }
-
-        .form-input, .form-select {
-            width: 100%;
-            padding: 14px;
+        /* Advice Alert Banner */
+        .advice-banner {
+            background: rgba(248, 81, 73, 0.1);
+            border: 1px solid rgba(248, 81, 73, 0.3);
             border-radius: 12px;
-            background-color: var(--card-sub);
-            border: 1px solid var(--border-color);
-            color: var(--text-main);
-            font-size: 16px;
-            outline: none;
+            padding: 0.8rem 1rem;
+            margin-bottom: 1.2rem;
+            font-size: 0.83rem;
+            color: #ff7b72;
+            display: none;
+            align-items: center;
+            gap: 8px;
+        }
+        .advice-banner.active {
+            display: flex;
         }
 
-        .form-input:focus, .form-select:focus {
-            border-color: var(--accent);
+        /* Categorias (Barras) */
+        .section-title {
+            font-size: 0.95rem;
+            color: #f0f6fc;
+            margin: 1.5rem 0 0.8rem 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
-
-        /* Progress Bar */
+        .category-item {
+            margin-bottom: 0.8rem;
+        }
+        .category-info {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.8rem;
+            margin-bottom: 4px;
+        }
         .progress-bar-bg {
-            width: 100%;
+            background: #21262d;
             height: 8px;
-            background-color: var(--card-sub);
             border-radius: 4px;
             overflow: hidden;
-            margin: 8px 0;
         }
-
         .progress-bar-fill {
+            background: #58a6ff;
             height: 100%;
-            background-color: var(--accent);
             border-radius: 4px;
             transition: width 0.3s ease;
         }
 
-        /* List Items */
-        .item-row {
+        /* Lista de Gastos */
+        .expense-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-top: 0.5rem;
+        }
+        .expense-item {
+            background: #0d1117;
+            border: 1px solid #21262d;
+            border-radius: 12px;
+            padding: 0.75rem 0.9rem;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 12px 0;
-            border-bottom: 1px solid var(--border-color);
         }
-
-        .item-row:last-child {
-            border-bottom: none;
-        }
-
-        .item-info {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .item-icon {
-            width: 40px;
-            height: 40px;
-            background-color: var(--card-sub);
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 18px;
-        }
-
-        .item-title {
-            font-weight: 600;
-            font-size: 15px;
-        }
-
-        .item-sub {
-            font-size: 12px;
-            color: var(--text-muted);
-        }
-
-        .item-val {
-            font-weight: 700;
-            font-size: 15px;
-            text-align: right;
-        }
-
-        /* Nav Bar Bottom */
-        .nav-bar {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background-color: #161c1a;
-            border-top: 1px solid var(--border-color);
-            display: flex;
-            justify-content: space-around;
-            padding: 8px 0 calc(8px + env(safe-area-inset-bottom)) 0;
-            z-index: 1000;
-            backdrop-filter: blur(10px);
-        }
-
-        .nav-item {
+        .expense-details {
             display: flex;
             flex-direction: column;
-            align-items: center;
-            gap: 4px;
-            color: var(--text-muted);
-            text-decoration: none;
-            font-size: 10px;
+        }
+        .expense-desc {
             font-weight: 600;
-            cursor: pointer;
+            font-size: 0.9rem;
+        }
+        .expense-meta {
+            font-size: 0.75rem;
+            color: #8b949e;
+            margin-top: 2px;
+        }
+        .expense-right {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .expense-amount {
+            font-weight: 700;
+            color: #f85149;
+            font-size: 0.95rem;
+        }
+        .action-icon-btn {
             background: none;
             border: none;
-            width: 16.6%;
-        }
-
-        .nav-item.active {
-            color: var(--accent);
-        }
-
-        .nav-icon {
-            font-size: 18px;
-        }
-
-        /* FAB */
-        .fab {
-            position: fixed;
-            bottom: calc(70px + env(safe-area-inset-bottom));
-            right: 20px;
-            width: 56px;
-            height: 56px;
-            border-radius: 50%;
-            background-color: var(--accent);
-            color: #000;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 28px;
-            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);
-            border: none;
+            color: #8b949e;
             cursor: pointer;
-            z-index: 99;
+            font-size: 0.9rem;
+            padding: 4px;
+            transition: color 0.2s;
         }
+        .action-icon-btn:hover { color: #f0f6fc; }
+        .action-icon-btn.delete:hover { color: #f85149; }
 
-        /* Tab Views */
-        .tab-content {
-            display: none;
-        }
-
-        .tab-content.active {
-            display: block;
-        }
-
-        /* Modal */
-        .modal {
-            display: none;
+        /* Modais */
+        .modal-overlay {
             position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: rgba(0, 0, 0, 0.8);
-            z-index: 2000;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-        }
-
-        .modal.active {
+            top: 0; left: 0;
+            width: 100vw; height: 100vh;
+            background: rgba(0,0,0,0.75);
             display: flex;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+            z-index: 100;
         }
-
-        .modal-body {
-            background-color: var(--card-bg);
-            border-radius: 20px;
-            width: 100%;
-            max-width: 450px;
-            padding: 24px;
-            border: 1px solid var(--border-color);
+        .modal-overlay.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+        .modal {
+            background: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 18px;
+            padding: 1.5rem;
+            width: 90%;
+            max-width: 400px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.8);
             max-height: 90vh;
             overflow-y: auto;
         }
-
-        .badge-azul {
-            color: #10b981;
-            background: rgba(16, 185, 129, 0.1);
-            padding: 4px 8px;
-            border-radius: 6px;
-            font-size: 12px;
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.2rem;
+            border-bottom: 1px solid #30363d;
+            padding-bottom: 0.8rem;
         }
-
-        .badge-vermelho {
-            color: #ef4444;
-            background: rgba(239, 68, 68, 0.1);
-            padding: 4px 8px;
-            border-radius: 6px;
-            font-size: 12px;
+        .close-btn {
+            background: none;
+            border: none;
+            color: #8b949e;
+            font-size: 1.5rem;
+            cursor: pointer;
         }
-
-        @media (display-mode: standalone) {
-            body {
-                user-select: none;
-                -webkit-user-select: none;
-            }
-
-            .fab {
-                box-shadow: 0 8px 24px rgba(16, 185, 129, 0.35);
-            }
+        .form-group {
+            margin-bottom: 1rem;
+            text-align: left;
+        }
+        .form-group label {
+            display: block;
+            font-size: 0.83rem;
+            color: #8b949e;
+            margin-bottom: 0.4rem;
+        }
+        .form-control {
+            width: 100%;
+            padding: 0.75rem;
+            background: #0d1117;
+            border: 1px solid #30363d;
+            border-radius: 8px;
+            color: #f0f6fc;
+            font-size: 0.95rem;
+            color-scheme: dark;
+        }
+        .form-control:focus {
+            outline: none;
+            border-color: #58a6ff;
+        }
+        .btn {
+            width: 100%;
+            padding: 0.75rem;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-primary { background: #238636; color: #fff; }
+        .btn-primary:hover { background: #2ea043; }
+        .btn-secondary { background: #21262d; color: #c9d1d9; border: 1px solid #30363d; }
+        .btn-danger { background: #da3633; color: #fff; }
+        .empty-state {
+            text-align: center;
+            color: #8b949e;
+            padding: 1.5rem 0;
+            font-size: 0.85rem;
         }
     </style>
 </head>
 <body>
 
-    <!-- Header -->
-    <div class="header">
-        <div class="brand">
-            <div class="logo-icon">TB</div>
-            <div>
-                <div class="brand-title">TobaBank</div>
-                <div style="font-size: 11px; color: var(--text-muted);" id="headerSub">Gestão Inteligente</div>
-            </div>
-        </div>
-        <div class="month-badge" id="currentMonthBadge">Julho 2026</div>
-    </div>
-
-    <!-- Main Container -->
     <div class="container">
-
-        <!-- TAB 1: INÍCIO -->
-        <div id="tab-inicio" class="tab-content active">
-            <div class="card">
-                <div class="card-title">Cofre da Vitória</div>
-                <div class="main-amount" id="cofreTotal">R$ 0,00</div>
-                <p style="font-size: 13px; color: var(--text-muted);">Economia total acumulada nos meses encerrados.</p>
-            </div>
-
-            <div class="grid-3">
-                <div class="stat-box">
-                    <div class="card-title">Meta Diária</div>
-                    <div class="stat-value" id="homeMetaDiaria">R$ 100,00</div>
-                </div>
-                <div class="stat-box">
-                    <div class="card-title">Saldo Diário</div>
-                    <div class="stat-value" style="color: var(--accent);" id="homeSaldoDiario">R$ 0,00</div>
-                    <div style="font-size: 10px; color: var(--text-muted); margin-top: 4px;" id="homeSaldoDiarioSub">Meta líquida menos gastos de hoje</div>
-                </div>
-                <div class="stat-box">
-                    <div class="card-title">Parcelas/Mês</div>
-                    <div class="stat-value" style="color: #ef4444;" id="homeParcelasTotal">R$ 0,00</div>
-                    <div style="font-size: 10px; color: var(--text-muted); margin-top: 4px;" id="homeImpactoDiarioSub">Impacto: -R$ 0,00/dia</div>
-                </div>
-            </div>
-
-            <div class="card" style="margin-top: 16px;">
-                <div class="card-title">Resumo do Mês Ativo</div>
-                <div id="homeSummaryContent">
-                    <div class="item-row">
-                        <div>
-                            <div class="item-title">Saldo do Mês</div>
-                            <div class="item-sub">Sobra dos dias com a meta diária aplicada</div>
-                        </div>
-                        <div class="item-val" id="homeSaldoHoje">R$ 0,00</div>
-                    </div>
-                </div>
+        <!-- Header -->
+        <div class="top-header">
+            <h1>🏦 Toba Bank</h1>
+            <div style="display: flex; gap: 8px;">
+                <button class="add-btn" id="openAddExpenseBtn">+ Gasto</button>
+                <button class="config-btn" id="openConfigBtn" title="Configurações">⚙️</button>
             </div>
         </div>
 
-        <!-- TAB 2: MÊS ATIVO -->
-        <div id="tab-mes" class="tab-content">
+        <!-- Mês Badge -->
+        <div style="text-align: center;">
+            <span class="month-badge" id="dashMonthBadge">Carregando...</span>
+        </div>
+
+        <!-- Banner de Conselho / Dica de Recuperação -->
+        <div class="advice-banner" id="adviceBanner">
+            <span>⚡</span>
+            <div id="adviceText">Economize nos próximos dias para voltar pro verde!</div>
+        </div>
+
+        <!-- Dashboard / Métricas -->
+        <div class="metrics-grid">
+            <!-- Gastos do Mês -->
+            <div class="card card-full">
+                <div class="card-title">Gastos do Mês vs Orçamento</div>
+                <div class="card-value text-neutral" id="dashMonthlySpent">R$ 0,00</div>
+                <div class="sub-text" id="dashMonthlyMeta">de R$ 0,00 previstos</div>
+            </div>
+
+            <!-- Disponível Hoje -->
             <div class="card">
-                <div class="card-title">Saldo Diário Atual</div>
-                <div class="main-amount" id="mesSaldoHoje">R$ 0,00</div>
+                <div class="card-title">Disponível Hoje</div>
+                <div class="card-value" id="dashTodayAvailable">R$ 0,00</div>
+                <div class="sub-text" id="dashTodaySpentSub">Gasto hoje: R$ 0,00</div>
+            </div>
+
+            <!-- Cofre (Saldo Acumulado no Mês) -->
+            <div class="card">
+                <div class="card-title">Cofre (Saldo Acumulado)</div>
+                <div class="card-value text-green" id="dashVaultBalance">R$ 0,00</div>
+                <div class="sub-text" id="dashVaultSub">Liberado até hoje</div>
+            </div>
+        </div>
+
+        <!-- Barras por Categoria -->
+        <div class="section-title">
+            <span>📊 Gastos por Categoria</span>
+        </div>
+        <div id="categoryBarsContainer"></div>
+
+        <!-- Histórico Gastos 1 a 1 -->
+        <div class="section-title" style="margin-top: 2rem;">
+            <span>💸 Lançamentos do Mês</span>
+        </div>
+        <div class="expense-list" id="expenseListContainer"></div>
+    </div>
+
+    <!-- MODAL DE GASTOS (NOVO / EDITAR) -->
+    <div class="modal-overlay" id="expenseModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 id="expenseModalTitle">➕ Novo Gasto</h3>
+                <button class="close-btn" id="closeExpenseBtn">&times;</button>
+            </div>
+            <form id="expenseForm">
+                <input type="hidden" id="expenseIdInput">
                 
-                <div class="card-sub">
-                    <div style="display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 4px;">
-                        <span>Meta Diária Bruta:</span>
-                        <strong id="mesMetaBruta">R$ 100,00</strong>
-                    </div>
-                    <div style="display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 4px; color: var(--danger);">
-                        <span>Comprometido c/ Parcelas:</span>
-                        <strong id="mesImpactoParcela">-R$ 0,00/dia</strong>
-                    </div>
-                    <div style="border-top: 1px dashed var(--border-color); padding-top: 6px; margin-top: 6px; display: flex; justify-content: space-between; font-size: 13px; color: var(--accent);">
-                        <span>Limite Real Livre/dia:</span>
-                        <strong id="mesMetaLiquida">R$ 100,00/dia</strong>
-                    </div>
-                </div>
-
-                <div style="margin-top: 12px;" id="mesStatusBadge">
-                    <span class="badge-azul">🟢 Você está no azul!</span>
-                </div>
-            </div>
-
-            <div class="grid-2">
-                <div class="stat-box">
-                    <div class="card-title">Gasto no Mês</div>
-                    <div class="stat-value" style="color: var(--danger);" id="mesGastoTotal">R$ 0,00</div>
-                </div>
-                <div class="stat-box">
-                    <div class="card-title">Média/Dia Restante</div>
-                    <div class="stat-value" style="color: var(--accent);" id="mesMediaDia">R$ 0,00</div>
-                </div>
-            </div>
-
-            <!-- Análise por Categoria -->
-            <div class="card" style="margin-top: 16px;">
-                <div class="card-title">Onde o Dinheiro Foi</div>
-                <div id="categoryAnalysis">
-                    <p style="font-size: 13px; color: var(--text-muted); text-align: center; padding: 10px;">Sem dados registrados neste mês.</p>
-                </div>
-            </div>
-
-            <!-- Lista de Gastos -->
-            <div class="card">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-                    <div class="card-title" style="margin-bottom:0;">Histórico do Mês</div>
-                    <span style="font-size: 11px; color: var(--text-muted);">Mês corrente</span>
-                </div>
-                <div id="gastosList">
-                    <!-- Items JS -->
-                </div>
-            </div>
-        </div>
-
-        <!-- TAB 3: PARCELAS -->
-        <div id="tab-parcelas" class="tab-content">
-            <div class="grid-2">
-                <div class="stat-box">
-                    <div class="card-title">Fatura Mensal</div>
-                    <div class="stat-value" style="color: var(--danger);" id="parcelasFaturaMensal">R$ 0,00</div>
-                </div>
-                <div class="stat-box">
-                    <div class="card-title">Total Devedor</div>
-                    <div class="stat-value" id="parcelasTotalDevedor">R$ 0,00</div>
-                </div>
-            </div>
-
-            <!-- PROJEÇÃO DE PARCELAS FUTURAS -->
-            <div class="card" style="margin-top: 12px;">
-                <div style="display: flex; justify-content: space-between; align-items: center;">
-                    <div class="card-title" style="margin-bottom: 0;">🔮 Mapa de Faturas Futuras</div>
-                    <span style="font-size: 11px; color: var(--accent);">Steve Jorge Projeção</span>
-                </div>
-                <p style="font-size: 12px; color: var(--text-muted); margin-top: 4px;">Veja como sua fatura vai caindo nos próximos meses para planejar novas compras:</p>
-                <div class="projection-scroll" id="projecaoParcelasList">
-                    <!-- Gerado via JS -->
-                </div>
-            </div>
-
-            <div style="background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.2); padding: 12px; border-radius: 12px; margin: 12px 0; font-size: 12px; color: #fca5a5;">
-                ⚠️ Suas parcelas ativas reduzem automaticamente o seu teto diário disponível no Mês Ativo!
-            </div>
-
-            <button class="btn" style="margin-bottom: 16px;" onclick="abrirModalParcela()">+ Nova Compra Parcelada</button>
-
-            <div id="parcelasList">
-                <!-- Items Parcelas -->
-            </div>
-        </div>
-
-        <!-- TAB 4: INVESTIMENTOS -->
-        <div id="tab-investimentos" class="tab-content">
-            <div class="card">
-                <div class="card-title">Patrimônio Investido</div>
-                <div class="main-amount" id="invTotalPatrimonio">R$ 0,00</div>
-                <div style="display: flex; justify-content: space-between; font-size: 12px; margin-top: 8px;">
-                    <span style="color: var(--text-muted);">Rendimento Bruto Acumulado:</span>
-                    <strong style="color: var(--accent);" id="invRendimentoTotal">+R$ 0,00 (+0.0%)</strong>
-                </div>
-            </div>
-
-            <button class="btn" style="margin-bottom: 16px;" onclick="openModal('modalInvestimento')">+ Novo Investimento</button>
-
-            <div id="investimentosList">
-                <!-- Lista de Investimentos JS -->
-            </div>
-        </div>
-
-        <!-- TAB 5: VIAGENS & EVENTOS -->
-        <div id="tab-viagens" class="tab-content">
-            <button class="btn" style="margin-bottom: 16px;" onclick="openModal('modalViagem')">+ Nova Viagem / Evento</button>
-            <div id="viagensList">
-                <!-- Viagens Items -->
-            </div>
-        </div>
-
-        <!-- TAB 6: AJUSTES -->
-        <div id="tab-ajustes" class="tab-content">
-            <!-- 1. META DIÁRIA NO TOPO -->
-            <div class="card" style="border-color: var(--accent);">
-                <div class="card-title" style="color: var(--accent);">🎯 Meta Diária Padrão</div>
                 <div class="form-group">
-                    <input type="number" id="inputMetaDiaria" class="form-input" value="100">
+                    <label for="expenseDescInput">Descrição</label>
+                    <input type="text" id="expenseDescInput" class="form-control" placeholder="Ex: Almoço, Uber, Mercado..." required>
                 </div>
-                <div class="preset-container">
-                    <button class="preset-btn" onclick="setMetaPreset(80)">R$ 80</button>
-                    <button class="preset-btn" onclick="setMetaPreset(100)">R$ 100</button>
-                    <button class="preset-btn" onclick="setMetaPreset(120)">R$ 120</button>
-                    <button class="preset-btn" onclick="setMetaPreset(150)">R$ 150</button>
-                    <button class="preset-btn" onclick="setMetaPreset(200)">R$ 200</button>
-                </div>
-                <button class="btn" onclick="salvarMeta()">Salvar Meta Diária</button>
-            </div>
 
-            <!-- 2. BACKUP & SEGURANÇA -->
-            <div class="card">
-                <div class="card-title">Backup & Segurança</div>
-                <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 12px;">
-                    Os dados ficam salvos localmente neste aparelho. Exporte um arquivo de segurança.
-                </p>
-                <button class="btn btn-outline" style="margin-bottom: 10px;" onclick="exportarBackup()">📥 Exportar Backup (JSON)</button>
-                <button class="btn btn-outline" style="margin-bottom: 10px;" onclick="triggerImport()">📤 Restaurar Backup (JSON)</button>
-                <input type="file" id="fileImport" style="display: none;" accept=".json" onchange="importarBackup(event)">
-            </div>
-
-            <!-- 3. CONFIGURAÇÃO INICIAL -->
-            <div class="card">
-                <div class="card-title">🚀 Configuração Inicial & Primeiro Uso</div>
-                <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 12px; line-height: 1.4;">
-                    Ajuste o dia em que o app começa a contabilizar seu teto mensal (útil se você começou a usar no meio do mês ou quer incluir notas passadas).
-                </p>
                 <div class="form-group">
-                    <label class="form-label">Dia Inicial da Contagem</label>
-                    <input type="number" id="inputDiaInicioContagem" class="form-input" min="1" max="31" value="1">
+                    <label for="expenseAmountInput">Valor (R$)</label>
+                    <input type="number" id="expenseAmountInput" class="form-control" step="0.01" min="0.01" placeholder="0.00" required>
                 </div>
-                <button class="btn btn-outline" onclick="salvarConfiguracoes()">Salvar Dia de Início</button>
-            </div>
 
-            <!-- 4. ZONA DE RISCO -->
-            <div class="card" style="border-color: rgba(239, 68, 68, 0.4);">
-                <div class="card-title" style="color: var(--danger);">Zona de Risco</div>
-                <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 12px;">Apaga todos os dados localmente. Esta ação não pode ser desfeita.</p>
-                <button class="btn btn-danger" onclick="zerarTudo()">🗑️ Zerar Todos os Dados</button>
-            </div>
-        </div>
-
-    </div>
-
-    <!-- FAB -->
-    <button class="fab" onclick="openModal('modalGasto')">+</button>
-
-    <!-- Bottom Navigation -->
-    <div class="nav-bar">
-        <button class="nav-item active" onclick="switchTab('inicio')">
-            <span class="nav-icon">🏠</span>
-            <span>Início</span>
-        </button>
-        <button class="nav-item" onclick="switchTab('mes')">
-            <span class="nav-icon">📅</span>
-            <span>Mês</span>
-        </button>
-        <button class="nav-item" onclick="switchTab('parcelas')">
-            <span class="nav-icon">💳</span>
-            <span>Parcelas</span>
-        </button>
-        <button class="nav-item" onclick="switchTab('investimentos')">
-            <span class="nav-icon">📈</span>
-            <span>Investir</span>
-        </button>
-        <button class="nav-item" onclick="switchTab('viagens')">
-            <span class="nav-icon">✈️</span>
-            <span>Viagens</span>
-        </button>
-        <button class="nav-item" onclick="switchTab('ajustes')">
-            <span class="nav-icon">⚙️</span>
-            <span>Ajustes</span>
-        </button>
-    </div>
-
-    <!-- MODAL: Novo Gasto -->
-    <div class="modal" id="modalGasto">
-        <div class="modal-body">
-            <h3 style="margin-bottom: 16px;">Novo Gasto Diário</h3>
-            <div class="form-group">
-                <label class="form-label">Valor (R$)</label>
-                <input type="number" id="gastoValor" class="form-input" placeholder="0,00" step="0.01">
-                <div class="preset-container">
-                    <button class="preset-btn" onclick="addAtalhoGasto(10)">+10</button>
-                    <button class="preset-btn" onclick="addAtalhoGasto(25)">+25</button>
-                    <button class="preset-btn" onclick="addAtalhoGasto(50)">+50</button>
-                    <button class="preset-btn" onclick="addAtalhoGasto(100)">+100</button>
-                </div>
-            </div>
-            <div class="form-group">
-                <label class="form-label">Descrição</label>
-                <input type="text" id="gastoDesc" class="form-input" placeholder="Ex: Almocinho, Mercado, Gasolina">
-            </div>
-            <div class="form-group">
-                <label class="form-label">Data do Lançamento</label>
-                <input type="date" id="gastoData" class="form-input">
-            </div>
-            <div class="form-group">
-                <label class="form-label">Categoria</label>
-                <select id="gastoCategoria" class="form-select">
-                    <option value="Alimentação">🛠️ Alimentação</option>
-                    <option value="Mercado">🛍️ Mercado</option>
-                    <option value="Combustível">⛽ Combustível</option>
-                    <option value="Lazer">🎉 Lazer</option>
-                    <option value="Contas">💵 Contas / Cartão</option>
-                    <option value="Casa">🏠 Casa</option>
-                    <option value="Saúde">🩺 Saúde</option>
-                    <option value="Pets">🐾 Pets</option>
-                    <option value="Outros" selected>📦 Outros</option>
-                </select>
-            </div>
-            <button class="btn" onclick="salvarGasto()">Salvar Gasto</button>
-            <button class="btn btn-outline" style="margin-top: 8px;" onclick="closeModal('modalGasto')">Cancelar</button>
-        </div>
-    </div>
-
-    <!-- MODAL: Nova Parcela -->
-    <div class="modal" id="modalParcela">
-        <div class="modal-body">
-            <input type="hidden" id="editingParcelaId">
-            <h3 id="modalParcelaTitle" style="margin-bottom: 16px;">Nova Compra Parcelada</h3>
-            <div class="form-group">
-                <label class="form-label">Descrição</label>
-                <input type="text" id="parcelaDesc" class="form-input" placeholder="Ex: Pneu do Carro, Celular, TV">
-            </div>
-            <div class="form-group">
-                <label class="form-label">Valor Total da Compra (R$)</label>
-                <input type="number" step="0.01" id="parcelaValor" class="form-input" placeholder="1500,00">
-            </div>
-            <div class="grid-2">
                 <div class="form-group">
-                    <label class="form-label">Total Parcelas</label>
-                    <input type="number" id="parcelaTotalCount" class="form-input" value="10">
+                    <label for="expenseCategorySelect">Categoria</label>
+                    <select id="expenseCategorySelect" class="form-control" required>
+                        <option value="Alimentação">🍔 Alimentação</option>
+                        <option value="Mercado">🛒 Mercado</option>
+                        <option value="Transporte">🚗 Transporte</option>
+                        <option value="Lazer">🎉 Lazer</option>
+                        <option value="Contas">📄 Contas / Boletos</option>
+                        <option value="Outros">📦 Outros</option>
+                    </select>
                 </div>
+
                 <div class="form-group">
-                    <label class="form-label">Mês da Primeira Parcela</label>
-                    <input type="month" id="parcelaPrimeiraMes" class="form-input">
+                    <label for="expenseDateInput">Data do Gasto</label>
+                    <input type="date" id="expenseDateInput" class="form-control" required>
+                </div>
+
+                <button type="submit" class="btn btn-primary" style="margin-top: 1rem;">Salvar Gasto</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL DE CONFIGURAÇÕES -->
+    <div class="modal-overlay" id="configModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3>⚙️ Configurações</h3>
+                <button class="close-btn" id="closeConfigBtn">&times;</button>
+            </div>
+
+            <div class="form-group">
+                <label for="dailyBudgetInput">1. Orçamento Diário (R$)</label>
+                <input type="number" id="dailyBudgetInput" class="form-control" placeholder="Ex: 100" step="0.01" min="0">
+                <div style="background: rgba(88, 166, 255, 0.1); border-left: 3px solid #58a6ff; padding: 0.6rem; font-size: 0.8rem; color: #79c0ff; margin-top: 0.4rem; border-radius: 0 6px 6px 0;" id="monthlyProjection">
+                    Informe um valor para calcular.
                 </div>
             </div>
-            <div class="form-group">
-                <label class="form-label">Categoria</label>
-                <select id="parcelaCategoria" class="form-select">
-                    <option value="Contas">💵 Contas</option>
-                    <option value="Casa">🏠 Casa</option>
-                    <option value="Lazer">🎉 Lazer</option>
-                    <option value="Outros" selected>📦 Outros</option>
-                </select>
-            </div>
-            <button id="btnSalvarParcela" class="btn" onclick="salvarParcela()">Salvar Parcela</button>
-            <button class="btn btn-outline" style="margin-top: 8px;" onclick="fecharModalParcela()">Cancelar</button>
-        </div>
-    </div>
 
-    <!-- MODAL: Novo Investimento -->
-    <div class="modal" id="modalInvestimento">
-        <div class="modal-body">
-            <h3 style="margin-bottom: 16px;">Novo Investimento</h3>
             <div class="form-group">
-                <label class="form-label">Nome do Investimento</label>
-                <input type="text" id="invNome" class="form-input" placeholder="Ex: CDB Caixinha, Ações / FIIs, Crypto">
+                <label for="startDateInput">2. Data de Início do 1º Uso</label>
+                <input type="date" id="startDateInput" class="form-control">
             </div>
-            <div class="form-group">
-                <label class="form-label">Valor Inicial Aportado (R$)</label>
-                <input type="number" step="0.01" id="invAporteInicial" class="form-input" placeholder="1000,00">
-            </div>
-            <div class="form-group">
-                <label class="form-label">Mês / Data Inicial</label>
-                <input type="month" id="invMesInicial" class="form-input">
-            </div>
-            <button class="btn" onclick="salvarInvestimento()">Cadastrar Investimento</button>
-            <button class="btn btn-outline" style="margin-top: 8px;" onclick="closeModal('modalInvestimento')">Cancelar</button>
-        </div>
-    </div>
 
-    <!-- MODAL: Atualizar Saldo do Investimento -->
-    <div class="modal" id="modalAtualizarSaldoInv">
-        <div class="modal-body">
-            <h3 style="margin-bottom: 16px;">Atualizar Saldo Mensal</h3>
-            <input type="hidden" id="activeInvId">
-            <div class="form-group">
-                <label class="form-label">Mês de Referência</label>
-                <input type="month" id="invAtualizarMes" class="form-input">
-            </div>
-            <div class="form-group">
-                <label class="form-label">Novo Saldo Total no Fim do Mês (R$)</label>
-                <input type="number" step="0.01" id="invAtualizarSaldo" class="form-input" placeholder="1050,00">
-            </div>
-            <button class="btn" onclick="salvarAtualizacaoSaldoInv()">Salvar Saldo</button>
-            <button class="btn btn-outline" style="margin-top: 8px;" onclick="closeModal('modalAtualizarSaldoInv')">Cancelar</button>
-        </div>
-    </div>
+            <hr style="border: 0; border-top: 1px solid #30363d; margin: 1.2rem 0;">
 
-    <!-- MODAL: Detalhes do Investimento -->
-    <div class="modal" id="modalDetalhesInv">
-        <div class="modal-body">
-            <h3 id="invDetalhesTitulo" style="margin-bottom: 16px;">Detalhes do Investimento</h3>
-            <div id="invDetalhesContent"></div>
-            <button class="btn btn-outline" style="margin-top: 16px;" onclick="closeModal('modalDetalhesInv')">Fechar</button>
-        </div>
-    </div>
+            <div class="form-group">
+                <label>3. Backups</label>
+                <div style="display: flex; gap: 10px;">
+                    <button class="btn btn-secondary" onclick="exportBackup()">📥 Baixar Backup</button>
+                    <button class="btn btn-secondary" onclick="document.getElementById('importFileInput').click()">📤 Restaurar</button>
+                </div>
+                <input type="file" id="importFileInput" accept=".json" style="display: none;" onchange="importBackup(event)">
+            </div>
 
-    <!-- MODAL: Nova Viagem -->
-    <div class="modal" id="modalViagem">
-        <div class="modal-body">
-            <h3 style="margin-bottom: 16px;">Nova Viagem / Evento</h3>
-            <div class="form-group">
-                <label class="form-label">Nome da Viagem / Evento</label>
-                <input type="text" id="viagemNome" class="form-input" placeholder="Ex: Viagem Mozão, Lollapalooza">
+            <div class="form-group" style="margin-top: 1.5rem;">
+                <label style="color: #f85149;">4. Zona de Perigo</label>
+                <button class="btn btn-danger" onclick="resetAllData()">🗑️ Zerar Todos os Dados</button>
             </div>
-            <div class="form-group">
-                <label class="form-label">Teto do Orçamento (R$)</label>
-                <input type="number" id="viagemTeto" class="form-input" placeholder="2500,00">
-            </div>
-            <button class="btn" onclick="salvarViagem()">Criar Evento</button>
-            <button class="btn btn-outline" style="margin-top: 8px;" onclick="closeModal('modalViagem')">Cancelar</button>
-        </div>
-    </div>
 
-    <!-- MODAL: Detalhes do Mês -->
-    <div class="modal" id="modalHistoricoMes">
-        <div class="modal-body">
-            <h3 id="modalHistoricoTitulo" style="margin-bottom: 16px;">Detalhes do Mês</h3>
-            <div id="historicoMesContent"></div>
-            <button class="btn btn-outline" style="margin-top: 16px;" onclick="closeModal('modalHistoricoMes')">Fechar</button>
-        </div>
-    </div>
-
-    <!-- MODAL: Gasto na Viagem -->
-    <div class="modal" id="modalViagemGasto">
-        <div class="modal-body">
-            <h3 style="margin-bottom: 16px;">Adicionar Gasto na Viagem</h3>
-            <input type="hidden" id="activeViagemId">
-            <div class="form-group">
-                <label class="form-label">Valor (R$)</label>
-                <input type="number" id="vGastoValor" class="form-input" placeholder="0,00">
+            <div style="margin-top: 1.5rem; border-top: 1px solid #30363d; padding-top: 1rem;">
+                <button class="btn btn-secondary" id="bottomCloseConfigBtn">Fechar</button>
             </div>
-            <div class="form-group">
-                <label class="form-label">Descrição</label>
-                <input type="text" id="vGastoDesc" class="form-input" placeholder="Ex: Jantar, Hotel, Passeio">
-            </div>
-            <button class="btn" onclick="salvarGastoViagem()">Registrar Gasto</button>
-            <button class="btn btn-outline" style="margin-top: 8px;" onclick="closeModal('modalViagemGasto')">Cancelar</button>
         </div>
     </div>
 
     <script>
-        // FUNÇÕES UTILITÁRIAS DE DATA (DEFINIDAS PRIMEIRO!)
-        function getMesAtualKey(date = new Date()) {
-            return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+        const STORAGE_KEY = 'TOBA_BANK_DB';
+
+        let db = {
+            version: 1,
+            config: {
+                startDate: new Date().toISOString().split('T')[0]
+            },
+            months: {},
+            transactions: []
+        };
+
+        // --- FORMATADORES ---
+        function isoToBrDate(isoStr) {
+            if (!isoStr || !isoStr.includes('-')) return isoStr || '';
+            const [y, m, d] = isoStr.split('-');
+            return `${d}/${m}/${y}`;
+        }
+
+        function formatMonthYearLabel(yearStr, monthIndex) {
+            const date = new Date(yearStr, monthIndex, 1);
+            const rawMonthName = date.toLocaleDateString('pt-BR', { month: 'long' });
+            const capitalizedMonth = rawMonthName.charAt(0).toUpperCase() + rawMonthName.slice(1);
+            const shortYear = String(yearStr).slice(-2);
+            return `${capitalizedMonth}-${shortYear}`;
+        }
+
+        function formatCurrency(val) {
+            return (val || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
         }
 
         function getCurrentMonthKey() {
-            return getMesAtualKey(new Date());
+            const date = new Date();
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            return `${year}-${month}`;
         }
 
-        function getDaysInMonth(year, month1Based) {
-            return new Date(year, month1Based, 0).getDate();
+        function getTodayIsoDateStr() {
+            return new Date().toISOString().split('T')[0];
         }
 
-        // BATABASEEE OFICIAL COMPLETO (TESTES 2026)
-        const dadosDeExemplo = {
-            metaDiaria: 100,
-            diaInicioContagem: 1,
-            gastos: [
-                { id: 1001, valor: 420.00, descricao: 'Mercado Carrefour', categoria: 'Mercado', data: '2026-07-02' },
-                { id: 1002, valor: 180.00, descricao: 'Petz (Gon e Killua)', categoria: 'Pets', data: '2026-07-06' },
-                { id: 1003, valor: 240.00, descricao: 'Kérastase Anti-Queda', categoria: 'Outros', data: '2026-07-10' },
-                { id: 1004, valor: 250.00, descricao: 'Gasolina V-Power (208 GT)', categoria: 'Combustível', data: '2026-07-15' },
-                { id: 1005, valor: 195.00, descricao: 'Jantar Namorada', categoria: 'Lazer', data: '2026-07-20' },
-                { id: 1006, valor: 135.00, descricao: 'iFood FDS', categoria: 'Alimentação', data: '2026-07-25' }
-            ],
-            parcelas: [
-                { id: 2001, descricao: 'Pneu Peugeot 208 GT', valorParcela: 250, totalParcelas: 6, parcelasPagas: 4, categoria: 'Outros', mesPrimeiraParcela: '2026-03' },
-                { id: 2002, descricao: 'Ar Condicionado', valorParcela: 180, totalParcelas: 10, parcelasPagas: 3, categoria: 'Casa', mesPrimeiraParcela: '2026-04' },
-                { id: 2003, descricao: 'Seguro Auto', valorParcela: 150, totalParcelas: 12, parcelasPagas: 1, categoria: 'Contas', mesPrimeiraParcela: '2026-07' }
-            ],
-            investimentos: [
-                {
-                    id: 5001,
-                    nome: 'CDB Caixinha 110% CDI',
-                    aporteInicial: 1000.00,
-                    mesInicial: '2026-03',
-                    historico: [
-                        { mes: '2026-03', saldo: 1012.00 },
-                        { mes: '2026-04', saldo: 1025.50 },
-                        { mes: '2026-05', saldo: 1040.10 },
-                        { mes: '2026-06', saldo: 1055.00 },
-                        { mes: '2026-07', saldo: 1070.00 }
-                    ]
-                },
-                {
-                    id: 5002,
-                    nome: 'Fundo Multimercado Tech (Volátil)',
-                    aporteInicial: 5000.00,
-                    mesInicial: '2026-03',
-                    historico: [
-                        { mes: '2026-03', saldo: 4820.00 }, // 🔻 Mês 1: Caiu (-R$ 180,00)
-                        { mes: '2026-04', saldo: 5180.00 }, // 🟢 Mês 2: Subiu bem (+R$ 360,00)
-                        { mes: '2026-05', saldo: 4940.00 }, // 🔻 Mês 3: Caiu de novo (-R$ 240,00)
-                        { mes: '2026-06', saldo: 5310.00 }, // 🟢 Mês 4: Porrada pra cima (+R$ 370,00)
-                        { mes: '2026-07', saldo: 5210.00 }  // 🔻 Mês 5: Leve corrigida (-R$ 100,00)
-                    ]
-                }
-            ],
-            viagens: [
-                {
-                    id: 3001,
-                    nome: 'Praia em Ubatuba',
-                    teto: 2500,
-                    gastos: [
-                        { id: 3002, valor: 850, descricao: 'Pousada' },
-                        { id: 3003, valor: 340, descricao: 'Quiosque & Jantar' }
-                    ]
-                }
-            ],
-            cofre: 3094.50,
-            ultimoMes: '2026-07',
-            mesesFechados: [
-                {
-                    mes: '2026-03',
-                    saldo: 715.00,
-                    gastoTotal: 2385.00,
-                    gastos: [
-                        { id: 4001, valor: 620.00, descricao: 'Supermercado Carrefour', categoria: 'Mercado', data: '2026-03-02' },
-                        { id: 4002, valor: 310.00, descricao: 'Petz - Ração N&D + Sachês', categoria: 'Pets', data: '2026-03-05' },
-                        { id: 4003, valor: 240.00, descricao: 'Posto Shell V-Power', categoria: 'Combustível', data: '2026-03-10' },
-                        { id: 4004, valor: 285.00, descricao: 'Jantar c/ Namorada', categoria: 'Lazer', data: '2026-03-15' },
-                        { id: 4005, valor: 260.00, descricao: 'Dr Jones + Kérastase', categoria: 'Outros', data: '2026-03-20' },
-                        { id: 4006, valor: 320.00, descricao: 'Shopping & Cinema', categoria: 'Lazer', data: '2026-03-24' },
-                        { id: 4007, valor: 350.00, descricao: 'Revisão Carro', categoria: 'Casa', data: '2026-03-28' }
-                    ]
-                },
-                {
-                    mes: '2026-04',
-                    saldo: 814.50,
-                    gastoTotal: 2185.50,
-                    gastos: [
-                        { id: 4008, valor: 580.00, descricao: 'Mercado Carrefour', categoria: 'Mercado', data: '2026-04-03' },
-                        { id: 4009, valor: 210.00, descricao: 'Sashimi & Japa', categoria: 'Alimentação', data: '2026-04-05' },
-                        { id: 4010, valor: 180.00, descricao: 'Petshop (Gon e Killua)', categoria: 'Pets', data: '2026-04-08' },
-                        { id: 4011, valor: 230.00, descricao: 'Gasolina (208 GT)', categoria: 'Combustível', data: '2026-04-12' },
-                        { id: 4012, valor: 210.00, descricao: 'Truss Net Mask & Cosméticos', categoria: 'Outros', data: '2026-04-15' },
-                        { id: 4013, valor: 115.50, descricao: 'iFood + Hambúrguer', categoria: 'Lazer', data: '2026-04-19' },
-                        { id: 4014, valor: 180.00, descricao: 'Luva Muay Thai', categoria: 'Outros', data: '2026-04-22' },
-                        { id: 4015, valor: 480.00, descricao: 'Feira e Compras Casa', categoria: 'Casa', data: '2026-04-27' }
-                    ]
-                },
-                {
-                    mes: '2026-05',
-                    saldo: 920.00,
-                    gastoTotal: 2080.00,
-                    gastos: [
-                        { id: 4016, valor: 730.00, descricao: 'Compras Pão de Açúcar', categoria: 'Mercado', data: '2026-05-02' },
-                        { id: 4017, valor: 140.00, descricao: 'Petz - Areia & Bifinhos', categoria: 'Pets', data: '2026-05-06' },
-                        { id: 4018, valor: 280.00, descricao: 'Abastecimento Toro', categoria: 'Combustível', data: '2026-05-10' },
-                        { id: 4019, valor: 340.00, descricao: 'Outback em Família', categoria: 'Alimentação', data: '2026-05-15' },
-                        { id: 4020, valor: 200.00, descricao: 'Mensalidade Muay Thai', categoria: 'Outros', data: '2026-05-20' },
-                        { id: 4021, valor: 390.00, descricao: 'Barbeiro & Elixir Kérastase', categoria: 'Outros', data: '2026-05-25' }
-                    ]
-                },
-                {
-                    mes: '2026-06',
-                    saldo: 645.00,
-                    gastoTotal: 2355.00,
-                    gastos: [
-                        { id: 4022, valor: 680.00, descricao: 'Carrefour + Swift', categoria: 'Mercado', data: '2026-06-03' },
-                        { id: 4023, valor: 290.00, descricao: 'Vet & Sachês Royal Canin', categoria: 'Pets', data: '2026-06-07' },
-                        { id: 4024, valor: 195.00, descricao: 'Cinema + Hamburgueria', categoria: 'Lazer', data: '2026-06-12' },
-                        { id: 4025, valor: 310.00, descricao: 'Posto Shell + Sem Parar', categoria: 'Combustível', data: '2026-06-18' },
-                        { id: 4026, valor: 180.00, descricao: 'Farmácia & Vitaminas', categoria: 'Saúde', data: '2026-06-22' },
-                        { id: 4027, valor: 700.00, descricao: 'Manutenção Eletrodoméstico', categoria: 'Casa', data: '2026-06-28' }
-                    ]
-                }
-            ]
-        };
+        function getDaysInMonth(year, monthIndex) {
+            return new Date(year, monthIndex + 1, 0).getDate();
+        }
 
-        let state = {};
-        let editingParcelaId = null;
+        function getEffectiveDaysInMonth(year, monthIndex) {
+            const totalDays = getDaysInMonth(year, monthIndex);
+            if (!db.config.startDate) return totalDays;
+            const isoStart = db.config.startDate;
+            if (!isoStart || !isoStart.includes('-')) return totalDays;
 
-        const categoryIcons = {
-            'Alimentação': '🛠️',
-            'Mercado': '🛍️',
-            'Combustível': '⛽',
-            'Lazer': '🎉',
-            'Contas': '💵',
-            'Casa': '🏠',
-            'Saúde': '🩺',
-            'Pets': '🐾',
-            'Outros': '📦'
-        };
+            const [sYear, sMonth, sDay] = isoStart.split('-').map(Number);
+            const currentYear = year;
+            const currentMonth = monthIndex + 1;
 
-        function init() {
-            let saved = null;
-            try {
-                saved = localStorage.getItem('tobabank_data_v5');
-            } catch(e) {
-                console.warn('LocalStorage não acessível, usando banco em memória:', e);
+            if (currentYear < sYear || (currentYear === sYear && currentMonth < sMonth)) return 0;
+
+            if (currentYear === sYear && currentMonth === sMonth) {
+                const daysLeft = totalDays - sDay + 1;
+                return daysLeft > 0 ? daysLeft : 0;
             }
 
-            if (saved) {
-                try { 
-                    state = JSON.parse(saved); 
-                } catch(e) {
-                    state = JSON.parse(JSON.stringify(dadosDeExemplo));
+            return totalDays;
+        }
+
+        // --- INICIALIZAÇÃO ---
+        window.addEventListener('DOMContentLoaded', () => {
+            loadDatabase();
+            setupEvents();
+            renderDashboard();
+        });
+
+        function loadDatabase() {
+            const data = localStorage.getItem(STORAGE_KEY);
+            if (data) {
+                try {
+                    db = JSON.parse(data);
+                    if (!db.transactions) db.transactions = [];
+                    if (db.config.startDate && db.config.startDate.includes('/')) {
+                        const [d, m, y] = db.config.startDate.split('/');
+                        db.config.startDate = `${y}-${m.padStart(2,'0')}-${d.padStart(2,'0')}`;
+                    }
+                } catch (e) {
+                    console.error("Erro ao carregar banco de dados", e);
                 }
             } else {
-                state = JSON.parse(JSON.stringify(dadosDeExemplo));
+                saveDatabase();
             }
+        }
 
-            // RECOVERY CHECK: Garante que o banco seja preenchido com dados de exemplo
-            if (!state.gastos || state.gastos.length === 0) state.gastos = JSON.parse(JSON.stringify(dadosDeExemplo.gastos));
-            if (!state.parcelas || state.parcelas.length === 0) state.parcelas = JSON.parse(JSON.stringify(dadosDeExemplo.parcelas));
-            if (!state.investimentos || state.investimentos.length === 0) state.investimentos = JSON.parse(JSON.stringify(dadosDeExemplo.investimentos));
-            if (!state.mesesFechados || state.mesesFechados.length === 0) state.mesesFechados = JSON.parse(JSON.stringify(dadosDeExemplo.mesesFechados));
-            if (!state.cofre) state.cofre = dadosDeExemplo.cofre;
-            if (!state.metaDiaria) state.metaDiaria = 100;
-            if (!state.diaInicioContagem) state.diaInicioContagem = 1;
+        function saveDatabase() {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(db));
+            renderDashboard();
+        }
 
+        // --- EVENTS & MODAIS ---
+        function setupEvents() {
+            const configModal = document.getElementById('configModal');
+            const openConfigBtn = document.getElementById('openConfigBtn');
+            const closeConfigBtn = document.getElementById('closeConfigBtn');
+            const bottomCloseConfigBtn = document.getElementById('bottomCloseConfigBtn');
+            const dailyInput = document.getElementById('dailyBudgetInput');
+            const startDateInput = document.getElementById('startDateInput');
+
+            const closeConfig = () => configModal.classList.remove('active');
+            openConfigBtn.addEventListener('click', () => {
+                const currentMonthKey = getCurrentMonthKey();
+                dailyInput.value = (db.months[currentMonthKey] || {}).dailyBudget || '';
+                startDateInput.value = db.config.startDate || getTodayIsoDateStr();
+                updateMonthlyProjection();
+                configModal.classList.add('active');
+            });
+            closeConfigBtn.addEventListener('click', closeConfig);
+            bottomCloseConfigBtn.addEventListener('click', closeConfig);
+
+            dailyInput.addEventListener('input', () => {
+                updateMonthlyProjection();
+                const val = parseFloat(dailyInput.value) || 0;
+                const currentMonthKey = getCurrentMonthKey();
+                if (!db.months[currentMonthKey]) db.months[currentMonthKey] = {};
+                db.months[currentMonthKey].dailyBudget = val;
+                saveDatabase();
+            });
+
+            startDateInput.addEventListener('change', () => {
+                db.config.startDate = startDateInput.value;
+                updateMonthlyProjection();
+                saveDatabase();
+            });
+
+            // Modal Gastos
+            const expenseModal = document.getElementById('expenseModal');
+            const openAddExpenseBtn = document.getElementById('openAddExpenseBtn');
+            const closeExpenseBtn = document.getElementById('closeExpenseBtn');
+            const expenseForm = document.getElementById('expenseForm');
+
+            const closeExpense = () => expenseModal.classList.remove('active');
+            openAddExpenseBtn.addEventListener('click', () => openExpenseModal());
+            closeExpenseBtn.addEventListener('click', closeExpense);
+
+            expenseForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                saveExpense();
+                closeExpense();
+            });
+        }
+
+        function updateMonthlyProjection() {
+            const dailyVal = parseFloat(document.getElementById('dailyBudgetInput').value) || 0;
             const now = new Date();
-            const setVal = (id, val) => { const el = document.getElementById(id); if(el) el.value = val; };
-            setVal('inputMetaDiaria', state.metaDiaria);
-            setVal('inputDiaInicioContagem', state.diaInicioContagem || 1);
-            setVal('parcelaPrimeiraMes', `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`);
-            setVal('invMesInicial', `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`);
-            setVal('invAtualizarMes', `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`);
-            
-            const monthNames = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
-            const badge = document.getElementById('currentMonthBadge');
-            if(badge) badge.innerText = monthNames[now.getMonth()] + " " + now.getFullYear();
+            const effectiveDays = getEffectiveDaysInMonth(now.getFullYear(), now.getMonth());
+            const monthlyTotal = dailyVal * effectiveDays;
+            const monthFormatted = formatMonthYearLabel(now.getFullYear(), now.getMonth());
 
-            state.ultimoMes = getCurrentMonthKey();
-
-            saveState();
-        }
-
-        function saveState() {
-            try {
-                localStorage.setItem('tobabank_data_v5', JSON.stringify(state));
-            } catch(e){}
-            renderAll();
-        }
-
-        function renderAll() {
-            renderInicio();
-            renderMesAtivo();
-            renderParcelas();
-            renderInvestimentos();
-            renderViagens();
-        }
-
-        function switchTab(tabName) {
-            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
-            
-            document.getElementById('tab-' + tabName).classList.add('active');
-            
-            const idx = ['inicio', 'mes', 'parcelas', 'investimentos', 'viagens', 'ajustes'].indexOf(tabName);
-            if(idx !== -1) {
-                document.querySelectorAll('.nav-item')[idx].classList.add('active');
+            let noteStr = `(${effectiveDays} dias no 1º mês)`;
+            if (effectiveDays === getDaysInMonth(now.getFullYear(), now.getMonth())) {
+                noteStr = `(${effectiveDays} dias)`;
             }
+
+            document.getElementById('monthlyProjection').innerHTML = 
+                `Para <b>${monthFormatted}</b> ${noteStr}, <b>R$ ${dailyVal.toFixed(2)}</b>/dia = <b>${formatCurrency(monthlyTotal)}</b>.`;
         }
 
-        function openModal(id) {
-            if (id === 'modalGasto') {
-                const input = document.getElementById('gastoData');
-                if (input) {
-                    input.value = new Date().toISOString().split('T')[0];
+        // --- LÓGICA DE GASTOS ---
+        function openExpenseModal(id = null) {
+            const modal = document.getElementById('expenseModal');
+            const title = document.getElementById('expenseModalTitle');
+            const idInput = document.getElementById('expenseIdInput');
+            const descInput = document.getElementById('expenseDescInput');
+            const amountInput = document.getElementById('expenseAmountInput');
+            const catSelect = document.getElementById('expenseCategorySelect');
+            const dateInput = document.getElementById('expenseDateInput');
+
+            if (id) {
+                const item = db.transactions.find(t => t.id === id);
+                if (item) {
+                    title.innerText = "✏️ Editar Gasto";
+                    idInput.value = item.id;
+                    descInput.value = item.description;
+                    amountInput.value = item.amount;
+                    catSelect.value = item.category;
+                    dateInput.value = item.date;
                 }
-            }
-            document.getElementById(id).classList.add('active');
-        }
-        function closeModal(id) { document.getElementById(id).classList.remove('active'); }
-
-        function formatMoney(val) {
-            return "R$ " + Number(val || 0).toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2});
-        }
-
-        function parseDataValor(valor) {
-            if (!valor) return null;
-            if (typeof valor === 'string' && valor.includes('-')) {
-                const [year, month, day] = valor.split('-').map(Number);
-                return { year, month, day, raw: valor };
-            }
-            if (typeof valor === 'string' && valor.includes('/')) {
-                const parts = valor.split('/');
-                const day = Number(parts[0]);
-                const month = Number(parts[1]);
-                const yearPart = parts[2] ? Number(parts[2]) : new Date().getFullYear();
-                return { year: yearPart, month, day, raw: valor };
-            }
-            return null;
-        }
-
-        function getGastosDoMes(date = new Date()) {
-            const mesAtual = getMesAtualKey(date);
-            return (state.gastos || []).filter(g => {
-                const parsed = parseDataValor(g.data);
-                if (!parsed) return false;
-                const mesKey = `${parsed.year}-${String(parsed.month).padStart(2, '0')}`;
-                return mesKey === mesAtual;
-            });
-        }
-
-        function abrirDetalhesMes(mesKey) {
-            const item = (state.mesesFechados || []).find(x => x.mes === mesKey);
-            if (!item) return;
-
-            document.getElementById('modalHistoricoTitulo').innerText = `Detalhes de ${mesKey}`;
-
-            const [yearStr, monthStr] = mesKey.split('-');
-            const year = parseInt(yearStr);
-            const month = parseInt(monthStr);
-            const diasNoMes = getDaysInMonth(year, month);
-            const metaDiaria = state.metaDiaria || 100;
-            const orcamentoTotal = metaDiaria * diasNoMes;
-
-            const gastos = (Array.isArray(item.gastos) ? item.gastos : []).slice();
-            const totalGasto = gastos.reduce((acc, g) => acc + Number(g.valor || 0), 0);
-            const economiaGuardada = Math.max(0, orcamentoTotal - totalGasto);
-
-            const categorias = {};
-            gastos.forEach(g => {
-                const cat = g.categoria || 'Outros';
-                categorias[cat] = (categorias[cat] || 0) + Number(g.valor || 0);
-            });
-
-            const categoriasHtml = Object.entries(categorias)
-                .sort((a,b) => b[1] - a[1])
-                .map(([cat, val]) => {
-                    const pct = totalGasto > 0 ? Math.round((val / totalGasto) * 100) : 0;
-                    return `
-                        <div style="margin-bottom: 8px;">
-                            <div style="display:flex; justify-content:space-between; font-size:13px; margin-bottom:2px;">
-                                <span>${categoryIcons[cat] || '📦'} ${cat}</span>
-                                <strong>${formatMoney(val)} (${pct}%)</strong>
-                            </div>
-                            <div class="progress-bar-bg">
-                                <div class="progress-bar-fill" style="width: ${pct}%;"></div>
-                            </div>
-                        </div>
-                    `;
-                }).join('');
-
-            const transacoesHtml = gastos.map(g => `
-                <div style="display:flex; justify-content:space-between; align-items:center; padding:10px 0; border-bottom:1px solid var(--border-color);">
-                    <div>
-                        <div style="font-weight:600; font-size:14px;">${categoryIcons[g.categoria] || '📦'} ${g.descricao || 'Transação'}</div>
-                        <div style="font-size:12px; color:var(--text-muted);">${g.categoria || 'Outros'} • ${g.data || 'Data N/A'}</div>
-                    </div>
-                    <strong style="color:var(--danger); font-size:14px;">${formatMoney(g.valor)}</strong>
-                </div>
-            `).join('');
-
-            document.getElementById('historicoMesContent').innerHTML = `
-                <div style="background: var(--card-sub); padding: 14px; border-radius: 12px; border: 1px solid var(--border-color); margin-bottom: 16px;">
-                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; text-align: center;">
-                        <div>
-                            <div style="font-size: 10px; color: var(--text-muted); text-transform: uppercase;">Orçamento (${diasNoMes}d)</div>
-                            <div style="font-size: 13px; font-weight: 800; color: var(--text-main);">${formatMoney(orcamentoTotal)}</div>
-                        </div>
-                        <div>
-                            <div style="font-size: 10px; color: var(--text-muted); text-transform: uppercase;">Total Gastos</div>
-                            <div style="font-size: 13px; font-weight: 800; color: var(--danger);">${formatMoney(totalGasto)}</div>
-                        </div>
-                        <div>
-                            <div style="font-size: 10px; color: var(--text-muted); text-transform: uppercase;">Economia</div>
-                            <div style="font-size: 13px; font-weight: 800; color: var(--accent);">${formatMoney(economiaGuardada)}</div>
-                        </div>
-                    </div>
-                </div>
-
-                <div style="margin-bottom: 16px;">
-                    <div class="card-title">Resumo por Categoria</div>
-                    ${categoriasHtml || '<p style="font-size:13px; color:var(--text-muted);">Nenhuma categoria registrada.</p>'}
-                </div>
-
-                <div>
-                    <div class="card-title">Lançamentos do Mês (${gastos.length})</div>
-                    ${transacoesHtml || '<p style="font-size:13px; color:var(--text-muted);">Nenhum lançamento registrado.</p>'}
-                </div>
-            `;
-            openModal('modalHistoricoMes');
-        }
-
-        // TAB 1: INÍCIO
-        function renderInicio() {
-            document.getElementById('cofreTotal').innerText = formatMoney(state.cofre);
-            document.getElementById('homeMetaDiaria').innerText = formatMoney(state.metaDiaria);
-            
-            const totalParcelasMensal = getParcelasAtivasNoMes().reduce((acc, p) => acc + Number(p.valorParcela), 0);
-            const now = new Date();
-            const daysInMonth = getDaysInMonth(now.getFullYear(), now.getMonth() + 1);
-            const impactoDiario = totalParcelasMensal / daysInMonth;
-
-            document.getElementById('homeParcelasTotal').innerText = formatMoney(totalParcelasMensal);
-            document.getElementById('homeImpactoDiarioSub').innerText = `Impacto: -${formatMoney(impactoDiario)}/dia`;
-
-            const calc = getMesCalculos();
-            const saldoDiarioColor = calc.saldoHoje >= 0 ? 'var(--accent)' : 'var(--danger)';
-            document.getElementById('homeSaldoDiario').innerText = formatMoney(calc.saldoHoje);
-            document.getElementById('homeSaldoDiario').style.color = saldoDiarioColor;
-
-            const mesesFechados = (state.mesesFechados || []).slice().reverse().map(item => `
-                <button data-mes-fechado="${item.mes}" style="width:100%; border:none; background:var(--card-sub); color:inherit; text-align:left; padding:12px; border-radius:12px; border:1px solid var(--border-color); margin-bottom:8px; cursor:pointer;">
-                    <div style="display:flex; justify-content:space-between; align-items:center;">
-                        <div>
-                            <div style="font-weight:700; font-size:14px; color:var(--text-main);">🗓️ Mês ${item.mes}</div>
-                            <div style="font-size:11px; color:var(--text-muted); margin-top:2px;">Gastos: ${formatMoney(item.gastoTotal || 0)}</div>
-                        </div>
-                        <div style="text-align:right;">
-                            <div style="font-size:10px; color:var(--text-muted);">Sobra pro Cofre</div>
-                            <strong style="color:var(--accent); font-size:14px;">+${formatMoney(item.saldo || 0)}</strong>
-                        </div>
-                    </div>
-                </button>
-            `).join('');
-
-            document.getElementById('homeSummaryContent').innerHTML = `
-                <div class="item-row">
-                    <div>
-                        <div class="item-title">Saldo Acumulado do Mês Ativo</div>
-                        <div class="item-sub">Sobra acumulada das metas até hoje</div>
-                    </div>
-                    <div class="item-val" style="color:${calc.saldoMes >= 0 ? 'var(--accent)' : 'var(--danger)'};">${formatMoney(calc.saldoMes)}</div>
-                </div>
-                <div style="margin-top: 16px;">
-                    <div class="card-title" style="margin-bottom: 8px;">Histórico de Meses Encerrados</div>
-                    ${mesesFechados ? mesesFechados : '<div class="item-sub">Nenhum mês encerrado ainda.</div>'}
-                </div>
-            `;
-
-            document.querySelectorAll('[data-mes-fechado]').forEach(btn => {
-                btn.addEventListener('click', () => abrirDetalhesMes(btn.getAttribute('data-mes-fechado')));
-            });
-        }
-
-        // TAB 2: MÊS ATIVO
-        function getMesCalculos() {
-            const now = new Date();
-            const currentDay = now.getDate();
-            const daysInMonth = getDaysInMonth(now.getFullYear(), now.getMonth() + 1);
-            const diaInicio = Number(state.diaInicioContagem || 1);
-
-            const totalParcelasMensal = getParcelasAtivasNoMes(now).reduce((acc, p) => acc + Number(p.valorParcela), 0);
-            const impactoDiarioParcelas = totalParcelasMensal / daysInMonth;
-            const metaLiquida = Math.max(0, state.metaDiaria - impactoDiarioParcelas);
-
-            const gastosMes = getGastosDoMes(now);
-            const gastoNoMes = gastosMes.reduce((acc, g) => acc + Number(g.valor), 0);
-            const gastosPorDia = {};
-            
-            gastosMes.forEach(g => {
-                const parsed = parseDataValor(g.data);
-                if (!parsed) return;
-                const dia = Number(parsed.day);
-                const mes = Number(parsed.month);
-                if (mes === now.getMonth() + 1 && dia >= 1 && dia <= currentDay) {
-                    gastosPorDia[dia] = (gastosPorDia[dia] || 0) + Number(g.valor || 0);
-                }
-            });
-
-            let saldoMes = 0;
-            let saldoAcumuladoDia = 0;
-            const diaInicial = Math.max(1, diaInicio);
-            
-            for (let dia = diaInicial; dia <= currentDay; dia++) {
-                const gastoDoDia = gastosPorDia[dia] || 0;
-                const saldoDoDia = saldoAcumuladoDia + metaLiquida - gastoDoDia;
-                saldoMes += saldoDoDia > 0 ? saldoDoDia : 0;
-                saldoAcumuladoDia = saldoDoDia < 0 ? saldoDoDia : 0;
-            }
-
-            const gastoHoje = gastosPorDia[currentDay] || 0;
-            const saldoHoje = saldoAcumuladoDia + metaLiquida - gastoHoje;
-
-            // CALCULINHO CERTO DA MÉDIA DIÁRIA RESTANTE
-            const diasTotaisConsiderados = daysInMonth - Math.max(1, diaInicio) + 1;
-            const orcamentoTotalMes = metaLiquida * diasTotaisConsiderados;
-            const diasRestantes = Math.max(1, daysInMonth - Math.max(currentDay, diaInicio) + 1);
-            
-            const saldoTotalRestanteMes = orcamentoTotalMes - gastoNoMes;
-            const mediaDiaRestante = Math.max(0, saldoTotalRestanteMes / diasRestantes);
-
-            return {
-                currentDay,
-                daysInMonth,
-                totalParcelasMensal,
-                impactoDiarioParcelas,
-                metaLiquida,
-                gastoNoMes,
-                saldoHoje,
-                saldoMes,
-                mediaDiaRestante
-            };
-        }
-
-        function renderMesAtivo() {
-            const c = getMesCalculos();
-
-            document.getElementById('mesSaldoHoje').innerText = formatMoney(c.saldoHoje);
-            document.getElementById('mesSaldoHoje').style.color = c.saldoHoje >= 0 ? 'var(--accent)' : 'var(--danger)';
-            document.getElementById('mesMetaBruta').innerText = formatMoney(state.metaDiaria) + "/dia";
-            document.getElementById('mesImpactoParcela').innerText = "-" + formatMoney(c.impactoDiarioParcelas) + "/dia";
-            document.getElementById('mesMetaLiquida').innerText = formatMoney(c.metaLiquida) + "/dia";
-
-            document.getElementById('mesGastoTotal').innerText = formatMoney(c.gastoNoMes);
-            document.getElementById('mesMediaDia').innerText = formatMoney(c.mediaDiaRestante);
-
-            const badge = document.getElementById('mesStatusBadge');
-            if(c.saldoHoje >= 0) {
-                badge.innerHTML = `<span class="badge-azul">🟢 Você está no azul! Pode gastar até ${formatMoney(c.saldoHoje)} hoje.</span>`;
             } else {
-                badge.innerHTML = `<span class="badge-vermelho">🔴 Você estourou o limite em ${formatMoney(Math.abs(c.saldoHoje))}!</span>`;
+                title.innerText = "➕ Novo Gasto";
+                idInput.value = '';
+                descInput.value = '';
+                amountInput.value = '';
+                catSelect.value = 'Alimentação';
+                dateInput.value = getTodayIsoDateStr();
             }
 
-            renderCategories(c.gastoNoMes);
-
-            const listEl = document.getElementById('gastosList');
-            const gastosMes = getGastosDoMes();
-            if(gastosMes.length === 0) {
-                listEl.innerHTML = '<p style="font-size:13px; color:var(--text-muted); text-align:center; padding:10px;">Nenhum gasto cadastrado este mês.</p>';
-                return;
-            }
-
-            listEl.innerHTML = gastosMes.slice().reverse().map((g) => `
-                <div class="item-row">
-                    <div class="item-info">
-                        <div class="item-icon">${categoryIcons[g.categoria] || '📦'}</div>
-                        <div>
-                            <div class="item-title">${g.descricao || g.categoria}</div>
-                            <div class="item-sub">${g.categoria} • ${g.data || 'Hoje'}</div>
-                        </div>
-                    </div>
-                    <div style="display:flex; align-items:center; gap:10px;">
-                        <div class="item-val" style="color:var(--danger);">${formatMoney(g.valor)}</div>
-                        <button style="background:none; border:none; color:var(--text-muted); cursor:pointer; font-size:16px;" onclick="removerGasto(${g.id})">✕</button>
-                    </div>
-                </div>
-            `).join('');
+            modal.classList.add('active');
         }
 
-        function renderCategories(totalGasto) {
-            const catEl = document.getElementById('categoryAnalysis');
-            if(totalGasto <= 0) {
-                catEl.innerHTML = '<p style="font-size: 13px; color: var(--text-muted); text-align: center; padding: 10px;">Sem dados para analisar neste mês.</p>';
+        function saveExpense() {
+            const id = document.getElementById('expenseIdInput').value;
+            const desc = document.getElementById('expenseDescInput').value;
+            const amount = parseFloat(document.getElementById('expenseAmountInput').value) || 0;
+            const category = document.getElementById('expenseCategorySelect').value;
+            const date = document.getElementById('expenseDateInput').value;
+
+            if (id) {
+                const index = db.transactions.findIndex(t => t.id === id);
+                if (index !== -1) {
+                    db.transactions[index] = { id, description: desc, amount, category, date };
+                }
+            } else {
+                const newTransaction = {
+                    id: Date.now().toString(),
+                    description: desc,
+                    amount,
+                    category,
+                    date
+                };
+                db.transactions.push(newTransaction);
+            }
+
+            saveDatabase();
+        }
+
+        function deleteExpense(id) {
+            if (confirm('Deseja apagar este gasto?')) {
+                db.transactions = db.transactions.filter(t => t.id !== id);
+                saveDatabase();
+            }
+        }
+
+        // --- RENDERIZAÇÃO DA DASHBOARD & COFRE ATÉ HOJE ---
+        function renderDashboard() {
+            const now = new Date();
+            const currentMonthKey = getCurrentMonthKey();
+            const todayIso = getTodayIsoDateStr();
+            const monthFormatted = formatMonthYearLabel(now.getFullYear(), now.getMonth());
+
+            // Orçamento Diário e Mensal
+            const dailyBudget = (db.months[currentMonthKey] || {}).dailyBudget || 0;
+            const effectiveDays = getEffectiveDaysInMonth(now.getFullYear(), now.getMonth());
+            const monthlyBudget = dailyBudget * effectiveDays;
+
+            // Transações do mês atual
+            const currentMonthTransactions = db.transactions.filter(t => t.date && t.date.startsWith(currentMonthKey));
+            const monthlySpent = currentMonthTransactions.reduce((acc, t) => acc + t.amount, 0);
+
+            // Gasto de HOJE
+            const todaySpent = db.transactions.filter(t => t.date === todayIso).reduce((acc, t) => acc + t.amount, 0);
+            const todayAvailable = dailyBudget - todaySpent;
+
+            // CÁLCULO DO COFRE (ACUMULADO ATÉ HOJE INCLUSO)
+            let daysElapsedUntilToday = 0;
+            const startDateIso = db.config.startDate || todayIso;
+
+            if (startDateIso) {
+                const [sYear, sMonth, sDay] = startDateIso.split('-').map(Number);
+                const [tYear, tMonth, tDay] = todayIso.split('-').map(Number);
+                
+                // Se estamos no mesmo ano/mês
+                if (sYear === tYear && sMonth === (now.getMonth() + 1)) {
+                    daysElapsedUntilToday = (tDay - sDay + 1);
+                } else {
+                    daysElapsedUntilToday = now.getDate(); // Padrão dia do mês se já passou
+                }
+            }
+            if (daysElapsedUntilToday < 1) daysElapsedUntilToday = 1;
+
+            const totalAccumulatedBudgetToday = dailyBudget * daysElapsedUntilToday;
+            const totalSpentUntilToday = currentMonthTransactions.reduce((acc, t) => acc + t.amount, 0);
+            const vaultBalance = totalAccumulatedBudgetToday - totalSpentUntilToday;
+
+            // 1. Badges e Cards Principais
+            document.getElementById('dashMonthBadge').innerText = monthFormatted;
+            
+            // Gastos Mês (Texto neutro por padrão, vermelho só se estourar tudo)
+            document.getElementById('dashMonthlySpent').innerText = formatCurrency(monthlySpent);
+            document.getElementById('dashMonthlySpent').className = `card-value ${monthlySpent > monthlyBudget && monthlyBudget > 0 ? 'text-red' : 'text-neutral'}`;
+            document.getElementById('dashMonthlyMeta').innerText = `de ${formatCurrency(monthlyBudget)} previstos (${effectiveDays} dias)`;
+
+            // Disponível Hoje
+            document.getElementById('dashTodayAvailable').innerText = formatCurrency(todayAvailable);
+            document.getElementById('dashTodayAvailable').className = `card-value ${todayAvailable < 0 ? 'text-red' : 'text-green'}`;
+            document.getElementById('dashTodaySpentSub').innerText = `Gasto hoje: ${formatCurrency(todaySpent)}`;
+
+            // Cofre Acumulado (Até Hoje)
+            document.getElementById('dashVaultBalance').innerText = formatCurrency(vaultBalance);
+            document.getElementById('dashVaultBalance').className = `card-value ${vaultBalance < 0 ? 'text-red' : 'text-green'}`;
+            
+            // Subtexto com <br>
+            document.getElementById('dashVaultSub').innerHTML = `Liberado: ${formatCurrency(totalAccumulatedBudgetToday)}<br>(${daysElapsedUntilToday} dias × ${formatCurrency(dailyBudget)})`;
+
+            // 2. BANNER DE RECUPERAÇÃO / CONSELHO DE ECONOMIA
+            const adviceBanner = document.getElementById('adviceBanner');
+            const adviceText = document.getElementById('adviceText');
+
+            if (vaultBalance < 0 && dailyBudget > 0) {
+                const deficit = Math.abs(vaultBalance);
+                const daysToRecover = Math.ceil(deficit / dailyBudget);
+                
+                adviceText.innerHTML = `Meteu o pé na jaca? <b>Economize nos próximos ${daysToRecover} dia(s)</b> (sem gastar nada) para voltar pro verde!`;
+                adviceBanner.classList.add('active');
+            } else {
+                adviceBanner.classList.remove('active');
+            }
+
+            // 3. Renderizar Barras por Categoria
+            renderCategoryBars(currentMonthTransactions, monthlySpent);
+
+            // 4. Renderizar Lista de Transações 1 a 1
+            renderExpenseList(currentMonthTransactions);
+        }
+
+        function renderCategoryBars(transactions, totalSpent) {
+            const container = document.getElementById('categoryBarsContainer');
+            container.innerHTML = '';
+
+            if (transactions.length === 0 || totalSpent === 0) {
+                container.innerHTML = '<div class="empty-state">Nenhum gasto registrado neste mês ainda.</div>';
                 return;
             }
 
             const catMap = {};
-            getGastosDoMes().forEach(g => {
-                catMap[g.categoria] = (catMap[g.categoria] || 0) + Number(g.valor);
+            transactions.forEach(t => {
+                catMap[t.category] = (catMap[t.category] || 0) + t.amount;
             });
 
-            catEl.innerHTML = Object.keys(catMap).map(cat => {
-                const val = catMap[cat];
-                const pct = Math.round((val / totalGasto) * 100);
-                return `
-                    <div style="margin-bottom: 10px;">
-                        <div style="display:flex; justify-content:space-between; font-size:13px; margin-bottom:4px;">
-                            <span>${categoryIcons[cat] || '📦'} ${cat}</span>
-                            <strong>${formatMoney(val)} (${pct}%)</strong>
-                        </div>
-                        <div class="progress-bar-bg">
-                            <div class="progress-bar-fill" style="width: ${pct}%;"></div>
-                        </div>
-                    </div>
-                `;
-            }).join('');
-        }
+            const sortedCats = Object.entries(catMap).sort((a, b) => b[1] - a[1]);
 
-        function addAtalhoGasto(v) {
-            const input = document.getElementById('gastoValor');
-            input.value = Number(input.value || 0) + v;
-        }
-
-        function salvarGasto() {
-            const val = parseFloat(document.getElementById('gastoValor').value);
-            const desc = document.getElementById('gastoDesc').value.trim();
-            const cat = document.getElementById('gastoCategoria').value;
-            const dataInput = document.getElementById('gastoData').value;
-
-            if(!val || val <= 0) return alert('Digite um valor válido!');
-
-            const now = new Date();
-            const dataSelecionada = dataInput || `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
-            
-            if(!state.gastos) state.gastos = [];
-            state.gastos.push({
-                id: Date.now(),
-                valor: val,
-                descricao: desc,
-                categoria: cat,
-                data: dataSelecionada
-            });
-
-            document.getElementById('gastoValor').value = '';
-            document.getElementById('gastoDesc').value = '';
-            document.getElementById('gastoData').value = '';
-            closeModal('modalGasto');
-            saveState();
-        }
-
-        function removerGasto(id) {
-            const idx = state.gastos.findIndex(x => x.id === id);
-            if(idx !== -1) {
-                state.gastos.splice(idx, 1);
-                saveState();
-            }
-        }
-
-        // PROJEÇÃO DE PARCELAS
-        function renderProjecaoParcelas() {
-            const container = document.getElementById('projecaoParcelasList');
-            const now = new Date();
-            let year = now.getFullYear();
-            let month = now.getMonth() + 1;
-            const monthNamesShort = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
-
-            let html = '';
-
-            for (let i = 0; i < 6; i++) {
-                let totalMes = 0;
-                let qtdParcelas = 0;
-
-                (state.parcelas || []).forEach(p => {
-                    if (!p.mesPrimeiraParcela) return;
-                    const [startYear, startMonth] = p.mesPrimeiraParcela.split('-').map(Number);
-                    const diff = (year - startYear) * 12 + (month - startMonth);
-                    
-                    if (diff >= 0 && diff < p.totalParcelas) {
-                        totalMes += Number(p.valorParcela);
-                        qtdParcelas++;
-                    }
-                });
-
-                const isCurrent = i === 0;
-                html += `
-                    <div class="projection-card ${isCurrent ? 'active-month' : ''}">
-                        <div style="font-size: 11px; color: ${isCurrent ? 'var(--accent)' : 'var(--text-muted)'}; font-weight: 700;">
-                            ${monthNamesShort[month - 1]}/${String(year).slice(-2)} ${isCurrent ? '(Hoje)' : ''}
-                        </div>
-                        <div style="font-size: 14px; font-weight: 800; margin-top: 4px; color: ${totalMes > 0 ? 'var(--danger)' : 'var(--accent)'}">
-                            ${formatMoney(totalMes)}
-                        </div>
-                        <div style="font-size: 10px; color: var(--text-muted); margin-top: 2px;">
-                            ${qtdParcelas} ${qtdParcelas === 1 ? 'parcela' : 'parcelas'}
-                        </div>
-                    </div>
-                `;
-
-                month++;
-                if (month > 12) {
-                    month = 1;
-                    year++;
-                }
-            }
-
-            container.innerHTML = html;
-        }
-
-        // PARCELAS
-        function getParcelasAtivasNoMes(date = new Date()) {
-            const mesAtual = getMesAtualKey(date);
-            return (state.parcelas || []).filter(p => {
-                if (!p.mesPrimeiraParcela) return p.parcelasPagas < p.totalParcelas;
-                return p.mesPrimeiraParcela <= mesAtual && p.parcelasPagas < p.totalParcelas;
-            });
-        }
-
-        function renderParcelas() {
-            renderProjecaoParcelas();
-
-            const parcelasAtivas = getParcelasAtivasNoMes();
-            const faturaMensal = parcelasAtivas.reduce((acc, p) => acc + Number(p.valorParcela), 0);
-            const totalDevedor = (state.parcelas || []).reduce((acc, p) => {
-                const rest = p.totalParcelas - p.parcelasPagas;
-                return acc + (rest > 0 ? rest * Number(p.valorParcela) : 0);
-            }, 0);
-
-            document.getElementById('parcelasFaturaMensal').innerText = formatMoney(faturaMensal);
-            document.getElementById('parcelasTotalDevedor').innerText = formatMoney(totalDevedor);
-
-            const listEl = document.getElementById('parcelasList');
-            if(!state.parcelas || state.parcelas.length === 0) {
-                listEl.innerHTML = '<p style="font-size:13px; color:var(--text-muted); text-align:center; padding:10px;">Nenhuma compra parcelada ativa.</p>';
-                return;
-            }
-
-            listEl.innerHTML = state.parcelas.map((p, idx) => {
-                const pct = Math.min(100, Math.round((p.parcelasPagas / p.totalParcelas) * 100));
-                const quitado = p.parcelasPagas >= p.totalParcelas;
-                const labelPrimeiraParcela = p.mesPrimeiraParcela
-                    ? new Date(`${p.mesPrimeiraParcela}-01T00:00:00`).toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' })
-                    : 'Mês não definido';
-                return `
-                    <div class="card">
-                        <div style="display:flex; justify-content:space-between; align-items:flex-start;">
-                            <div>
-                                <div style="font-weight:700; font-size:16px;">${p.descricao}</div>
-                                <div class="item-sub">${p.categoria} • 1ª parcela em ${labelPrimeiraParcela}</div>
-                            </div>
-                            <div style="text-align:right;">
-                                <div style="font-weight:700; color:var(--danger);">${formatMoney(p.valorParcela)}/mês</div>
-                                <div class="item-sub">Total: ${formatMoney(p.valorParcela * p.totalParcelas)}</div>
-                            </div>
-                        </div>
-
-                        <div class="progress-bar-bg" style="margin-top:12px;">
-                            <div class="progress-bar-fill" style="width: ${pct}%;"></div>
-                        </div>
-
-                        <div style="display:flex; justify-content:space-between; align-items:center; gap:8px; margin-top:12px; flex-wrap:wrap;">
-                            ${quitado ? '<span class="badge-azul">✅ Quitado</span>' : '<span class="badge-azul">⏳ Em andamento</span>'}
-                            <div style="display:flex; gap:8px;">
-                                <button class="btn btn-outline" style="padding:6px 12px; width:auto; font-size:12px;" onclick="abrirModalParcela(state.parcelas[${idx}])">✏️ Editar</button>
-                                <button class="btn btn-danger" style="padding:6px 12px; width:auto; font-size:12px;" onclick="removerParcela(${idx})">🗑 Excluir</button>
-                            </div>
-                        </div>
-                    </div>
-                `;
-            }).join('');
-        }
-
-        function abrirModalParcela(parcela = null) {
-            const titleEl = document.getElementById('modalParcelaTitle');
-            const saveBtn = document.getElementById('btnSalvarParcela');
-            const hiddenIdEl = document.getElementById('editingParcelaId');
-            const descEl = document.getElementById('parcelaDesc');
-            const valorEl = document.getElementById('parcelaValor');
-            const totalEl = document.getElementById('parcelaTotalCount');
-            const mesEl = document.getElementById('parcelaPrimeiraMes');
-            const catEl = document.getElementById('parcelaCategoria');
-
-            if (parcela) {
-                editingParcelaId = parcela.id;
-                titleEl.innerText = 'Editar Compra Parcelada';
-                saveBtn.innerText = 'Salvar Alterações';
-                hiddenIdEl.value = parcela.id;
-                descEl.value = parcela.descricao || '';
-                valorEl.value = (parcela.valorParcela * parcela.totalParcelas) || '';
-                totalEl.value = parcela.totalParcelas || '';
-                mesEl.value = parcela.mesPrimeiraParcela || '';
-                catEl.value = parcela.categoria || 'Outros';
-            } else {
-                editingParcelaId = null;
-                titleEl.innerText = 'Nova Compra Parcelada';
-                saveBtn.innerText = 'Salvar Parcela';
-                hiddenIdEl.value = '';
-                descEl.value = '';
-                valorEl.value = '';
-                totalEl.value = '10';
-                mesEl.value = '';
-                catEl.value = 'Outros';
-            }
-
-            openModal('modalParcela');
-        }
-
-        function fecharModalParcela() {
-            document.getElementById('editingParcelaId').value = '';
-            document.getElementById('parcelaDesc').value = '';
-            document.getElementById('parcelaValor').value = '';
-            document.getElementById('parcelaTotalCount').value = '10';
-            document.getElementById('parcelaPrimeiraMes').value = '';
-            document.getElementById('parcelaCategoria').value = 'Outros';
-            document.getElementById('modalParcelaTitle').innerText = 'Nova Compra Parcelada';
-            document.getElementById('btnSalvarParcela').innerText = 'Salvar Parcela';
-            editingParcelaId = null;
-            closeModal('modalParcela');
-        }
-
-        function salvarParcela() {
-            const desc = document.getElementById('parcelaDesc').value.trim();
-            const valorCompra = parseFloat(document.getElementById('parcelaValor').value);
-            const total = parseInt(document.getElementById('parcelaTotalCount').value);
-            const mesPrimeiraParcela = document.getElementById('parcelaPrimeiraMes').value;
-            const cat = document.getElementById('parcelaCategoria').value;
-
-            if(!desc || !valorCompra || !total || !mesPrimeiraParcela) return alert('Preencha os campos corretamente!');
-
-            const valorParcela = total > 0 ? valorCompra / total : 0;
-            if(!state.parcelas) state.parcelas = [];
-
-            if (editingParcelaId) {
-                const idx = state.parcelas.findIndex(p => p.id === editingParcelaId);
-                if (idx !== -1) {
-                    state.parcelas[idx] = {
-                        ...state.parcelas[idx],
-                        descricao: desc,
-                        valorParcela: valorParcela,
-                        totalParcelas: total,
-                        categoria: cat,
-                        mesPrimeiraParcela: mesPrimeiraParcela
-                    };
-                }
-            } else {
-                state.parcelas.push({
-                    id: Date.now(),
-                    descricao: desc,
-                    valorParcela: valorParcela,
-                    totalParcelas: total,
-                    parcelasPagas: 0,
-                    categoria: cat,
-                    mesPrimeiraParcela: mesPrimeiraParcela
-                });
-            }
-
-            fecharModalParcela();
-            saveState();
-        }
-
-        function removerParcela(idx) {
-            state.parcelas.splice(idx, 1);
-            saveState();
-        }
-
-        // TAB 4: INVESTIMENTOS
-        function renderInvestimentos() {
-            let patrimonioTotal = 0;
-            let aporteTotalGeral = 0;
-
-            const listEl = document.getElementById('investimentosList');
-
-            if (!state.investimentos || state.investimentos.length === 0) {
-                document.getElementById('invTotalPatrimonio').innerText = formatMoney(0);
-                document.getElementById('invRendimentoTotal').innerText = "+R$ 0,00 (+0.0%)";
-                listEl.innerHTML = '<p style="font-size:13px; color:var(--text-muted); text-align:center; padding:10px;">Nenhum investimento cadastrado.</p>';
-                return;
-            }
-
-            listEl.innerHTML = state.investimentos.map((inv, idx) => {
-                const historico = inv.historico || [];
-                const saldoAtual = historico.length > 0 ? Number(historico[historico.length - 1].saldo) : Number(inv.aporteInicial);
-                const lucro = saldoAtual - Number(inv.aporteInicial);
-                const pctLucro = inv.aporteInicial > 0 ? ((lucro / inv.aporteInicial) * 100).toFixed(1) : 0;
-
-                patrimonioTotal += saldoAtual;
-                aporteTotalGeral += Number(inv.aporteInicial);
-
-                return `
-                    <div class="card">
-                        <div style="display:flex; justify-content:space-between; align-items:flex-start;">
-                            <div>
-                                <div style="font-weight:700; font-size:16px;">📈 ${inv.nome}</div>
-                                <div class="item-sub">Aporte Inicial: ${formatMoney(inv.aporteInicial)} (${inv.mesInicial})</div>
-                            </div>
-                            <div style="text-align:right;">
-                                <div style="font-size:12px; color:var(--text-muted);">Saldo Atual</div>
-                                <div style="font-weight:800; font-size:16px; color:var(--accent);">${formatMoney(saldoAtual)}</div>
-                            </div>
-                        </div>
-
-                        <div style="background:var(--card-sub); border:1px solid var(--border-color); border-radius:10px; padding:8px 12px; margin-top:10px; display:flex; justify-content:space-between; font-size:12px;">
-                            <span>Rendimento Bruto Acumulado:</span>
-                            <strong style="color:${lucro >= 0 ? 'var(--accent)' : 'var(--danger)'}">
-                                ${lucro >= 0 ? '+' : ''}${formatMoney(lucro)} (${pctLucro}%)
-                            </strong>
-                        </div>
-
-                        <div style="display:flex; justify-content:space-between; gap:8px; margin-top:12px;">
-                            <button class="btn btn-outline" style="padding:6px 12px; font-size:12px;" onclick="abrirModalAtualizarSaldoInv(${inv.id})">+ Atualizar Mês</button>
-                            <button class="btn btn-outline" style="padding:6px 12px; font-size:12px;" onclick="abrirDetalhesInvestimento(${inv.id})">🔍 Histórico</button>
-                            <button class="btn btn-danger" style="padding:6px 12px; width:auto; font-size:12px;" onclick="removerInvestimento(${idx})">🗑</button>
-                        </div>
-                    </div>
-                `;
-            }).join('');
-
-            const lucroTotalGeral = patrimonioTotal - aporteTotalGeral;
-            const pctTotalGeral = aporteTotalGeral > 0 ? ((lucroTotalGeral / aporteTotalGeral) * 100).toFixed(1) : 0;
-
-            document.getElementById('invTotalPatrimonio').innerText = formatMoney(patrimonioTotal);
-            document.getElementById('invRendimentoTotal').innerText = `${lucroTotalGeral >= 0 ? '+' : ''}${formatMoney(lucroTotalGeral)} (${pctTotalGeral}%)`;
-            document.getElementById('invRendimentoTotal').style.color = lucroTotalGeral >= 0 ? 'var(--accent)' : 'var(--danger)';
-        }
-
-        function salvarInvestimento() {
-            const nome = document.getElementById('invNome').value.trim();
-            const aporte = parseFloat(document.getElementById('invAporteInicial').value);
-            const mesInicial = document.getElementById('invMesInicial').value;
-
-            if(!nome || !aporte || !mesInicial) return alert('Preencha todos os campos do investimento!');
-
-            if(!state.investimentos) state.investimentos = [];
-            state.investimentos.push({
-                id: Date.now(),
-                nome: nome,
-                aporteInicial: aporte,
-                mesInicial: mesInicial,
-                historico: [{ mes: mesInicial, saldo: aporte }]
-            });
-
-            document.getElementById('invNome').value = '';
-            document.getElementById('invAporteInicial').value = '';
-            closeModal('modalInvestimento');
-            saveState();
-        }
-
-        function abrirModalAtualizarSaldoInv(id) {
-            document.getElementById('activeInvId').value = id;
-            openModal('modalAtualizarSaldoInv');
-        }
-
-        function salvarAtualizacaoSaldoInv() {
-            const id = parseInt(document.getElementById('activeInvId').value);
-            const mes = document.getElementById('invAtualizarMes').value;
-            const saldo = parseFloat(document.getElementById('invAtualizarSaldo').value);
-
-            if(!mes || isNaN(saldo)) return alert('Preencha o mês e o saldo corretamente!');
-
-            const inv = (state.investimentos || []).find(x => x.id === id);
-            if(inv) {
-                if(!inv.historico) inv.historico = [];
-                const existingIdx = inv.historico.findIndex(h => h.mes === mes);
-                if(existingIdx !== -1) {
-                    inv.historico[existingIdx].saldo = saldo;
-                } else {
-                    inv.historico.push({ mes: mes, saldo: saldo });
-                    inv.historico.sort((a,b) => a.mes.localeCompare(b.mes));
-                }
-            }
-
-            document.getElementById('invAtualizarSaldo').value = '';
-            closeModal('modalAtualizarSaldoInv');
-            saveState();
-        }
-
-        function abrirDetalhesInvestimento(id) {
-            const inv = (state.investimentos || []).find(x => x.id === id);
-            if(!inv) return;
-
-            document.getElementById('invDetalhesTitulo').innerText = `Evolução: ${inv.nome}`;
-
-            let baseAporte = inv.aporteInicial;
-            let prevSaldo = baseAporte;
-
-            const historicoHtml = (inv.historico || []).map((h, i) => {
-                const lucroDoMes = h.saldo - prevSaldo;
-                const pctDoMes = prevSaldo > 0 ? ((lucroDoMes / prevSaldo) * 100).toFixed(2) : 0;
+            sortedCats.forEach(([cat, amount]) => {
+                const percentage = Math.min(Math.round((amount / totalSpent) * 100), 100);
                 
-                const lucroTotal = h.saldo - baseAporte;
-                const pctTotal = baseAporte > 0 ? ((lucroTotal / baseAporte) * 100).toFixed(2) : 0;
-
-                prevSaldo = h.saldo;
-
-                return `
-                    <div style="padding: 10px 0; border-bottom: 1px solid var(--border-color);">
-                        <div style="display:flex; justify-content:space-between; font-size:14px; font-weight:700;">
-                            <span>🗓️ Mês ${h.mes}</span>
-                            <span style="color:var(--accent);">${formatMoney(h.saldo)}</span>
-                        </div>
-                        <div style="display:flex; justify-content:space-between; font-size:12px; color:var(--text-muted); margin-top:4px;">
-                            <span>Rendimento no Mês: <strong style="color:${lucroDoMes >= 0 ? 'var(--accent)' : 'var(--danger)'}">${lucroDoMes >= 0 ? '+' : ''}${formatMoney(lucroDoMes)} (${pctDoMes}%)</strong></span>
-                            <span>Total: <strong style="color:${lucroTotal >= 0 ? 'var(--accent)' : 'var(--danger)'}">${pctTotal}%</strong></span>
-                        </div>
+                const itemEl = document.createElement('div');
+                itemEl.className = 'category-item';
+                itemEl.innerHTML = `
+                    <div class="category-info">
+                        <span>${cat}</span>
+                        <span><b>${formatCurrency(amount)}</b> (${percentage}%)</span>
+                    </div>
+                    <div class="progress-bar-bg">
+                        <div class="progress-bar-fill" style="width: ${percentage}%;"></div>
                     </div>
                 `;
-            }).join('');
-
-            document.getElementById('invDetalhesContent').innerHTML = `
-                <div style="background:var(--card-sub); padding:12px; border-radius:12px; border:1px solid var(--border-color); margin-bottom:12px; font-size:13px;">
-                    <div>Aporte Inicial: <strong>${formatMoney(inv.aporteInicial)}</strong> em ${inv.mesInicial}</div>
-                </div>
-                <div>
-                    <div class="card-title">Histórico de Rendimento Mês a Mês</div>
-                    ${historicoHtml}
-                </div>
-            `;
-
-            openModal('modalDetalhesInv');
+                container.appendChild(itemEl);
+            });
         }
 
-        function removerInvestimento(idx) {
-            if(confirm('Deseja excluir este investimento?')) {
-                state.investimentos.splice(idx, 1);
-                saveState();
-            }
-        }
+        function renderExpenseList(transactions) {
+            const container = document.getElementById('expenseListContainer');
+            container.innerHTML = '';
 
-        // VIAGENS
-        function renderViagens() {
-            const listEl = document.getElementById('viagensList');
-            if(!state.viagens || state.viagens.length === 0) {
-                listEl.innerHTML = '<p style="font-size:13px; color:var(--text-muted); text-align:center; padding:10px;">Nenhuma viagem ou evento criado.</p>';
+            if (transactions.length === 0) {
+                container.innerHTML = '<div class="empty-state">Sua lista está limpa! Clique em <b>+ Gasto</b> pra lançar.</div>';
                 return;
             }
 
-            listEl.innerHTML = state.viagens.map((v, vIdx) => {
-                const totalGasto = (v.gastos || []).reduce((acc, g) => acc + Number(g.valor), 0);
-                const saldoRestante = v.teto - totalGasto;
-                const pct = Math.min(100, Math.round((totalGasto / v.teto) * 100));
+            const sorted = [...transactions].sort((a, b) => new Date(b.date) - new Date(a.date));
 
-                return `
-                    <div class="card">
-                        <div style="display:flex; justify-content:space-between; align-items:flex-start;">
-                            <div>
-                                <div style="font-weight:700; font-size:18px;">✈️ ${v.nome}</div>
-                                <div class="item-sub">Teto: ${formatMoney(v.teto)}</div>
-                            </div>
-                            <div style="text-align:right;">
-                                <div style="font-size:12px; color:var(--text-muted);">Saldo Restante</div>
-                                <div style="font-weight:800; font-size:16px; color:${saldoRestante < 0 ? 'var(--danger)' : 'var(--accent)'};">${formatMoney(saldoRestante)}</div>
-                            </div>
-                        </div>
-
-                        <div class="progress-bar-bg" style="margin-top:12px;">
-                            <div class="progress-bar-fill" style="width: ${pct}%; background-color:${pct >= 100 ? 'var(--danger)' : 'var(--accent)'};"></div>
-                        </div>
-
-                        <div style="display:flex; justify-content:space-between; align-items:center; margin-top:12px;">
-                            <button class="btn" style="padding:6px 12px; width:auto; font-size:12px;" onclick="openModalViagemGasto(${v.id})">+ Add Gasto</button>
-                            <button class="btn btn-danger" style="padding:6px 12px; width:auto; font-size:12px;" onclick="excluirViagem(${vIdx})">Encerrar Evento</button>
-                        </div>
-
-                        <div style="margin-top:12px; border-top:1px solid var(--border-color); padding-top:8px;">
-                            ${(v.gastos || []).map(g => `
-                                <div style="display:flex; justify-content:space-between; font-size:12px; padding:4px 0;">
-                                    <span>${g.descricao || 'Gasto'}</span>
-                                    <strong style="color:var(--danger);">${formatMoney(g.valor)}</strong>
-                                </div>
-                            `).join('')}
-                        </div>
+            sorted.forEach(t => {
+                const itemEl = document.createElement('div');
+                itemEl.className = 'expense-item';
+                itemEl.innerHTML = `
+                    <div class="expense-details">
+                        <span class="expense-desc">${t.description}</span>
+                        <span class="expense-meta">${t.category} • ${isoToBrDate(t.date)}</span>
+                    </div>
+                    <div class="expense-right">
+                        <span class="expense-amount">- ${formatCurrency(t.amount)}</span>
+                        <button class="action-icon-btn" onclick="openExpenseModal('${t.id}')" title="Editar">✏️</button>
+                        <button class="action-icon-btn delete" onclick="deleteExpense('${t.id}')" title="Apagar">🗑️</button>
                     </div>
                 `;
-            }).join('');
-        }
-
-        function salvarViagem() {
-            const nome = document.getElementById('viagemNome').value.trim();
-            const teto = parseFloat(document.getElementById('viagemTeto').value);
-
-            if(!nome || !teto) return alert('Preencha o nome e o teto!');
-
-            if(!state.viagens) state.viagens = [];
-            state.viagens.push({
-                id: Date.now(),
-                nome: nome,
-                teto: teto,
-                gastos: []
+                container.appendChild(itemEl);
             });
-
-            document.getElementById('viagemNome').value = '';
-            document.getElementById('viagemTeto').value = '';
-            closeModal('modalViagem');
-            saveState();
         }
 
-        function openModalViagemGasto(id) {
-            document.getElementById('activeViagemId').value = id;
-            openModal('modalViagemGasto');
+        // --- BACKUP & ZERAR ---
+        function exportBackup() {
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(db, null, 2));
+            const downloadAnchor = document.createElement('a');
+            downloadAnchor.setAttribute("href", dataStr);
+            downloadAnchor.setAttribute("download", `toba_bank_backup_${new Date().toISOString().split('T')[0]}.json`);
+            document.body.appendChild(downloadAnchor);
+            downloadAnchor.click();
+            downloadAnchor.remove();
         }
 
-        function salvarGastoViagem() {
-            const id = parseInt(document.getElementById('activeViagemId').value);
-            const val = parseFloat(document.getElementById('vGastoValor').value);
-            const desc = document.getElementById('vGastoDesc').value.trim();
-
-            if(!val) return alert('Digite um valor válido!');
-
-            const v = (state.viagens || []).find(x => x.id === id);
-            if(v) {
-                if(!v.gastos) v.gastos = [];
-                v.gastos.push({
-                    id: Date.now(),
-                    valor: val,
-                    descricao: desc
-                });
-            }
-
-            document.getElementById('vGastoValor').value = '';
-            document.getElementById('vGastoDesc').value = '';
-            closeModal('modalViagemGasto');
-            saveState();
-        }
-
-        function excluirViagem(idx) {
-            if(confirm('Deseja realmente encerrar esta viagem/evento?')) {
-                state.viagens.splice(idx, 1);
-                saveState();
-            }
-        }
-
-        // AJUSTES & BACKUP
-        function setMetaPreset(val) {
-            document.getElementById('inputMetaDiaria').value = val;
-        }
-
-        function salvarMeta() {
-            const val = parseFloat(document.getElementById('inputMetaDiaria').value);
-            if(val > 0) {
-                state.metaDiaria = val;
-                saveState();
-                alert('Meta salva com sucesso!');
-            }
-        }
-
-        function salvarConfiguracoes() {
-            const dia = parseInt(document.getElementById('inputDiaInicioContagem').value);
-            if(dia >= 1 && dia <= 31) {
-                state.diaInicioContagem = dia;
-                saveState();
-                alert('Dia de início configurado com sucesso!');
-            } else {
-                alert('Informe um dia válido entre 1 e 31.');
-            }
-        }
-
-        function exportarBackup() {
-            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(state, null, 2));
-            const dlAnchorElem = document.createElement('a');
-            dlAnchorElem.setAttribute("href", dataStr);
-            dlAnchorElem.setAttribute("download", `tobabank-backup-${new Date().toISOString().slice(0,10)}.json`);
-            dlAnchorElem.click();
-        }
-
-        function triggerImport() {
-            document.getElementById('fileImport').click();
-        }
-
-        function importarBackup(event) {
+        function importBackup(event) {
             const file = event.target.files[0];
             if (!file) return;
 
             const reader = new FileReader();
             reader.onload = function(e) {
                 try {
-                    const importedState = JSON.parse(e.target.result);
-                    if(importedState.metaDiaria) {
-                        state = importedState;
-                        saveState();
-                        alert('Backup restaurado com sucesso! 🎉');
+                    const importedDb = JSON.parse(e.target.result);
+                    if (importedDb && importedDb.version) {
+                        db = importedDb;
+                        saveDatabase();
+                        alert('✅ Backup restaurado com sucesso!');
+                        document.getElementById('configModal').classList.remove('active');
                     } else {
-                        alert('Arquivo de backup inválido.');
+                        alert('❌ Arquivo de backup inválido.');
                     }
-                } catch(err) {
-                    alert('Erro ao ler o arquivo JSON.');
+                } catch (err) {
+                    alert('❌ Erro ao ler o arquivo JSON.');
                 }
             };
             reader.readAsText(file);
         }
 
-        function zerarTudo() {
-            if(confirm('⚠️ ATENÇÃO: Deseja apagar TODOS os seus dados do TobaBank? Essa ação é irreversível!')) {
-                try { localStorage.removeItem('tobabank_data_v5'); } catch(e){}
-                state = JSON.parse(JSON.stringify(dadosDeExemplo));
-                saveState();
-                alert('Dados resetados com sucesso!');
+        function resetAllData() {
+            if (confirm('🚨 Tem certeza que deseja apagar TODOS os dados do Toba Bank? Esta ação não pode ser desfeita!')) {
+                localStorage.removeItem(STORAGE_KEY);
+                location.reload();
             }
         }
-
-        window.onload = init;
     </script>
 </body>
 </html>
