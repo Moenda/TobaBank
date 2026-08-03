@@ -39,14 +39,25 @@
             align-items: center;
             margin-bottom: 1rem;
         }
-        h1 {
+        .brand-title {
             color: #58a6ff;
             font-size: 1.3rem;
+            font-weight: 700;
             display: flex;
             align-items: center;
             gap: 6px;
+            cursor: pointer;
+            user-select: none;
+            transition: opacity 0.2s ease;
         }
-        .config-btn, .add-btn {
+        .brand-title:hover {
+            opacity: 0.8;
+        }
+        .header-actions {
+            display: flex;
+            gap: 8px;
+        }
+        .config-btn, .tools-btn, .add-btn {
             background: #21262d;
             border: 1px solid #30363d;
             color: #f0f6fc;
@@ -66,7 +77,7 @@
             font-size: 0.85rem;
         }
         .add-btn:hover { background: #2ea043; }
-        .config-btn:hover { background: #30363d; transform: rotate(30deg); }
+        .config-btn:hover, .tools-btn:hover { background: #30363d; }
 
         /* Navigation Tabs */
         .tab-nav {
@@ -95,6 +106,14 @@
             background: #21262d;
             color: #58a6ff;
             box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+        }
+
+        /* Views Display (Main Hub vs Tools Hub) */
+        .app-view {
+            display: none;
+        }
+        .app-view.active {
+            display: block;
         }
 
         /* Tab Content Display */
@@ -264,6 +283,61 @@
         }
         .action-icon-btn:hover { color: #f0f6fc; }
         .action-icon-btn.delete:hover { color: #f85149; }
+
+        /* Tools Hub Grid & Tool Cards */
+        .tools-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 12px;
+            margin-top: 1rem;
+        }
+        .tool-card {
+            background: #0d1117;
+            border: 1px solid #21262d;
+            border-radius: 16px;
+            padding: 1.1rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .tool-card:hover {
+            border-color: #58a6ff;
+            transform: translateY(-2px);
+            background: #12161f;
+        }
+        .tool-card-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .tool-icon {
+            font-size: 1.8rem;
+            background: #161b22;
+            padding: 0.5rem;
+            border-radius: 12px;
+            border: 1px solid #30363d;
+        }
+        .tool-title {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: #f0f6fc;
+        }
+        .tool-desc {
+            font-size: 0.75rem;
+            color: #8b949e;
+            margin-top: 2px;
+        }
+        .tool-status {
+            font-size: 0.7rem;
+            background: rgba(210, 153, 34, 0.15);
+            color: #d29922;
+            padding: 4px 8px;
+            border-radius: 8px;
+            font-weight: 600;
+            white-space: nowrap;
+        }
 
         /* History & Installments Accordion Cards */
         .history-card, .installment-card {
@@ -454,101 +528,144 @@
     <div class="container">
         <!-- Header Principal -->
         <div class="top-header">
-            <h1>🏦 Toba Bank</h1>
-            <div style="display: flex; gap: 8px;">
-                <button class="add-btn" id="openAddExpenseBtn">+ Gasto</button>
+            <div class="brand-title" onclick="switchView('main')" title="Voltar para Início">
+                <span>🏦 Toba Bank</span>
+            </div>
+            <div class="header-actions">
+                <button class="add-btn" id="openAddExpenseBtn" title="Novo Gasto">+ Gasto</button>
+                <button class="tools-btn" onclick="switchView('tools')" title="Ferramentas">🔧</button>
                 <button class="config-btn" id="openConfigBtn" title="Configurações">⚙️</button>
             </div>
         </div>
 
-        <!-- Abas de Navegação -->
-        <div class="tab-nav">
-            <button class="tab-btn active" id="tabBtnCurrent" onclick="switchTab('current')">📅 Mês Atual</button>
-            <button class="tab-btn" id="tabBtnInstallments" onclick="switchTab('installments')">💳 Parcelas</button>
-            <button class="tab-btn" id="tabBtnHistory" onclick="switchTab('history')">📜 Histórico</button>
-        </div>
-
-        <!-- TAB 1: MÊS ATUAL -->
-        <div class="tab-content active" id="tabCurrent">
-            <!-- Mês Badge -->
-            <div style="text-align: center;">
-                <span class="month-badge" id="dashMonthBadge">Carregando...</span>
+        <!-- VIEW 1: HOME PRINCIPAL DE CAIXA -->
+        <div class="app-view active" id="viewMain">
+            <!-- Abas de Navegação -->
+            <div class="tab-nav">
+                <button class="tab-btn active" id="tabBtnCurrent" onclick="switchTab('current')">📅 Mês Atual</button>
+                <button class="tab-btn" id="tabBtnInstallments" onclick="switchTab('installments')">💳 Parcelas</button>
+                <button class="tab-btn" id="tabBtnHistory" onclick="switchTab('history')">📜 Histórico</button>
             </div>
 
-            <!-- Banner de Conselho / Dica de Recuperação -->
-            <div class="advice-banner" id="adviceBanner">
-                <span>⚡</span>
-                <div id="adviceText">Economize nos próximos dias para voltar pro verde!</div>
-            </div>
+            <!-- TAB 1: MÊS ATUAL -->
+            <div class="tab-content active" id="tabCurrent">
+                <div style="text-align: center;">
+                    <span class="month-badge" id="dashMonthBadge">Carregando...</span>
+                </div>
 
-            <!-- Dashboard / Métricas -->
-            <div class="metrics-grid">
-                <!-- Gastos do Mês vs Orçamento -->
-                <div class="card card-full">
-                    <div class="card-title">Gastos do Mês vs Orçamento</div>
-                    <div class="card-inline-group">
-                        <span class="card-value text-neutral" id="dashMonthlySpent">R$ 0,00</span>
-                        <span class="sub-text" id="dashMonthlyMeta">de R$ 0,00 previstos</span>
+                <div class="advice-banner" id="adviceBanner">
+                    <span>⚡</span>
+                    <div id="adviceText">Economize nos próximos dias para voltar pro verde!</div>
+                </div>
+
+                <div class="metrics-grid">
+                    <div class="card card-full">
+                        <div class="card-title">Gastos do Mês vs Orçamento</div>
+                        <div class="card-inline-group">
+                            <span class="card-value text-neutral" id="dashMonthlySpent">R$ 0,00</span>
+                            <span class="sub-text" id="dashMonthlyMeta">de R$ 0,00 previstos</span>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-title">Disponível Hoje</div>
+                        <div class="card-value" id="dashTodayAvailable">R$ 0,00</div>
+                        <div class="sub-text" id="dashTodaySpentSub" style="margin-top: 4px;">Gasto hoje: R$ 0,00</div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-title">Cofre (Saldo Acumulado)</div>
+                        <div class="card-value text-green" id="dashVaultBalance">R$ 0,00</div>
+                        <div class="sub-text" id="dashVaultSub" style="margin-top: 4px;">Liberado até hoje</div>
                     </div>
                 </div>
 
-                <!-- Disponível Hoje -->
-                <div class="card">
-                    <div class="card-title">Disponível Hoje</div>
-                    <div class="card-value" id="dashTodayAvailable">R$ 0,00</div>
-                    <div class="sub-text" id="dashTodaySpentSub" style="margin-top: 4px;">Gasto hoje: R$ 0,00</div>
+                <div class="section-title">
+                    <span>📊 Gastos por Categoria</span>
+                </div>
+                <div id="categoryBarsContainer"></div>
+
+                <div class="section-title" style="margin-top: 1.8rem;">
+                    <span>💸 Lançamentos do Mês</span>
+                </div>
+                <div class="expense-list" id="expenseListContainer"></div>
+            </div>
+
+            <!-- TAB 2: PARCELAMENTOS -->
+            <div class="tab-content" id="tabInstallments">
+                <div class="section-title">
+                    <span>💳 Compras Parceladas Ativas</span>
                 </div>
 
-                <!-- Cofre (Saldo Acumulado) -->
-                <div class="card">
-                    <div class="card-title">Cofre (Saldo Acumulado)</div>
-                    <div class="card-value text-green" id="dashVaultBalance">R$ 0,00</div>
-                    <div class="sub-text" id="dashVaultSub" style="margin-top: 4px;">Liberado até hoje</div>
+                <div class="metrics-grid" style="margin-bottom: 1.2rem;">
+                    <div class="card">
+                        <div class="card-title">Parcelas deste Mês</div>
+                        <div class="card-value text-red" id="instMonthlyTotal">R$ 0,00</div>
+                        <div class="sub-text" id="instDailyDeductionSub">Impacto diário: -R$ 0,00/dia</div>
+                    </div>
+                    <div class="card">
+                        <div class="card-title">Total a Quitar (Futuro)</div>
+                        <div class="card-value text-gold" id="instTotalRemaining">R$ 0,00</div>
+                        <div class="sub-text" id="instActiveCountSub">0 compras ativas</div>
+                    </div>
                 </div>
+
+                <div id="installmentsContainer"></div>
             </div>
 
-            <!-- Barras por Categoria -->
-            <div class="section-title">
-                <span>📊 Gastos por Categoria</span>
+            <!-- TAB 3: HISTÓRICO -->
+            <div class="tab-content" id="tabHistory">
+                <div class="section-title">
+                    <span>📂 Histórico de Meses Fechados</span>
+                </div>
+                <div id="historyContainer"></div>
             </div>
-            <div id="categoryBarsContainer"></div>
-
-            <!-- Histórico Gastos 1 a 1 -->
-            <div class="section-title" style="margin-top: 1.8rem;">
-                <span>💸 Lançamentos do Mês</span>
-            </div>
-            <div class="expense-list" id="expenseListContainer"></div>
         </div>
 
-        <!-- TAB 2: PARCELAMENTOS -->
-        <div class="tab-content" id="tabInstallments">
-            <div class="section-title">
-                <span>💳 Compras Parceladas Ativas</span>
+        <!-- VIEW 2: HUB DE FERRAMENTAS (🔧) -->
+        <div class="app-view" id="viewTools">
+            <div class="section-title" style="margin-top: 0.5rem;">
+                <span>🛠️ Hub de Ferramentas</span>
+                <button class="btn btn-secondary" onclick="switchView('main')" style="width: auto; padding: 0.4rem 0.8rem; font-size: 0.78rem;">⬅️ Voltar pro Caixa</button>
             </div>
 
-            <!-- Resumo de Parcelas -->
-            <div class="metrics-grid" style="margin-bottom: 1.2rem;">
-                <div class="card">
-                    <div class="card-title">Parcelas deste Mês</div>
-                    <div class="card-value text-red" id="instMonthlyTotal">R$ 0,00</div>
-                    <div class="sub-text" id="instDailyDeductionSub">Impacto diário: -R$ 0,00/dia</div>
+            <div class="tools-grid">
+                <!-- Tool 1: Investimentos -->
+                <div class="tool-card" onclick="openToolPlaceholder('Investimentos')">
+                    <div class="tool-card-info">
+                        <div class="tool-icon">📈</div>
+                        <div>
+                            <div class="tool-title">Investimentos</div>
+                            <div class="tool-desc">Gestão de carteira e aportes</div>
+                        </div>
+                    </div>
+                    <span class="tool-status">🚧 Em Breve</span>
                 </div>
-                <div class="card">
-                    <div class="card-title">Total a Quitar (Futuro)</div>
-                    <div class="card-value text-gold" id="instTotalRemaining">R$ 0,00</div>
-                    <div class="sub-text" id="instActiveCountSub">0 compras ativas</div>
+
+                <!-- Tool 2: Raxador de Gastos -->
+                <div class="tool-card" onclick="openToolPlaceholder('Raxador de Gastos')">
+                    <div class="tool-card-info">
+                        <div class="tool-icon">🍕</div>
+                        <div>
+                            <div class="tool-title">Raxador de Gastos</div>
+                            <div class="tool-desc">Divisão rápida de rolês e contas</div>
+                        </div>
+                    </div>
+                    <span class="tool-status">🚧 Em Breve</span>
+                </div>
+
+                <!-- Tool 3: Espaço Futuro -->
+                <div class="tool-card" style="opacity: 0.6;" onclick="openToolPlaceholder('Espaço Futuro')">
+                    <div class="tool-card-info">
+                        <div class="tool-icon">🚀</div>
+                        <div>
+                            <div class="tool-title">Ideia Futura</div>
+                            <div class="tool-desc">Próxima invenção de chuveiro</div>
+                        </div>
+                    </div>
+                    <span class="tool-status" style="background: rgba(139, 148, 158, 0.15); color: #8b949e;">💡 Ideia</span>
                 </div>
             </div>
-
-            <div id="installmentsContainer"></div>
-        </div>
-
-        <!-- TAB 3: HISTÓRICO -->
-        <div class="tab-content" id="tabHistory">
-            <div class="section-title">
-                <span>📂 Histórico de Meses Fechados</span>
-            </div>
-            <div id="historyContainer"></div>
         </div>
     </div>
 
@@ -567,7 +684,6 @@
                     <input type="text" id="expenseDescInput" class="form-control" placeholder="Ex: Almoço, Uber, Celular..." required>
                 </div>
 
-                <!-- Opção de Compra Parcelada -->
                 <div class="form-group" id="installmentCheckboxGroup">
                     <label class="switch-container">
                         <input type="checkbox" id="isInstallmentCheckbox" onchange="toggleInstallmentFields()">
@@ -580,7 +696,6 @@
                     <input type="number" id="expenseAmountInput" class="form-control" step="0.01" min="0.01" placeholder="0.00" required>
                 </div>
 
-                <!-- Campos Exclusivos de Parcelamento -->
                 <div id="installmentFieldsContainer" style="display: none; background: #0d1117; padding: 0.8rem; border-radius: 10px; border: 1px solid #21262d; margin-bottom: 0.9rem;">
                     <div class="form-group">
                         <label for="installmentCountInput">Número de Parcelas</label>
@@ -594,7 +709,6 @@
                 <div class="form-group">
                     <label for="expenseCategorySelect">Categoria</label>
                     <select id="expenseCategorySelect" class="form-control" required>
-                        <!-- Casa & Habitação -->
                         <optgroup label="🏠 Casa & Habitação">
                             <option value="Casa - Aluguel/Condomínio">🏢 Aluguel / Condomínio</option>
                             <option value="Casa - Contas (Luz/Água/Gás)">💡 Contas (Luz, Água, Gás)</option>
@@ -603,21 +717,18 @@
                             <option value="Casa - Decoração/Eletro">🛋️ Decoração / Eletro</option>
                             <option value="Mercado">🛒 Mercado / Feira</option>
                         </optgroup>
-                        <!-- Alimentação & Lazer -->
                         <optgroup label="🍔 Alimentação & Lazer">
                             <option value="Alimentação" selected>🍔 Rest. / Lanches / Delivery</option>
                             <option value="Lazer">🎉 Lazer & Rolês</option>
                             <option value="Viagens">✈️ Viagens & Passeios</option>
                             <option value="Assinaturas">📺 Assinaturas & Streaming</option>
                         </optgroup>
-                        <!-- Transporte -->
                         <optgroup label="🚗 Transporte">
                             <option value="Transporte - Combustível">⛽ Combustível</option>
                             <option value="Transporte - Uber/App">🚕 Uber / Táxi</option>
                             <option value="Transporte - Manutenção">🔧 Manutenção / Revisão</option>
                             <option value="Transporte - IPVA/Seguro/Pedágio">📄 IPVA / Seguro / Pedágio</option>
                         </optgroup>
-                        <!-- Saúde, Pet & Outros -->
                         <optgroup label="🩺 Saúde, Pets & Outros">
                             <option value="Saúde & Bem-Estar">💊 Saúde & Farmácia</option>
                             <option value="Pet">🐱 Pets (Ração, Vet, Mimos)</option>
@@ -684,7 +795,7 @@
         const STORAGE_KEY = 'TOBA_BANK_DB';
 
         let db = {
-            version: 6,
+            version: 7,
             config: {
                 startDate: new Date().toISOString().split('T')[0]
             },
@@ -693,7 +804,17 @@
             installments: []
         };
 
-        // --- NAVEGAÇÃO DE ABAS ---
+        // --- NAVEGAÇÃO DE VIEWS (HOME VS FERRAMENTAS) ---
+        function switchView(viewName) {
+            document.getElementById('viewMain').classList.toggle('active', viewName === 'main');
+            document.getElementById('viewTools').classList.toggle('active', viewName === 'tools');
+        }
+
+        function openToolPlaceholder(toolName) {
+            alert(`🚧 A ferramenta "${toolName}" está em desenvolvimento e estará disponível nos próximos patches!`);
+        }
+
+        // --- NAVEGAÇÃO DE ABAS INTERNAS DO CAIXA ---
         function switchTab(tabName) {
             document.getElementById('tabBtnCurrent').classList.toggle('active', tabName === 'current');
             document.getElementById('tabBtnInstallments').classList.toggle('active', tabName === 'installments');
@@ -789,7 +910,7 @@
                         const [d, m, y] = db.config.startDate.split('/');
                         db.config.startDate = `${y}-${m.padStart(2,'0')}-${d.padStart(2,'0')}`;
                     }
-                    db.version = 6;
+                    db.version = 7;
                 } catch (e) {
                     console.error("Erro ao carregar banco de dados", e);
                 }
@@ -857,7 +978,6 @@
                 closeExpense();
             });
 
-            // Cálculos dinâmicos no modal de parcelas
             document.getElementById('expenseAmountInput').addEventListener('input', updateInstallmentPreview);
             document.getElementById('installmentCountInput').addEventListener('input', updateInstallmentPreview);
         }
@@ -1003,7 +1123,6 @@
             }
         }
 
-        // --- CÁLCULO DE PARCELAS ATIVAS NO MÊS ---
         function getActiveInstallmentsForMonth(monthKey) {
             const result = [];
             const [targetYear, targetMonth] = monthKey.split('-').map(Number);
@@ -1041,30 +1160,23 @@
             const totalDaysInMonth = getDaysInMonth(now.getFullYear(), now.getMonth());
             const effectiveDays = getEffectiveDaysInMonth(now.getFullYear(), now.getMonth());
 
-            // Orçamento Bruto
             const baseDailyBudget = (db.months[currentMonthKey] || {}).dailyBudget || 0;
             const grossMonthlyBudget = baseDailyBudget * effectiveDays;
 
-            // Parcelas Ativas no Mês Vigente
             const activeInstallmentsMonth = getActiveInstallmentsForMonth(currentMonthKey);
             const monthInstallmentsTotal = activeInstallmentsMonth.reduce((acc, p) => acc + p.amount, 0);
 
-            // Dedução Diária das Parcelas
             const dailyInstallmentDeduction = totalDaysInMonth > 0 ? (monthInstallmentsTotal / totalDaysInMonth) : 0;
             const netDailyBudget = Math.max(baseDailyBudget - dailyInstallmentDeduction, 0);
 
-            // Transações à vista do mês atual
             const currentMonthTransactions = db.transactions.filter(t => t.date && t.date.startsWith(currentMonthKey));
             const monthlySpentVista = currentMonthTransactions.reduce((acc, t) => acc + t.amount, 0);
             
-            // Total gasto no mês
             const totalMonthlySpent = monthlySpentVista + monthInstallmentsTotal;
 
-            // Gasto de HOJE
             const todaySpent = db.transactions.filter(t => t.date === todayIso).reduce((acc, t) => acc + t.amount, 0);
             const todayAvailable = netDailyBudget - todaySpent;
 
-            // Cofre Acumulado
             let daysElapsedUntilToday = 0;
             const startDateIso = db.config.startDate || todayIso;
 
@@ -1083,15 +1195,12 @@
             const totalAccumulatedBudgetToday = netDailyBudget * daysElapsedUntilToday;
             const vaultBalance = totalAccumulatedBudgetToday - monthlySpentVista;
 
-            // 1. Atualizar Tela Principais
             document.getElementById('dashMonthBadge').innerText = monthFormatted;
             
-            // Gastos Mês vs Orçamento
             document.getElementById('dashMonthlySpent').innerText = formatCurrency(totalMonthlySpent);
             document.getElementById('dashMonthlySpent').className = `card-value ${totalMonthlySpent > grossMonthlyBudget && grossMonthlyBudget > 0 ? 'text-red' : 'text-neutral'}`;
             document.getElementById('dashMonthlyMeta').innerText = `de ${formatCurrency(grossMonthlyBudget)} previstos`;
 
-            // Disponível Hoje (Formatado com as 2 linhas e vermelho no abatimento)
             document.getElementById('dashTodayAvailable').innerText = formatCurrency(todayAvailable);
             document.getElementById('dashTodayAvailable').className = `card-value ${todayAvailable < 0 ? 'text-red' : 'text-green'}`;
             
@@ -1101,12 +1210,10 @@
             }
             document.getElementById('dashTodaySpentSub').innerHTML = todaySubStr;
 
-            // Cofre Acumulado (Até Hoje)
             document.getElementById('dashVaultBalance').innerText = formatCurrency(vaultBalance);
             document.getElementById('dashVaultBalance').className = `card-value ${vaultBalance < 0 ? 'text-red' : 'text-green'}`;
             document.getElementById('dashVaultSub').innerHTML = `Liberado: ${formatCurrency(totalAccumulatedBudgetToday)}<br>(${daysElapsedUntilToday}d × ${formatCurrency(netDailyBudget)}/dia líq.)`;
 
-            // 2. BANNER DE RECUPERAÇÃO
             const adviceBanner = document.getElementById('adviceBanner');
             const adviceText = document.getElementById('adviceText');
 
@@ -1120,15 +1227,12 @@
                 adviceBanner.classList.remove('active');
             }
 
-            // 3. Renderizar Barras por Categoria
             const combinedForBars = [...currentMonthTransactions];
             activeInstallmentsMonth.forEach(p => {
                 combinedForBars.push({ category: p.category, amount: p.amount });
             });
 
             renderCategoryBars(combinedForBars, totalMonthlySpent);
-
-            // 4. Renderizar Lista de Transações
             renderExpenseListWithInstallments(currentMonthTransactions, activeInstallmentsMonth);
         }
 
@@ -1212,7 +1316,6 @@
             });
         }
 
-        // --- RENDERIZAÇÃO TAB PARCELAMENTOS ---
         function renderInstallments() {
             const container = document.getElementById('installmentsContainer');
             container.innerHTML = '';
@@ -1311,7 +1414,6 @@
             }
         }
 
-        // --- RENDERIZAÇÃO DA TAB DE HISTÓRICO ---
         function renderHistory() {
             const container = document.getElementById('historyContainer');
             container.innerHTML = '';
