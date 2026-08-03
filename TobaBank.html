@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Toba Bank Revamped 🚀</title>
+    <title>Toba Bank 🚀</title>
     <style>
         * {
             margin: 0;
@@ -22,7 +22,7 @@
         }
         .container {
             background: #161b22;
-            padding: 1.5rem;
+            padding: 1.25rem;
             border-radius: 20px;
             border: 1px solid #30363d;
             width: 100%;
@@ -32,12 +32,12 @@
             margin-bottom: 2rem;
         }
         
-        /* Top Header */
+        /* Header */
         .top-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 1.2rem;
+            margin-bottom: 1rem;
         }
         h1 {
             color: #58a6ff;
@@ -50,8 +50,8 @@
             background: #21262d;
             border: 1px solid #30363d;
             color: #f0f6fc;
-            font-size: 1.1rem;
-            padding: 0.5rem 0.8rem;
+            font-size: 1rem;
+            padding: 0.45rem 0.75rem;
             border-radius: 10px;
             cursor: pointer;
             transition: all 0.2s ease;
@@ -63,10 +63,47 @@
             background: #238636;
             border-color: #2ea043;
             font-weight: 600;
-            font-size: 0.9rem;
+            font-size: 0.85rem;
         }
         .add-btn:hover { background: #2ea043; }
         .config-btn:hover { background: #30363d; transform: rotate(30deg); }
+
+        /* Navigation Tabs */
+        .tab-nav {
+            display: flex;
+            background: #0d1117;
+            border: 1px solid #21262d;
+            border-radius: 12px;
+            padding: 4px;
+            margin-bottom: 1.2rem;
+            gap: 4px;
+        }
+        .tab-btn {
+            flex: 1;
+            padding: 8px 12px;
+            background: transparent;
+            border: none;
+            color: #8b949e;
+            font-size: 0.85rem;
+            font-weight: 600;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-align: center;
+        }
+        .tab-btn.active {
+            background: #21262d;
+            color: #58a6ff;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+        }
+
+        /* Tab Content Display */
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
 
         /* Badge Mês */
         .month-badge {
@@ -75,7 +112,7 @@
             color: #58a6ff;
             font-size: 0.8rem;
             font-weight: 700;
-            padding: 4px 10px;
+            padding: 4px 12px;
             border-radius: 12px;
             margin-bottom: 1rem;
             text-transform: capitalize;
@@ -98,7 +135,7 @@
             grid-column: span 2;
         }
         .card-title {
-            font-size: 0.75rem;
+            font-size: 0.72rem;
             color: #8b949e;
             margin-bottom: 4px;
             text-transform: uppercase;
@@ -112,7 +149,7 @@
             margin-top: 2px;
         }
         .card-value {
-            font-size: 1.25rem;
+            font-size: 1.2rem;
             font-weight: 700;
         }
         .text-neutral { color: #f0f6fc; }
@@ -122,7 +159,7 @@
         .text-gold { color: #d29922; }
 
         .sub-text {
-            font-size: 0.75rem;
+            font-size: 0.73rem;
             color: #8b949e;
             line-height: 1.35;
         }
@@ -134,7 +171,7 @@
             border-radius: 12px;
             padding: 0.8rem 1rem;
             margin-bottom: 1.2rem;
-            font-size: 0.83rem;
+            font-size: 0.82rem;
             color: #ff7b72;
             display: none;
             align-items: center;
@@ -144,15 +181,17 @@
             display: flex;
         }
 
-        /* Categorias (Barras) */
+        /* Section Titles */
         .section-title {
-            font-size: 0.95rem;
+            font-size: 0.9rem;
             color: #f0f6fc;
-            margin: 1.5rem 0 0.8rem 0;
+            margin: 1.2rem 0 0.8rem 0;
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
+
+        /* Categorias (Barras) */
         .category-item {
             margin-bottom: 0.8rem;
         }
@@ -175,7 +214,7 @@
             transition: width 0.3s ease;
         }
 
-        /* Lista de Gastos */
+        /* Expense List */
         .expense-list {
             display: flex;
             flex-direction: column;
@@ -197,34 +236,64 @@
         }
         .expense-desc {
             font-weight: 600;
-            font-size: 0.9rem;
+            font-size: 0.88rem;
         }
         .expense-meta {
-            font-size: 0.75rem;
+            font-size: 0.73rem;
             color: #8b949e;
             margin-top: 2px;
         }
         .expense-right {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 8px;
         }
         .expense-amount {
             font-weight: 700;
             color: #f85149;
-            font-size: 0.95rem;
+            font-size: 0.92rem;
         }
         .action-icon-btn {
             background: none;
             border: none;
             color: #8b949e;
             cursor: pointer;
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             padding: 4px;
             transition: color 0.2s;
         }
         .action-icon-btn:hover { color: #f0f6fc; }
         .action-icon-btn.delete:hover { color: #f85149; }
+
+        /* History Month Accordion / Card */
+        .history-card {
+            background: #0d1117;
+            border: 1px solid #21262d;
+            border-radius: 14px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+        .history-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #21262d;
+            padding-bottom: 0.6rem;
+            margin-bottom: 0.6rem;
+        }
+        .history-title {
+            font-size: 1rem;
+            font-weight: 700;
+            color: #58a6ff;
+            text-transform: capitalize;
+        }
+        .history-summary {
+            display: flex;
+            gap: 12px;
+            font-size: 0.8rem;
+            color: #8b949e;
+            margin-bottom: 0.8rem;
+        }
 
         /* Modais */
         .modal-overlay {
@@ -248,7 +317,7 @@
             background: #161b22;
             border: 1px solid #30363d;
             border-radius: 18px;
-            padding: 1.5rem;
+            padding: 1.4rem;
             width: 90%;
             max-width: 400px;
             box-shadow: 0 15px 35px rgba(0,0,0,0.8);
@@ -259,35 +328,35 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 1.2rem;
+            margin-bottom: 1rem;
             border-bottom: 1px solid #30363d;
-            padding-bottom: 0.8rem;
+            padding-bottom: 0.6rem;
         }
         .close-btn {
             background: none;
             border: none;
             color: #8b949e;
-            font-size: 1.5rem;
+            font-size: 1.4rem;
             cursor: pointer;
         }
         .form-group {
-            margin-bottom: 1rem;
+            margin-bottom: 0.9rem;
             text-align: left;
         }
         .form-group label {
             display: block;
-            font-size: 0.83rem;
+            font-size: 0.8rem;
             color: #8b949e;
-            margin-bottom: 0.4rem;
+            margin-bottom: 0.3rem;
         }
         .form-control {
             width: 100%;
-            padding: 0.75rem;
+            padding: 0.7rem;
             background: #0d1117;
             border: 1px solid #30363d;
             border-radius: 8px;
             color: #f0f6fc;
-            font-size: 0.95rem;
+            font-size: 0.9rem;
             color-scheme: dark;
         }
         .form-control:focus {
@@ -296,11 +365,11 @@
         }
         .btn {
             width: 100%;
-            padding: 0.75rem;
+            padding: 0.7rem;
             border: none;
             border-radius: 8px;
             font-weight: 600;
-            font-size: 0.9rem;
+            font-size: 0.88rem;
             cursor: pointer;
             transition: all 0.2s;
         }
@@ -319,7 +388,7 @@
 <body>
 
     <div class="container">
-        <!-- Header -->
+        <!-- Header Principal -->
         <div class="top-header">
             <h1>🏦 Toba Bank</h1>
             <div style="display: flex; gap: 8px;">
@@ -328,54 +397,71 @@
             </div>
         </div>
 
-        <!-- Mês Badge -->
-        <div style="text-align: center;">
-            <span class="month-badge" id="dashMonthBadge">Carregando...</span>
+        <!-- Abas de Navegação -->
+        <div class="tab-nav">
+            <button class="tab-btn active" id="tabBtnCurrent" onclick="switchTab('current')">📅 Mês Atual</button>
+            <button class="tab-btn" id="tabBtnHistory" onclick="switchTab('history')">📜 Histórico</button>
         </div>
 
-        <!-- Banner de Conselho / Dica de Recuperação -->
-        <div class="advice-banner" id="adviceBanner">
-            <span>⚡</span>
-            <div id="adviceText">Economize nos próximos dias para voltar pro verde!</div>
-        </div>
+        <!-- TAB 1: MÊS ATUAL -->
+        <div class="tab-content active" id="tabCurrent">
+            <!-- Mês Badge -->
+            <div style="text-align: center;">
+                <span class="month-badge" id="dashMonthBadge">Carregando...</span>
+            </div>
 
-        <!-- Dashboard / Métricas -->
-        <div class="metrics-grid">
-            <!-- Gastos do Mês vs Orçamento (Na mesma linha!) -->
-            <div class="card card-full">
-                <div class="card-title">Gastos do Mês vs Orçamento</div>
-                <div class="card-inline-group">
-                    <span class="card-value text-neutral" id="dashMonthlySpent">R$ 0,00</span>
-                    <span class="sub-text" id="dashMonthlyMeta">de R$ 0,00 previstos</span>
+            <!-- Banner de Conselho / Dica de Recuperação -->
+            <div class="advice-banner" id="adviceBanner">
+                <span>⚡</span>
+                <div id="adviceText">Economize nos próximos dias para voltar pro verde!</div>
+            </div>
+
+            <!-- Dashboard / Métricas -->
+            <div class="metrics-grid">
+                <!-- Gastos do Mês vs Orçamento -->
+                <div class="card card-full">
+                    <div class="card-title">Gastos do Mês vs Orçamento</div>
+                    <div class="card-inline-group">
+                        <span class="card-value text-neutral" id="dashMonthlySpent">R$ 0,00</span>
+                        <span class="sub-text" id="dashMonthlyMeta">de R$ 0,00 previstos</span>
+                    </div>
+                </div>
+
+                <!-- Disponível Hoje -->
+                <div class="card">
+                    <div class="card-title">Disponível Hoje</div>
+                    <div class="card-value" id="dashTodayAvailable">R$ 0,00</div>
+                    <div class="sub-text" id="dashTodaySpentSub" style="margin-top: 4px;">Gasto hoje: R$ 0,00</div>
+                </div>
+
+                <!-- Cofre (Saldo Acumulado) -->
+                <div class="card">
+                    <div class="card-title">Cofre (Saldo Acumulado)</div>
+                    <div class="card-value text-green" id="dashVaultBalance">R$ 0,00</div>
+                    <div class="sub-text" id="dashVaultSub" style="margin-top: 4px;">Liberado até hoje</div>
                 </div>
             </div>
 
-            <!-- Disponível Hoje -->
-            <div class="card">
-                <div class="card-title">Disponível Hoje</div>
-                <div class="card-value" id="dashTodayAvailable">R$ 0,00</div>
-                <div class="sub-text" id="dashTodaySpentSub" style="margin-top: 4px;">Gasto hoje: R$ 0,00</div>
+            <!-- Barras por Categoria -->
+            <div class="section-title">
+                <span>📊 Gastos por Categoria</span>
             </div>
+            <div id="categoryBarsContainer"></div>
 
-            <!-- Cofre (Saldo Acumulado no Mês) -->
-            <div class="card">
-                <div class="card-title">Cofre (Saldo Acumulado)</div>
-                <div class="card-value text-green" id="dashVaultBalance">R$ 0,00</div>
-                <div class="sub-text" id="dashVaultSub" style="margin-top: 4px;">Liberado até hoje</div>
+            <!-- Histórico Gastos 1 a 1 -->
+            <div class="section-title" style="margin-top: 1.8rem;">
+                <span>💸 Lançamentos do Mês</span>
             </div>
+            <div class="expense-list" id="expenseListContainer"></div>
         </div>
 
-        <!-- Barras por Categoria -->
-        <div class="section-title">
-            <span>📊 Gastos por Categoria</span>
+        <!-- TAB 2: HISTÓRICO -->
+        <div class="tab-content" id="tabHistory">
+            <div class="section-title">
+                <span>📂 Histórico de Meses Fechados</span>
+            </div>
+            <div id="historyContainer"></div>
         </div>
-        <div id="categoryBarsContainer"></div>
-
-        <!-- Histórico Gastos 1 a 1 -->
-        <div class="section-title" style="margin-top: 2rem;">
-            <span>💸 Lançamentos do Mês</span>
-        </div>
-        <div class="expense-list" id="expenseListContainer"></div>
     </div>
 
     <!-- MODAL DE GASTOS (NOVO / EDITAR) -->
@@ -390,7 +476,7 @@
                 
                 <div class="form-group">
                     <label for="expenseDescInput">Descrição</label>
-                    <input type="text" id="expenseDescInput" class="form-control" placeholder="Ex: Almoço, Uber, Mercado..." required>
+                    <input type="text" id="expenseDescInput" class="form-control" placeholder="Ex: Almoço, Uber, Aluguel..." required>
                 </div>
 
                 <div class="form-group">
@@ -401,12 +487,36 @@
                 <div class="form-group">
                     <label for="expenseCategorySelect">Categoria</label>
                     <select id="expenseCategorySelect" class="form-control" required>
-                        <option value="Alimentação">🍔 Alimentação</option>
-                        <option value="Mercado">🛒 Mercado</option>
-                        <option value="Transporte">🚗 Transporte</option>
-                        <option value="Lazer">🎉 Lazer</option>
-                        <option value="Contas">📄 Contas / Boletos</option>
-                        <option value="Outros">📦 Outros</option>
+                        <!-- Casa & Habitação -->
+                        <optgroup label="🏠 Casa & Habitação">
+                            <option value="Casa - Aluguel/Condomínio">🏢 Aluguel / Condomínio</option>
+                            <option value="Casa - Contas (Luz/Água/Gás)">💡 Contas (Luz, Água, Gás)</option>
+                            <option value="Casa - Internet/TV">🌐 Internet / TV</option>
+                            <option value="Casa - Manutenção/Reparos">🛠️ Manutenção / Reparos</option>
+                            <option value="Casa - Decoração/Eletro">🛋️ Decoração / Eletro</option>
+                            <option value="Mercado">🛒 Mercado / Feira</option>
+                        </optgroup>
+                        <!-- Alimentação & Lazer -->
+                        <optgroup label="🍔 Alimentação & Lazer">
+                            <option value="Alimentação" selected>🍔 Rest. / Lanches / Delivery</option>
+                            <option value="Lazer">🎉 Lazer & Rolês</option>
+                            <option value="Viagens">✈️ Viagens & Passeios</option>
+                            <option value="Assinaturas">📺 Assinaturas & Streaming</option>
+                        </optgroup>
+                        <!-- Transporte -->
+                        <optgroup label="🚗 Transporte">
+                            <option value="Transporte - Combustível">⛽ Combustível</option>
+                            <option value="Transporte - Uber/App">🚕 Uber / Táxi</option>
+                            <option value="Transporte - Manutenção">🔧 Manutenção / Revisão</option>
+                            <option value="Transporte - IPVA/Seguro/Pedágio">📄 IPVA / Seguro / Pedágio</option>
+                        </optgroup>
+                        <!-- Saúde, Pet & Outros -->
+                        <optgroup label="🩺 Saúde, Pets & Outros">
+                            <option value="Saúde & Bem-Estar">💊 Saúde & Farmácia</option>
+                            <option value="Pet">🐱 Pets (Ração, Vet, Mimos)</option>
+                            <option value="Investimentos & Pessoal">📈 Investimentos & Cursos</option>
+                            <option value="Outros">📦 Outros</option>
+                        </optgroup>
                     </select>
                 </div>
 
@@ -467,7 +577,7 @@
         const STORAGE_KEY = 'TOBA_BANK_DB';
 
         let db = {
-            version: 1,
+            version: 2,
             config: {
                 startDate: new Date().toISOString().split('T')[0]
             },
@@ -475,7 +585,19 @@
             transactions: []
         };
 
-        // --- FORMATADORES ---
+        // --- NAVEGAÇÃO DE ABAS ---
+        function switchTab(tabName) {
+            document.getElementById('tabBtnCurrent').classList.toggle('active', tabName === 'current');
+            document.getElementById('tabBtnHistory').classList.toggle('active', tabName === 'history');
+            document.getElementById('tabCurrent').classList.toggle('active', tabName === 'current');
+            document.getElementById('tabHistory').classList.toggle('active', tabName === 'history');
+
+            if (tabName === 'history') {
+                renderHistory();
+            }
+        }
+
+        // --- FORMATADORES & HELPERS DE DATA ---
         function isoToBrDate(isoStr) {
             if (!isoStr || !isoStr.includes('-')) return isoStr || '';
             const [y, m, d] = isoStr.split('-');
@@ -502,7 +624,11 @@
         }
 
         function getTodayIsoDateStr() {
-            return new Date().toISOString().split('T')[0];
+            const d = new Date();
+            const year = d.getFullYear();
+            const month = String(d.getMonth() + 1).padStart(2, '0');
+            const day = String(d.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
         }
 
         function getDaysInMonth(year, monthIndex) {
@@ -529,7 +655,7 @@
             return totalDays;
         }
 
-        // --- INICIALIZAÇÃO ---
+        // --- INICIALIZAÇÃO & MIGRAÇÃO ---
         window.addEventListener('DOMContentLoaded', () => {
             loadDatabase();
             setupEvents();
@@ -542,10 +668,15 @@
                 try {
                     db = JSON.parse(data);
                     if (!db.transactions) db.transactions = [];
+                    if (!db.config) db.config = { startDate: getTodayIsoDateStr() };
+                    if (!db.months) db.months = {};
+                    
+                    // Tratamento seguro para data no formato BR antigo
                     if (db.config.startDate && db.config.startDate.includes('/')) {
                         const [d, m, y] = db.config.startDate.split('/');
                         db.config.startDate = `${y}-${m.padStart(2,'0')}-${d.padStart(2,'0')}`;
                     }
+                    db.version = 2;
                 } catch (e) {
                     console.error("Erro ao carregar banco de dados", e);
                 }
@@ -749,7 +880,7 @@
             document.getElementById('dashVaultBalance').innerText = formatCurrency(vaultBalance);
             document.getElementById('dashVaultBalance').className = `card-value ${vaultBalance < 0 ? 'text-red' : 'text-green'}`;
             
-            // Subtexto com <br>
+            // Subtexto
             document.getElementById('dashVaultSub').innerHTML = `Liberado: ${formatCurrency(totalAccumulatedBudgetToday)}<br>(${daysElapsedUntilToday} dias × ${formatCurrency(dailyBudget)})`;
 
             // 2. BANNER DE RECUPERAÇÃO / CONSELHO DE ECONOMIA
@@ -836,12 +967,82 @@
             });
         }
 
+        // --- RENDERIZAÇÃO DA TAB DE HISTÓRICO ---
+        function renderHistory() {
+            const container = document.getElementById('historyContainer');
+            container.innerHTML = '';
+
+            const currentMonthKey = getCurrentMonthKey();
+
+            // Extrai todos os meses únicos que contêm transações no banco
+            const monthKeysSet = new Set();
+            db.transactions.forEach(t => {
+                if (t.date && t.date.length >= 7) {
+                    monthKeysSet.add(t.date.slice(0, 7));
+                }
+            });
+
+            // Filtra removendo o mês atual pra listar no histórico apenas os meses passados/outros
+            const pastMonthKeys = Array.from(monthKeysSet)
+                .filter(mKey => mKey !== currentMonthKey)
+                .sort((a, b) => b.localeCompare(a)); // Mais recentes primeiro
+
+            if (pastMonthKeys.length === 0) {
+                container.innerHTML = '<div class="empty-state">Nenhum mês anterior encontrado no histórico ainda.<br>Quando você registrar gastos em meses passados (ex: Julho/2026), eles aparecerão aqui automaticamente! 🚀</div>';
+                return;
+            }
+
+            pastMonthKeys.forEach(mKey => {
+                const [yearStr, monthStr] = mKey.split('-');
+                const monthIndex = parseInt(monthStr, 10) - 1;
+                const monthFormatted = formatMonthYearLabel(parseInt(yearStr, 10), monthIndex);
+
+                const mTransactions = db.transactions.filter(t => t.date && t.date.startsWith(mKey));
+                const totalSpent = mTransactions.reduce((acc, t) => acc + t.amount, 0);
+
+                const card = document.createElement('div');
+                card.className = 'history-card';
+                
+                let txListHtml = '';
+                mTransactions.sort((a, b) => new Date(b.date) - new Date(a.date)).forEach(t => {
+                    txListHtml += `
+                        <div class="expense-item" style="margin-bottom: 6px;">
+                            <div class="expense-details">
+                                <span class="expense-desc">${t.description}</span>
+                                <span class="expense-meta">${t.category} • ${isoToBrDate(t.date)}</span>
+                            </div>
+                            <div class="expense-right">
+                                <span class="expense-amount">- ${formatCurrency(t.amount)}</span>
+                                <button class="action-icon-btn" onclick="openExpenseModal('${t.id}')" title="Editar">✏️</button>
+                                <button class="action-icon-btn delete" onclick="deleteExpense('${t.id}')" title="Apagar">🗑️</button>
+                            </div>
+                        </div>
+                    `;
+                });
+
+                card.innerHTML = `
+                    <div class="history-header">
+                        <span class="history-title">📅 ${monthFormatted}</span>
+                        <span style="font-weight: 700; color: #f85149; font-size: 0.95rem;">${formatCurrency(totalSpent)}</span>
+                    </div>
+                    <div class="history-summary">
+                        <span>Total de lançamentos: <b>${mTransactions.length}</b></span>
+                    </div>
+                    <div class="expense-list">
+                        ${txListHtml}
+                    </div>
+                `;
+
+                container.appendChild(card);
+            });
+        }
+
         // --- BACKUP & ZERAR ---
         function exportBackup() {
             const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(db, null, 2));
             const downloadAnchor = document.createElement('a');
             downloadAnchor.setAttribute("href", dataStr);
-            downloadAnchor.setAttribute("download", `toba_bank_backup_${new Date().toISOString().split('T')[0]}.json`);
+            downloadAnchor.setAttribute("download", `toba_bank_backup_${getTodayIsoDateStr()}.json`);
             document.body.appendChild(downloadAnchor);
             downloadAnchor.click();
             downloadAnchor.remove();
@@ -855,11 +1056,12 @@
             reader.onload = function(e) {
                 try {
                     const importedDb = JSON.parse(e.target.result);
-                    if (importedDb && importedDb.version) {
+                    if (importedDb && (importedDb.version || importedDb.transactions)) {
                         db = importedDb;
                         saveDatabase();
                         alert('✅ Backup restaurado com sucesso!');
                         document.getElementById('configModal').classList.remove('active');
+                        location.reload();
                     } else {
                         alert('❌ Arquivo de backup inválido.');
                     }
