@@ -104,6 +104,13 @@
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
+        .card-inline-group {
+            display: flex;
+            align-items: baseline;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-top: 2px;
+        }
         .card-value {
             font-size: 1.25rem;
             font-weight: 700;
@@ -117,7 +124,6 @@
         .sub-text {
             font-size: 0.75rem;
             color: #8b949e;
-            margin-top: 4px;
             line-height: 1.35;
         }
 
@@ -335,25 +341,27 @@
 
         <!-- Dashboard / Métricas -->
         <div class="metrics-grid">
-            <!-- Gastos do Mês -->
+            <!-- Gastos do Mês vs Orçamento (Na mesma linha!) -->
             <div class="card card-full">
                 <div class="card-title">Gastos do Mês vs Orçamento</div>
-                <div class="card-value text-neutral" id="dashMonthlySpent">R$ 0,00</div>
-                <div class="sub-text" id="dashMonthlyMeta">de R$ 0,00 previstos</div>
+                <div class="card-inline-group">
+                    <span class="card-value text-neutral" id="dashMonthlySpent">R$ 0,00</span>
+                    <span class="sub-text" id="dashMonthlyMeta">de R$ 0,00 previstos</span>
+                </div>
             </div>
 
             <!-- Disponível Hoje -->
             <div class="card">
                 <div class="card-title">Disponível Hoje</div>
                 <div class="card-value" id="dashTodayAvailable">R$ 0,00</div>
-                <div class="sub-text" id="dashTodaySpentSub">Gasto hoje: R$ 0,00</div>
+                <div class="sub-text" id="dashTodaySpentSub" style="margin-top: 4px;">Gasto hoje: R$ 0,00</div>
             </div>
 
             <!-- Cofre (Saldo Acumulado no Mês) -->
             <div class="card">
                 <div class="card-title">Cofre (Saldo Acumulado)</div>
                 <div class="card-value text-green" id="dashVaultBalance">R$ 0,00</div>
-                <div class="sub-text" id="dashVaultSub">Liberado até hoje</div>
+                <div class="sub-text" id="dashVaultSub" style="margin-top: 4px;">Liberado até hoje</div>
             </div>
         </div>
 
@@ -712,11 +720,10 @@
                 const [sYear, sMonth, sDay] = startDateIso.split('-').map(Number);
                 const [tYear, tMonth, tDay] = todayIso.split('-').map(Number);
                 
-                // Se estamos no mesmo ano/mês
                 if (sYear === tYear && sMonth === (now.getMonth() + 1)) {
                     daysElapsedUntilToday = (tDay - sDay + 1);
                 } else {
-                    daysElapsedUntilToday = now.getDate(); // Padrão dia do mês se já passou
+                    daysElapsedUntilToday = now.getDate();
                 }
             }
             if (daysElapsedUntilToday < 1) daysElapsedUntilToday = 1;
@@ -728,7 +735,7 @@
             // 1. Badges e Cards Principais
             document.getElementById('dashMonthBadge').innerText = monthFormatted;
             
-            // Gastos Mês (Texto neutro por padrão, vermelho só se estourar tudo)
+            // Gastos Mês
             document.getElementById('dashMonthlySpent').innerText = formatCurrency(monthlySpent);
             document.getElementById('dashMonthlySpent').className = `card-value ${monthlySpent > monthlyBudget && monthlyBudget > 0 ? 'text-red' : 'text-neutral'}`;
             document.getElementById('dashMonthlyMeta').innerText = `de ${formatCurrency(monthlyBudget)} previstos (${effectiveDays} dias)`;
