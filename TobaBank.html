@@ -2012,14 +2012,17 @@
                 });
             }
 
+            // Atualiza Resumo Global com Valor e Percentual
             const globalRealProfit = globalTotalBalance - globalTotalDeposited;
+            const globalProfitPct = globalTotalDeposited > 0 ? ((globalRealProfit / globalTotalDeposited) * 100) : 0;
+            const globalSign = globalRealProfit >= 0 ? '+' : '';
+
             document.getElementById('invTotalBalance').innerText = formatCurrency(globalTotalBalance);
             document.getElementById('invTotalDeposited').innerText = formatCurrency(globalTotalDeposited);
             
             const profitEl = document.getElementById('invRealProfit');
-            profitEl.innerText = formatCurrency(globalRealProfit);
-            profitEl.className = `history-metric-val ${globalRealProfit >= 0 ? 'text-green' : 'text-red'}`;
-        }
+            profitEl.innerText = `${formatCurrency(globalRealProfit)} (${globalSign}${globalProfitPct.toFixed(2)}%)`;
+            profitEl.className = `history-metric-val ${globalRealProfit >= 0 ? 'text-green' : 'text-red'}`;        }
 
         function toggleInvestCard(fundId) {
             const card = document.getElementById(`investCard-${fundId}`);
