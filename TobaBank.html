@@ -592,20 +592,18 @@
                 <span>🏦 Toba Bank</span>
             </div>
             <div class="header-actions" id="headerActionsContainer">
-                <!-- Botão dinâmico injetado via JS (Adicionar Gasto ou Voltar) -->
+                <!-- Botão dinâmico injetado via JS -->
             </div>
         </div>
 
         <!-- VIEW 1: HOME PRINCIPAL DE CAIXA -->
         <div class="app-view active" id="viewMain">
-            <!-- Abas de Navegação -->
             <div class="tab-nav">
                 <button class="tab-btn active" id="tabBtnCurrent" onclick="switchTab('current')">📅 Mês Atual</button>
                 <button class="tab-btn" id="tabBtnInstallments" onclick="switchTab('installments')">💳 Parcelas</button>
                 <button class="tab-btn" id="tabBtnHistory" onclick="switchTab('history')">📜 Histórico</button>
             </div>
 
-            <!-- TAB 1: MÊS ATUAL -->
             <div class="tab-content active" id="tabCurrent">
                 <div style="text-align: center;">
                     <span class="month-badge" id="dashMonthBadge">Carregando...</span>
@@ -649,7 +647,6 @@
                 <div class="expense-list" id="expenseListContainer"></div>
             </div>
 
-            <!-- TAB 2: PARCELAMENTOS -->
             <div class="tab-content" id="tabInstallments">
                 <div class="section-title">
                     <span>💳 Compras Parceladas Ativas</span>
@@ -676,7 +673,6 @@
                 <div id="finishedInstallmentsContainer"></div>
             </div>
 
-            <!-- TAB 3: HISTÓRICO -->
             <div class="tab-content" id="tabHistory">
                 <div class="section-title">
                     <span>📂 Histórico de Meses Fechados</span>
@@ -692,7 +688,6 @@
             </div>
 
             <div class="tools-grid">
-                <!-- FERRAMENTAS 1: Card de Gráficos -->
                 <div class="tool-card" onclick="alert('📈 CALMA RAFAEL! Os gráficos tão no forno, o Toby tá desenhando as barrinhas a mão!')">
                     <div class="tool-card-info">
                         <div class="tool-icon">📊</div>
@@ -704,7 +699,6 @@
                     <span class="tool-status" style="background: rgba(88, 166, 255, 0.15); color: #58a6ff;">⏳ Em Breve</span>
                 </div>
 
-                <!-- FERRAMENTAS 2: Investimentos -->
                 <div class="tool-card" onclick="switchView('investments')">
                     <div class="tool-card-info">
                         <div class="tool-icon">📈</div>
@@ -716,7 +710,6 @@
                     <span class="tool-status" style="background: rgba(63, 185, 80, 0.15); color: #3fb950;">✨ Ativo</span>
                 </div>
 
-                <!-- Tool 3: Raxador de Gastos -->
                 <div class="tool-card" onclick="openToolPlaceholder('Raxador de Gastos')">
                     <div class="tool-card-info">
                         <div class="tool-icon">🍕</div>
@@ -747,8 +740,9 @@
                         <div class="history-metric-val text-neutral" id="invTotalDeposited">R$ 0,00</div>
                     </div>
                     <div class="invest-item-box">
-                        <div class="card-title">Rendimento Real</div>
+                        <div class="card-title">Rendimento Real & Projeção 12m</div>
                         <div class="history-metric-val" id="invRealProfit">R$ 0,00</div>
+                        <div class="sub-text" id="invGlobalProjection" style="margin-top: 4px; color: #58a6ff;">Proj. 12m: R$ 0,00</div>
                     </div>
                 </div>
             </div>
@@ -768,7 +762,32 @@
 
     </div>
 
-    <!-- MODAL CRIAR NOVO FUNDO DE INVESTIMENTO -->
+    <!-- MODAL DE RESGATE / IR -->
+    <div class="modal-overlay" id="finishFundModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3>🏁 Resgatar / Finalizar Investimento</h3>
+                <button class="close-btn" onclick="document.getElementById('finishFundModal').classList.remove('active')">&times;</button>
+            </div>
+            <form id="finishFundForm">
+                <input type="hidden" id="finishFundIdInput">
+                <div class="form-group">
+                    <label>Valor Bruto do Resgate (R$)</label>
+                    <input type="number" id="finishGrossAmount" class="form-control" step="0.01" readonly style="opacity: 0.7;">
+                </div>
+                <div class="form-group">
+                    <label>Imposto de Renda Retido (IR em R$)</label>
+                    <input type="number" id="finishIrAmount" class="form-control" step="0.01" min="0" value="0.00" placeholder="Ex: 15.50">
+                </div>
+                <div style="font-size: 0.8rem; color: #3fb950; margin-bottom: 1rem;" id="finishNetPreview">
+                    Valor Líquido no Bolso: R$ 0,00
+                </div>
+                <button type="submit" class="btn btn-primary">Confirmar Resgate Definitivo</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL CRIAR NOVO FUNDO -->
     <div class="modal-overlay" id="newFundModal">
         <div class="modal">
             <div class="modal-header">
@@ -778,7 +797,7 @@
             <form id="newFundForm">
                 <div class="form-group">
                     <label>Nome do Fundo / Ativo</label>
-                    <input type="text" id="fundNameInput" class="form-control" placeholder="Ex: CDB 110% Sofisa, Tesouro Selic, FIIs..." required>
+                    <input type="text" id="fundNameInput" class="form-control" placeholder="Ex: CDB 110% Sofisa, Tesouro Selic..." required>
                 </div>
                 <div class="form-group">
                     <label>Aporte Inicial (R$)</label>
@@ -823,7 +842,7 @@
         </div>
     </div>
 
-    <!-- MODAL DE GASTOS (NOVO / EDITAR) -->
+    <!-- MODAL DE GASTOS -->
     <div class="modal-overlay" id="expenseModal">
         <div class="modal">
             <div class="modal-header">
@@ -835,7 +854,7 @@
                 
                 <div class="form-group">
                     <label for="expenseDescInput">Descrição</label>
-                    <input type="text" id="expenseDescInput" class="form-control" placeholder="Ex: Almoço, Uber, Celular..." required>
+                    <input type="text" id="expenseDescInput" class="form-control" placeholder="Ex: Almoço, Uber..." required>
                 </div>
 
                 <div class="form-group" id="installmentCheckboxGroup">
@@ -949,7 +968,7 @@
         const STORAGE_KEY = 'TOBA_BANK_DB';
 
         let db = {
-            version: 11,
+            version: 12,
             config: {
                 startDate: new Date().toISOString().split('T')[0]
             },
@@ -959,13 +978,11 @@
             investmentFunds: []
         };
 
-        // --- NAVEGAÇÃO DE VIEWS & HEADER DINÂMICO ---
         function switchView(viewName) {
             document.getElementById('viewMain').classList.toggle('active', viewName === 'main');
             document.getElementById('viewTools').classList.toggle('active', viewName === 'tools');
             document.getElementById('viewInvestments').classList.toggle('active', viewName === 'investments');
 
-            // Renderiza o header superior direito dependendo da tela atual
             const actionsContainer = document.getElementById('headerActionsContainer');
             actionsContainer.innerHTML = '';
 
@@ -975,7 +992,6 @@
                     <button class="tools-btn" onclick="switchView('tools')" title="Ferramentas">🔧</button>
                     <button class="config-btn" id="openConfigBtn" title="Configurações">⚙️</button>
                 `;
-                // Reatribui listener do botão novo gasto
                 document.getElementById('openAddExpenseBtn').addEventListener('click', () => openExpenseModal());
                 document.getElementById('openConfigBtn').addEventListener('click', openConfigModalHandler);
             } else if (viewName === 'tools') {
@@ -1013,7 +1029,6 @@
             alert(`🚧 A ferramenta "${toolName}" está em desenvolvimento e estará disponível nos próximos patches!`);
         }
 
-        // --- NAVEGAÇÃO DE ABAS INTERNAS DO CAIXA ---
         function switchTab(tabName) {
             document.getElementById('tabBtnCurrent').classList.toggle('active', tabName === 'current');
             document.getElementById('tabBtnInstallments').classList.toggle('active', tabName === 'installments');
@@ -1030,7 +1045,6 @@
             }
         }
 
-        // --- FORMATADORES & HELPERS DE DATA ---
         function isoToBrDate(isoStr) {
             if (!isoStr || !isoStr.includes('-')) return isoStr || '';
             const [y, m, d] = isoStr.split('-');
@@ -1079,20 +1093,17 @@
             const currentMonth = monthIndex + 1;
 
             if (currentYear < sYear || (currentYear === sYear && currentMonth < sMonth)) return 0;
-
             if (currentYear === sYear && currentMonth === sMonth) {
                 const daysLeft = totalDays - sDay + 1;
                 return daysLeft > 0 ? daysLeft : 0;
             }
-
             return totalDays;
         }
 
-        // --- INICIALIZAÇÃO ---
         window.addEventListener('DOMContentLoaded', () => {
             loadDatabase();
             setupEvents();
-            switchView('main'); // Inicializa na view principal com header correto
+            switchView('main');
             renderDashboard();
         });
 
@@ -1109,13 +1120,14 @@
 
                     db.investmentFunds.forEach(f => {
                         if (f.isFinished === undefined) f.isFinished = false;
+                        if (f.irAmount === undefined) f.irAmount = 0;
                     });
 
                     if (db.config.startDate && db.config.startDate.includes('/')) {
                         const [d, m, y] = db.config.startDate.split('/');
                         db.config.startDate = `${y}-${m.padStart(2,'0')}-${d.padStart(2,'0')}`;
                     }
-                    db.version = 11;
+                    db.version = 12;
                 } catch (e) {
                     console.error("Erro ao carregar banco de dados", e);
                 }
@@ -1127,18 +1139,11 @@
         function saveDatabase() {
             localStorage.setItem(STORAGE_KEY, JSON.stringify(db));
             renderDashboard();
-            if (document.getElementById('tabHistory').classList.contains('active')) {
-                renderHistory();
-            }
-            if (document.getElementById('tabInstallments').classList.contains('active')) {
-                renderInstallments();
-            }
-            if (document.getElementById('viewInvestments').classList.contains('active')) {
-                renderInvestmentsScreen();
-            }
+            if (document.getElementById('tabHistory').classList.contains('active')) renderHistory();
+            if (document.getElementById('tabInstallments').classList.contains('active')) renderInstallments();
+            if (document.getElementById('viewInvestments').classList.contains('active')) renderInvestmentsScreen();
         }
 
-        // --- EVENTS & MODAIS ---
         function setupEvents() {
             const configModal = document.getElementById('configModal');
             const closeConfigBtn = document.getElementById('closeConfigBtn');
@@ -1180,11 +1185,7 @@
 
             document.getElementById('expenseAmountInput').addEventListener('input', updateInstallmentPreview);
             document.getElementById('installmentCountInput').addEventListener('input', updateInstallmentPreview);
-
-            document.getElementById('editInstallmentForm').addEventListener('submit', (e) => {
-                e.preventDefault();
-                saveEditedInstallment();
-            });
+            document.getElementById('editInstallmentForm').addEventListener('submit', (e) => { e.preventDefault(); saveEditedInstallment(); });
 
             document.getElementById('newFundForm').addEventListener('submit', (e) => {
                 e.preventDefault();
@@ -1196,6 +1197,7 @@
                     id: Date.now().toString(),
                     name: name,
                     isFinished: false,
+                    irAmount: 0,
                     deposits: [{ id: Date.now().toString(), date: initialDate, amount: initialAmount }],
                     balanceLogs: [{ id: (Date.now() + 1).toString(), date: initialDate, amount: initialAmount }]
                 };
@@ -1204,6 +1206,13 @@
                 saveDatabase();
                 document.getElementById('newFundModal').classList.remove('active');
                 renderInvestmentsScreen();
+            });
+
+            // Evento Modal Resgate / IR
+            document.getElementById('finishIrAmount').addEventListener('input', updateFinishNetPreview);
+            document.getElementById('finishFundForm').addEventListener('submit', (e) => {
+                e.preventDefault();
+                confirmFinishFund();
             });
         }
 
@@ -1225,13 +1234,10 @@
         function updateInstallmentPreview() {
             const isChecked = document.getElementById('isInstallmentCheckbox').checked;
             if (!isChecked) return;
-
             const totalAmount = parseFloat(document.getElementById('expenseAmountInput').value) || 0;
             const count = parseInt(document.getElementById('installmentCountInput').value, 10) || 1;
             const parcelVal = totalAmount > 0 && count > 0 ? (totalAmount / count) : 0;
-
-            document.getElementById('installmentCalcPreview').innerText = 
-                `Valor de cada parcela: ${count}x de ${formatCurrency(parcelVal)}`;
+            document.getElementById('installmentCalcPreview').innerText = `Valor de cada parcela: ${count}x de ${formatCurrency(parcelVal)}`;
         }
 
         function updateMonthlyProjection() {
@@ -1240,14 +1246,7 @@
             const effectiveDays = getEffectiveDaysInMonth(now.getFullYear(), now.getMonth());
             const monthlyTotal = dailyVal * effectiveDays;
             const monthFormatted = formatMonthYearLabel(now.getFullYear(), now.getMonth());
-
-            let noteStr = `(${effectiveDays} dias no 1º mês)`;
-            if (effectiveDays === getDaysInMonth(now.getFullYear(), now.getMonth())) {
-                noteStr = `(${effectiveDays} dias)`;
-            }
-
-            document.getElementById('monthlyProjection').innerHTML = 
-                `Para <b>${monthFormatted}</b> ${noteStr}, <b>R$ ${dailyVal.toFixed(2)}</b>/dia = <b>${formatCurrency(monthlyTotal)}</b>.`;
+            document.getElementById('monthlyProjection').innerHTML = `Para <b>${monthFormatted}</b>, <b>R$ ${dailyVal.toFixed(2)}</b>/dia = <b>${formatCurrency(monthlyTotal)}</b>.`;
         }
 
         function openExpenseModal(id = null, presetDateIso = null) {
@@ -1283,7 +1282,6 @@
                 isInstCheckbox.checked = false;
                 instGroupEl.style.display = 'block';
             }
-
             toggleInstallmentFields();
             modal.classList.add('active');
         }
@@ -1299,67 +1297,44 @@
             if (isInstallment && !id) {
                 const totalInstallments = parseInt(document.getElementById('installmentCountInput').value, 10) || 2;
                 const installmentAmount = rawAmount / totalInstallments;
-                
-                const instGroup = {
-                    id: Date.now().toString(),
-                    description: desc,
-                    totalAmount: rawAmount,
-                    installmentAmount: installmentAmount,
-                    totalInstallments: totalInstallments,
-                    paidInstallments: 0,
-                    category: category,
-                    startDate: startDate
-                };
-
-                db.installments.push(instGroup);
+                db.installments.push({
+                    id: Date.now().toString(), description: desc, totalAmount: rawAmount,
+                    installmentAmount: installmentAmount, totalInstallments: totalInstallments,
+                    paidInstallments: 0, category: category, startDate: startDate
+                });
             } else {
                 if (id) {
                     const index = db.transactions.findIndex(t => t.id === id);
-                    if (index !== -1) {
-                        db.transactions[index] = { id, description: desc, amount: rawAmount, category, date: startDate };
-                    }
+                    if (index !== -1) db.transactions[index] = { id, description: desc, amount: rawAmount, category, date: startDate };
                 } else {
-                    const newTransaction = {
-                        id: Date.now().toString(),
-                        description: desc,
-                        amount: rawAmount,
-                        category,
-                        date: startDate
-                    };
-                    db.transactions.push(newTransaction);
+                    db.transactions.push({ id: Date.now().toString(), description: desc, amount: rawAmount, category, date: startDate });
                 }
             }
-
             saveDatabase();
         }
 
         function openEditInstallmentModal(instId) {
             const inst = db.installments.find(i => i.id === instId);
             if (!inst) return;
-
             document.getElementById('editInstId').value = inst.id;
             document.getElementById('editInstDesc').value = inst.description;
             document.getElementById('editInstTotalAmount').value = inst.totalAmount;
             document.getElementById('editInstCount').value = inst.totalInstallments;
             document.getElementById('editInstStartDate').value = inst.startDate;
-
             document.getElementById('editInstallmentModal').classList.add('active');
         }
 
         function saveEditedInstallment() {
             const id = document.getElementById('editInstId').value;
             const inst = db.installments.find(i => i.id === id);
-
             if (inst) {
                 const totalAmount = parseFloat(document.getElementById('editInstTotalAmount').value) || 0;
                 const totalCount = parseInt(document.getElementById('editInstCount').value, 10) || 1;
-
                 inst.description = document.getElementById('editInstDesc').value;
                 inst.totalAmount = totalAmount;
                 inst.totalInstallments = totalCount;
                 inst.installmentAmount = totalAmount / totalCount;
                 inst.startDate = document.getElementById('editInstStartDate').value;
-
                 saveDatabase();
                 document.getElementById('editInstallmentModal').classList.remove('active');
             }
@@ -1382,27 +1357,19 @@
         function getActiveInstallmentsForMonth(monthKey) {
             const result = [];
             const [targetYear, targetMonth] = monthKey.split('-').map(Number);
-
             db.installments.forEach(inst => {
                 if (!inst.startDate) return;
                 const [sYear, sMonth] = inst.startDate.split('-').map(Number);
-
                 const monthDiff = (targetYear - sYear) * 12 + (targetMonth - sMonth);
-
                 if (monthDiff >= 0 && monthDiff < inst.totalInstallments) {
                     const currentParcelNum = monthDiff + 1;
                     result.push({
-                        id: `${inst.id}_p${currentParcelNum}`,
-                        installmentGroupId: inst.id,
+                        id: `${inst.id}_p${currentParcelNum}`, installmentGroupId: inst.id,
                         description: `${inst.description} (${currentParcelNum}/${inst.totalInstallments})`,
-                        amount: inst.installmentAmount,
-                        category: inst.category,
-                        parcelNum: currentParcelNum,
-                        totalInstallments: inst.totalInstallments
+                        amount: inst.installmentAmount, category: inst.category, parcelNum: currentParcelNum, totalInstallments: inst.totalInstallments
                     });
                 }
             });
-
             return result;
         }
 
@@ -1411,34 +1378,27 @@
             const currentMonthKey = getCurrentMonthKey();
             const todayIso = getTodayIsoDateStr();
             const monthFormatted = formatMonthYearLabel(now.getFullYear(), now.getMonth());
-
             const totalDaysInMonth = getDaysInMonth(now.getFullYear(), now.getMonth());
             const effectiveDays = getEffectiveDaysInMonth(now.getFullYear(), now.getMonth());
 
             const baseDailyBudget = (db.months[currentMonthKey] || {}).dailyBudget || 0;
             const grossMonthlyBudget = baseDailyBudget * effectiveDays;
-
             const activeInstallmentsMonth = getActiveInstallmentsForMonth(currentMonthKey);
             const monthInstallmentsTotal = activeInstallmentsMonth.reduce((acc, p) => acc + p.amount, 0);
-
             const dailyInstallmentDeduction = totalDaysInMonth > 0 ? (monthInstallmentsTotal / totalDaysInMonth) : 0;
             const netDailyBudget = Math.max(baseDailyBudget - dailyInstallmentDeduction, 0);
 
             const currentMonthTransactions = db.transactions.filter(t => t.date && t.date.startsWith(currentMonthKey));
             const monthlySpentVista = currentMonthTransactions.reduce((acc, t) => acc + t.amount, 0);
-            
             const totalMonthlySpent = monthlySpentVista + monthInstallmentsTotal;
-
             const todaySpent = db.transactions.filter(t => t.date === todayIso).reduce((acc, t) => acc + t.amount, 0);
             const todayAvailable = netDailyBudget - todaySpent;
 
             let daysElapsedUntilToday = 0;
             const startDateIso = db.config.startDate || todayIso;
-
             if (startDateIso) {
                 const [sYear, sMonth, sDay] = startDateIso.split('-').map(Number);
                 const [tYear, tMonth, tDay] = todayIso.split('-').map(Number);
-                
                 if (sYear === tYear && sMonth === (now.getMonth() + 1)) {
                     daysElapsedUntilToday = (tDay - sDay + 1);
                 } else {
@@ -1451,18 +1411,14 @@
             const vaultBalance = totalAccumulatedBudgetToday - monthlySpentVista;
 
             document.getElementById('dashMonthBadge').innerText = monthFormatted;
-            
             document.getElementById('dashMonthlySpent').innerText = formatCurrency(totalMonthlySpent);
             document.getElementById('dashMonthlySpent').className = `card-value ${totalMonthlySpent > grossMonthlyBudget && grossMonthlyBudget > 0 ? 'text-red' : 'text-neutral'}`;
             document.getElementById('dashMonthlyMeta').innerText = `de ${formatCurrency(grossMonthlyBudget)} previstos`;
-
             document.getElementById('dashTodayAvailable').innerText = formatCurrency(todayAvailable);
             document.getElementById('dashTodayAvailable').className = `card-value ${todayAvailable < 0 ? 'text-red' : 'text-green'}`;
             
             let todaySubStr = `Gasto hoje: ${formatCurrency(todaySpent)}`;
-            if (dailyInstallmentDeduction > 0) {
-                todaySubStr += `<br><span style="color:#f85149; font-weight: 600;">-${formatCurrency(dailyInstallmentDeduction)}/dia parcelas</span>`;
-            }
+            if (dailyInstallmentDeduction > 0) todaySubStr += `<br><span style="color:#f85149; font-weight: 600;">-${formatCurrency(dailyInstallmentDeduction)}/dia parcelas</span>`;
             document.getElementById('dashTodaySpentSub').innerHTML = todaySubStr;
 
             document.getElementById('dashVaultBalance').innerText = formatCurrency(vaultBalance);
@@ -1471,22 +1427,17 @@
 
             const adviceBanner = document.getElementById('adviceBanner');
             const adviceText = document.getElementById('adviceText');
-
             if (vaultBalance < 0 && netDailyBudget > 0) {
                 const deficit = Math.abs(vaultBalance);
                 const daysToRecover = Math.ceil(deficit / netDailyBudget);
-                
-                adviceText.innerHTML = `Meteu o pé na jaca? <b>Economize nos próximos ${daysToRecover} dia(s)</b> (sem gastar nada) para voltar pro verde!`;
+                adviceText.innerHTML = `Meteu o pé na jaca? <b>Economize nos próximos ${daysToRecover} dia(s)</b> para voltar pro verde!`;
                 adviceBanner.classList.add('active');
             } else {
                 adviceBanner.classList.remove('active');
             }
 
             const combinedForBars = [...currentMonthTransactions];
-            activeInstallmentsMonth.forEach(p => {
-                combinedForBars.push({ category: p.category, amount: p.amount });
-            });
-
+            activeInstallmentsMonth.forEach(p => combinedForBars.push({ category: p.category, amount: p.amount }));
             renderCategoryBars(combinedForBars, totalMonthlySpent);
             renderExpenseListWithInstallments(currentMonthTransactions, activeInstallmentsMonth);
         }
@@ -1495,32 +1446,19 @@
             const container = document.getElementById(containerId);
             if (!container) return;
             container.innerHTML = '';
-
             if (transactions.length === 0 || totalSpent === 0) {
                 container.innerHTML = '<div class="empty-state">Nenhum gasto nesta seção.</div>';
                 return;
             }
-
             const catMap = {};
-            transactions.forEach(t => {
-                catMap[t.category] = (catMap[t.category] || 0) + t.amount;
-            });
-
-            const sortedCats = Object.entries(catMap).sort((a, b) => b[1] - a[1]);
-
-            sortedCats.forEach(([cat, amount]) => {
+            transactions.forEach(t => { catMap[t.category] = (catMap[t.category] || 0) + t.amount; });
+            Object.entries(catMap).sort((a, b) => b[1] - a[1]).forEach(([cat, amount]) => {
                 const percentage = Math.min(Math.round((amount / totalSpent) * 100), 100);
-                
                 const itemEl = document.createElement('div');
                 itemEl.className = 'category-item';
                 itemEl.innerHTML = `
-                    <div class="category-info">
-                        <span>${cat}</span>
-                        <span><b>${formatCurrency(amount)}</b> (${percentage}%)</span>
-                    </div>
-                    <div class="progress-bar-bg">
-                        <div class="progress-bar-fill" style="width: ${percentage}%;"></div>
-                    </div>
+                    <div class="category-info"><span>${cat}</span><span><b>${formatCurrency(amount)}</b> (${percentage}%)</span></div>
+                    <div class="progress-bar-bg"><div class="progress-bar-fill" style="width: ${percentage}%;"></div></div>
                 `;
                 container.appendChild(itemEl);
             });
@@ -1529,44 +1467,29 @@
         function renderExpenseListWithInstallments(transactions, activeInstallments) {
             const container = document.getElementById('expenseListContainer');
             container.innerHTML = '';
-
             if (transactions.length === 0 && activeInstallments.length === 0) {
                 container.innerHTML = '<div class="empty-state">Sua lista está limpa! Clique em <b>+ Gasto</b> pra lançar.</div>';
                 return;
             }
-
-            const sorted = [...transactions].sort((a, b) => new Date(b.date) - new Date(a.date));
-
-            sorted.forEach(t => {
+            [...transactions].sort((a, b) => new Date(b.date) - new Date(a.date)).forEach(t => {
                 const itemEl = document.createElement('div');
                 itemEl.className = 'expense-item';
                 itemEl.innerHTML = `
-                    <div class="expense-details">
-                        <span class="expense-desc">${t.description}</span>
-                        <span class="expense-meta">${t.category} • ${isoToBrDate(t.date)}</span>
-                    </div>
-                    <div class="expense-right">
-                        <span class="expense-amount">- ${formatCurrency(t.amount)}</span>
-                        <button class="action-icon-btn" onclick="openExpenseModal('${t.id}')" title="Editar">✏️</button>
-                        <button class="action-icon-btn delete" onclick="deleteExpense('${t.id}')" title="Apagar">🗑️</button>
-                    </div>
+                    <div class="expense-details"><span class="expense-desc">${t.description}</span><span class="expense-meta">${t.category} • ${isoToBrDate(t.date)}</span></div>
+                    <div class="expense-right"><span class="expense-amount">- ${formatCurrency(t.amount)}</span>
+                    <button class="action-icon-btn" onclick="openExpenseModal('${t.id}')" title="Editar">✏️</button>
+                    <button class="action-icon-btn delete" onclick="deleteExpense('${t.id}')" title="Apagar">🗑️</button></div>
                 `;
                 container.appendChild(itemEl);
             });
-
             activeInstallments.forEach(p => {
                 const itemEl = document.createElement('div');
                 itemEl.className = 'expense-item';
                 itemEl.style.borderColor = '#388bfd';
                 itemEl.innerHTML = `
-                    <div class="expense-details">
-                        <span class="expense-desc" style="color: #58a6ff;">💳 ${p.description}</span>
-                        <span class="expense-meta">${p.category} • Parcela Automática</span>
-                    </div>
-                    <div class="expense-right">
-                        <span class="expense-amount" style="color: #ff7b72;">- ${formatCurrency(p.amount)}</span>
-                        <button class="action-icon-btn" onclick="openEditInstallmentModal('${p.installmentGroupId}')" title="Editar Parcelamento">✏️</button>
-                    </div>
+                    <div class="expense-details"><span class="expense-desc" style="color: #58a6ff;">💳 ${p.description}</span><span class="expense-meta">${p.category} • Parcela Automática</span></div>
+                    <div class="expense-right"><span class="expense-amount" style="color: #ff7b72;">- ${formatCurrency(p.amount)}</span>
+                    <button class="action-icon-btn" onclick="openEditInstallmentModal('${p.installmentGroupId}')" title="Editar">✏️</button></div>
                 `;
                 container.appendChild(itemEl);
             });
@@ -1581,84 +1504,54 @@
             const currentMonthKey = getCurrentMonthKey();
             const activeInstallmentsMonth = getActiveInstallmentsForMonth(currentMonthKey);
             const instMonthlyTotal = activeInstallmentsMonth.reduce((acc, p) => acc + p.amount, 0);
-
             const totalDaysInMonth = getDaysInMonth(new Date().getFullYear(), new Date().getMonth());
             const dailyDeduction = totalDaysInMonth > 0 ? (instMonthlyTotal / totalDaysInMonth) : 0;
 
             let totalFutureRemaining = 0;
             let endingThisMonthCount = 0;
-
-            const activeList = [];
-            const finishedList = [];
+            const activeList = [], finishedList = [];
 
             db.installments.forEach(inst => {
                 const [sYear, sMonth] = inst.startDate.split('-').map(Number);
                 const [cYear, cMonth] = currentMonthKey.split('-').map(Number);
                 const monthDiff = (cYear - sYear) * 12 + (cMonth - sMonth);
-                
                 if (monthDiff >= inst.totalInstallments) {
                     finishedList.push(inst);
                 } else {
                     activeList.push({ inst, monthDiff });
                     const remainingParcels = Math.max(inst.totalInstallments - Math.max(monthDiff, 0), 0);
                     totalFutureRemaining += (remainingParcels * inst.installmentAmount);
-
-                    if (monthDiff + 1 === inst.totalInstallments) {
-                        endingThisMonthCount++;
-                    }
+                    if (monthDiff + 1 === inst.totalInstallments) endingThisMonthCount++;
                 }
             });
 
             document.getElementById('instMonthlyTotal').innerText = formatCurrency(instMonthlyTotal);
             document.getElementById('instDailyDeductionSub').innerHTML = `Impacto diário:<br>-${formatCurrency(dailyDeduction)}/dia`;
-            
             document.getElementById('instTotalRemaining').innerText = formatCurrency(totalFutureRemaining);
-            document.getElementById('instActiveCountSub').innerHTML = 
-                `${db.installments.length} compras no total<br><span style="color:#58a6ff; font-weight:600;">${endingThisMonthCount} terminam este mês</span>`;
+            document.getElementById('instActiveCountSub').innerHTML = `${db.installments.length} compras no total<br><span style="color:#58a6ff; font-weight:600;">${endingThisMonthCount} terminam este mês</span>`;
 
             if (activeList.length === 0) {
-                activeContainer.innerHTML = `
-                    <div class="empty-state">
-                        Nenhum parcelamento ativo.<br>
-                        Clique em <b>+ Gasto</b> e marque <b>"💳 Compra parcelada"</b>.
-                    </div>`;
+                activeContainer.innerHTML = `<div class="empty-state">Nenhum parcelamento ativo.</div>`;
             } else {
                 activeList.forEach(({ inst, monthDiff }) => {
                     const currentParcelNum = Math.min(Math.max(monthDiff + 1, 1), inst.totalInstallments);
                     const progressPct = Math.min(Math.round((currentParcelNum / inst.totalInstallments) * 100), 100);
-
                     const card = document.createElement('div');
                     card.className = 'installment-card';
                     card.id = `instCard-${inst.id}`;
-
                     card.innerHTML = `
                         <div class="installment-header" onclick="toggleInstallmentCard('${inst.id}')">
-                            <div class="installment-header-top">
-                                <span class="installment-title">💳 ${inst.description}</span>
-                                <span class="installment-arrow">▼</span>
-                            </div>
+                            <div class="installment-header-top"><span class="installment-title">💳 ${inst.description}</span><span class="installment-arrow">▼</span></div>
                             <div style="margin-bottom: 0.6rem;">
                                 <div style="display: flex; justify-content: space-between; font-size: 0.78rem; color: #8b949e; margin-bottom: 4px;">
-                                    <span>Progresso: Parcela ${currentParcelNum} de ${inst.totalInstallments}</span>
-                                    <span><b>${progressPct}%</b></span>
+                                    <span>Parcela ${currentParcelNum} de ${inst.totalInstallments}</span><span><b>${progressPct}%</b></span>
                                 </div>
-                                <div class="progress-bar-bg">
-                                    <div class="progress-bar-fill" style="width: ${progressPct}%; background: #388bfd;"></div>
-                                </div>
+                                <div class="progress-bar-bg"><div class="progress-bar-fill" style="width: ${progressPct}%; background: #388bfd;"></div></div>
                             </div>
                             <div class="installment-metrics">
-                                <div class="installment-metric-box">
-                                    <span class="installment-metric-label">Valor Parcela</span>
-                                    <span class="installment-metric-val text-red">${formatCurrency(inst.installmentAmount)}</span>
-                                </div>
-                                <div class="installment-metric-box">
-                                    <span class="installment-metric-label">Valor Total</span>
-                                    <span class="installment-metric-val text-neutral">${formatCurrency(inst.totalAmount)}</span>
-                                </div>
-                                <div class="installment-metric-box">
-                                    <span class="installment-metric-label">Categoria</span>
-                                    <span class="installment-metric-val text-blue" style="font-size:0.72rem;">${inst.category.split(' - ')[0]}</span>
-                                </div>
+                                <div class="installment-metric-box"><span class="installment-metric-label">Parcela</span><span class="installment-metric-val text-red">${formatCurrency(inst.installmentAmount)}</span></div>
+                                <div class="installment-metric-box"><span class="installment-metric-label">Total</span><span class="installment-metric-val text-neutral">${formatCurrency(inst.totalAmount)}</span></div>
+                                <div class="installment-metric-box"><span class="installment-metric-label">Categoria</span><span class="installment-metric-val text-blue" style="font-size:0.72rem;">${inst.category.split(' - ')[0]}</span></div>
                             </div>
                         </div>
                         <div class="installment-body">
@@ -1681,13 +1574,8 @@
                     card.style.opacity = '0.75';
                     card.innerHTML = `
                         <div class="installment-header" style="cursor: default;">
-                            <div class="installment-header-top">
-                                <span class="installment-title" style="color:#3fb950;">🎉 ${inst.description} (Quitado)</span>
-                                <span style="font-size:0.75rem; color:#3fb950; font-weight:700;">100% CONCLUÍDO</span>
-                            </div>
-                            <div style="font-size: 0.78rem; color: #8b949e;">
-                                Total pago: <b>${formatCurrency(inst.totalAmount)}</b> em ${inst.totalInstallments}x de ${formatCurrency(inst.installmentAmount)}
-                            </div>
+                            <div class="installment-header-top"><span class="installment-title" style="color:#3fb950;">🎉 ${inst.description} (Quitado)</span><span style="font-size:0.75rem; color:#3fb950; font-weight:700;">CONCLUÍDO</span></div>
+                            <div style="font-size: 0.78rem; color: #8b949e;">Total pago: <b>${formatCurrency(inst.totalAmount)}</b></div>
                         </div>
                     `;
                     finishedContainer.appendChild(card);
@@ -1697,35 +1585,20 @@
 
         function toggleInstallmentCard(instId) {
             const card = document.getElementById(`instCard-${instId}`);
-            if (card) {
-                card.classList.toggle('expanded');
-            }
+            if (card) card.classList.toggle('expanded');
         }
 
         function renderHistory() {
             const container = document.getElementById('historyContainer');
             container.innerHTML = '';
-
             const currentMonthKey = getCurrentMonthKey();
-
             const monthKeysSet = new Set();
-            db.transactions.forEach(t => {
-                if (t.date && t.date.length >= 7) {
-                    monthKeysSet.add(t.date.slice(0, 7));
-                }
-            });
-
+            db.transactions.forEach(t => { if (t.date && t.date.length >= 7) monthKeysSet.add(t.date.slice(0, 7)); });
             Object.keys(db.months).forEach(mKey => monthKeysSet.add(mKey));
 
-            const pastMonthKeys = Array.from(monthKeysSet)
-                .filter(mKey => mKey !== currentMonthKey)
-                .sort((a, b) => b.localeCompare(a));
-
+            const pastMonthKeys = Array.from(monthKeysSet).filter(mKey => mKey !== currentMonthKey).sort((a, b) => b.localeCompare(a));
             if (pastMonthKeys.length === 0) {
-                container.innerHTML = `
-                    <div class="empty-state">
-                        Nenhum mês anterior encontrado no histórico.
-                    </div>`;
+                container.innerHTML = `<div class="empty-state">Nenhum mês anterior encontrado no histórico.</div>`;
                 return;
             }
 
@@ -1734,121 +1607,118 @@
                 const yearNum = parseInt(yearStr, 10);
                 const monthIndex = parseInt(monthStr, 10) - 1;
                 const monthFormatted = formatMonthYearLabel(yearNum, monthIndex);
-
                 const mTransactions = db.transactions.filter(t => t.date && t.date.startsWith(mKey));
                 const mActiveInstallments = getActiveInstallmentsForMonth(mKey);
-
-                const totalSpentVista = mTransactions.reduce((acc, t) => acc + t.amount, 0);
-                const totalSpentParcels = mActiveInstallments.reduce((acc, p) => acc + p.amount, 0);
-                const totalSpent = totalSpentVista + totalSpentParcels;
+                const totalSpent = mTransactions.reduce((acc, t) => acc + t.amount, 0) + mActiveInstallments.reduce((acc, p) => acc + p.amount, 0);
 
                 const monthConfig = db.months[mKey] || {};
                 const dailyBudget = monthConfig.dailyBudget || (db.months[currentMonthKey] || {}).dailyBudget || 0;
-                const daysInMonth = getDaysInMonth(yearNum, monthIndex);
-                const monthlyBudget = dailyBudget * daysInMonth;
+                const monthlyBudget = dailyBudget * getDaysInMonth(yearNum, monthIndex);
                 const vaultBalance = monthlyBudget - totalSpent;
-
-                const vaultClass = vaultBalance >= 0 ? 'text-green' : 'text-red';
 
                 const card = document.createElement('div');
                 card.className = 'history-card';
                 card.id = `historyCard-${mKey}`;
-                
-                let txListHtml = '';
-                mTransactions.sort((a, b) => new Date(b.date) - new Date(a.date)).forEach(t => {
-                    txListHtml += `
-                        <div class="expense-item" style="margin-bottom: 6px;">
-                            <div class="expense-details">
-                                <span class="expense-desc">${t.description}</span>
-                                <span class="expense-meta">${t.category} • ${isoToBrDate(t.date)}</span>
-                            </div>
-                            <div class="expense-right">
-                                <span class="expense-amount">- ${formatCurrency(t.amount)}</span>
-                                <button class="action-icon-btn" onclick="openExpenseModal('${t.id}')" title="Editar">✏️</button>
-                                <button class="action-icon-btn delete" onclick="deleteExpense('${t.id}')" title="Apagar">🗑️</button>
-                            </div>
-                        </div>
-                    `;
-                });
-
-                mActiveInstallments.forEach(p => {
-                    txListHtml += `
-                        <div class="expense-item" style="margin-bottom: 6px; border-color: #388bfd;">
-                            <div class="expense-details">
-                                <span class="expense-desc" style="color: #58a6ff;">💳 ${p.description}</span>
-                                <span class="expense-meta">${p.category} • Parcela Automática</span>
-                            </div>
-                            <div class="expense-right">
-                                <span class="expense-amount" style="color: #ff7b72;">- ${formatCurrency(p.amount)}</span>
-                            </div>
-                        </div>
-                    `;
-                });
-
-                const presetDateForHist = `${mKey}-15`;
-
                 card.innerHTML = `
                     <div class="history-header" onclick="toggleHistoryCard('${mKey}')">
-                        <div class="history-header-top">
-                            <span class="history-title">📅 ${monthFormatted}</span>
-                            <span class="history-arrow">▼</span>
-                        </div>
+                        <div class="history-header-top"><span class="history-title">📅 ${monthFormatted}</span><span class="history-arrow">▼</span></div>
                         <div class="history-metrics">
-                            <div class="history-metric-box">
-                                <span class="history-metric-label">Previsto</span>
-                                <span class="history-metric-val text-neutral">${formatCurrency(monthlyBudget)}</span>
-                            </div>
-                            <div class="history-metric-box">
-                                <span class="history-metric-label">Gasto</span>
-                                <span class="history-metric-val text-red">${formatCurrency(totalSpent)}</span>
-                            </div>
-                            <div class="history-metric-box">
-                                <span class="history-metric-label">Sobra (Cofre)</span>
-                                <span class="history-metric-val ${vaultClass}">${formatCurrency(vaultBalance)}</span>
-                            </div>
+                            <div class="history-metric-box"><span class="history-metric-label">Previsto</span><span class="history-metric-val text-neutral">${formatCurrency(monthlyBudget)}</span></div>
+                            <div class="history-metric-box"><span class="history-metric-label">Gasto</span><span class="history-metric-val text-red">${formatCurrency(totalSpent)}</span></div>
+                            <div class="history-metric-box"><span class="history-metric-label">Sobra</span><span class="history-metric-val ${vaultBalance >= 0 ? 'text-green' : 'text-red'}">${formatCurrency(vaultBalance)}</span></div>
                         </div>
                     </div>
                     <div class="history-body">
-                        <div class="section-title" style="margin-top: 0.8rem; font-size: 0.82rem; color: #8b949e;">
-                            📊 Categoria do Mês
-                        </div>
-                        <div id="histCatBars-${mKey}" style="margin-bottom: 1rem;"></div>
-
-                        <div class="section-title" style="margin-top: 0.8rem; font-size: 0.82rem; color: #8b949e;">
-                            💸 Transações (${mTransactions.length + mActiveInstallments.length})
-                        </div>
-                        <div class="expense-list" style="margin-bottom: 1rem;">
-                            ${txListHtml}
-                        </div>
-
-                        <div style="border-top: 1px solid #21262d; padding-top: 0.8rem; text-align: center;">
-                            <button class="btn btn-secondary" onclick="openExpenseModal(null, '${presetDateForHist}')" style="background: #1f293e; border-color: #388bfd; color: #58a6ff; font-size: 0.82rem; padding: 0.5rem 1rem;">
-                                ➕ Esqueci de algo em ${monthFormatted}? Adicionar Gasto
-                            </button>
-                        </div>
+                        <div style="text-align: center; padding-top: 0.5rem;"><button class="btn btn-secondary" onclick="openExpenseModal(null, '${mKey}-15')" style="font-size: 0.8rem;">➕ Adicionar Gasto em ${monthFormatted}</button></div>
                     </div>
                 `;
-
                 container.appendChild(card);
-
-                const combinedHistBars = [...mTransactions, ...mActiveInstallments];
-                setTimeout(() => {
-                    renderCategoryBars(combinedHistBars, totalSpent, `histCatBars-${mKey}`);
-                }, 0);
             });
         }
 
         function toggleHistoryCard(mKey) {
             const card = document.getElementById(`historyCard-${mKey}`);
-            if (card) {
-                card.classList.toggle('expanded');
-            }
+            if (card) card.classList.toggle('expanded');
         }
 
-        // --- TELA DE INVESTIMENTOS COM SUPORTE A FINALIZADOS ---
+        // --- MOTOR DE PROJEÇÃO COM JUROS COMPOSTOS & IR ---
+        function calculateCompoundProjection(deposits, balanceLogs) {
+            if (!deposits || deposits.length === 0) return { projectedBalance: 0, projectedPct: 0 };
+            
+            const totalDeposited = deposits.reduce((acc, d) => acc + d.amount, 0);
+            let latestBalance = totalDeposited;
+            let latestDate = new Date();
+
+            if (balanceLogs && balanceLogs.length > 0) {
+                const sortedLogs = [...balanceLogs].sort((a, b) => new Date(b.date) - new Date(a.date));
+                latestBalance = sortedLogs[0].amount;
+                latestDate = new Date(sortedLogs[0].date);
+            }
+
+            // Achar a data do primeiro aporte para calcular a taxa diária
+            const sortedDeposits = [...deposits].sort((a, b) => new Date(a.date) - new Date(b.date));
+            const firstDate = new Date(sortedDeposits[0].date);
+
+            const diffTime = latestDate - firstDate;
+            const daysInvested = Math.max(Math.ceil(diffTime / (1000 * 60 * 60 * 24)), 1);
+
+            // Taxa diária (juros compostos baseada no rendimento real obtido até hoje)
+            // Se o saldo atual for menor ou igual ao aportado, taxa diária = 0
+            if (latestBalance <= totalDeposited || daysInvested <= 0) {
+                return { projectedBalance: latestBalance, projectedPct: 0 };
+            }
+
+            const dailyRate = Math.pow(latestBalance / totalDeposited, 1 / daysInvested) - 1;
+
+            // Projeção para mais 365 dias sobre o saldo atual
+            const projectedBalance = latestBalance * Math.pow(1 + dailyRate, 365);
+            const projectedProfit = projectedBalance - totalDeposited;
+            const projectedPct = totalDeposited > 0 ? (projectedProfit / totalDeposited) * 100 : 0;
+
+            return { projectedBalance, projectedPct };
+        }
+
         function openNewFundModal() {
             document.getElementById('fundInitialDateInput').value = getTodayIsoDateStr();
             document.getElementById('newFundModal').classList.add('active');
+        }
+
+        function openFinishFundModal(fundId) {
+            const fund = db.investmentFunds.find(f => f.id === fundId);
+            if (!fund) return;
+
+            let latestBalance = fund.deposits.reduce((acc, d) => acc + d.amount, 0);
+            if (fund.balanceLogs && fund.balanceLogs.length > 0) {
+                const sortedLogs = [...fund.balanceLogs].sort((a, b) => new Date(b.date) - new Date(a.date));
+                latestBalance = sortedLogs[0].amount;
+            }
+
+            document.getElementById('finishFundIdInput').value = fund.id;
+            document.getElementById('finishGrossAmount').value = latestBalance.toFixed(2);
+            document.getElementById('finishIrAmount').value = "0.00";
+            updateFinishNetPreview();
+            document.getElementById('finishFundModal').classList.add('active');
+        }
+
+        function updateFinishNetPreview() {
+            const gross = parseFloat(document.getElementById('finishGrossAmount').value) || 0;
+            const ir = parseFloat(document.getElementById('finishIrAmount').value) || 0;
+            const net = Math.max(gross - ir, 0);
+            document.getElementById('finishNetPreview').innerText = `Valor Líquido no Bolso (após IR): ${formatCurrency(net)}`;
+        }
+
+        function confirmFinishFund() {
+            const fundId = document.getElementById('finishFundIdInput').value;
+            const irAmount = parseFloat(document.getElementById('finishIrAmount').value) || 0;
+            const fund = db.investmentFunds.find(f => f.id === fundId);
+
+            if (fund) {
+                fund.isFinished = true;
+                fund.irAmount = irAmount;
+                saveDatabase();
+                document.getElementById('finishFundModal').classList.remove('active');
+                renderInvestmentsScreen();
+            }
         }
 
         function renderInvestmentsScreen() {
@@ -1858,36 +1728,33 @@
             finishedContainer.innerHTML = '';
 
             const funds = db.investmentFunds || [];
-
             let globalTotalBalance = 0;
             let globalTotalDeposited = 0;
+            let globalProjectedBalanceSum = 0;
 
             const activeFunds = funds.filter(f => !f.isFinished);
             const finishedFunds = funds.filter(f => f.isFinished);
 
             if (activeFunds.length === 0) {
-                container.innerHTML = `
-                    <div class="empty-state">
-                        Nenhum fundo de investimento ativo.<br>
-                        Clique no botão acima para cadastrar seu primeiro card!
-                    </div>`;
+                container.innerHTML = `<div class="empty-state">Nenhum fundo de investimento ativo. Clique acima para criar!</div>`;
             } else {
                 activeFunds.forEach(fund => {
                     const totalDeposited = (fund.deposits || []).reduce((acc, d) => acc + d.amount, 0);
-                    
-                    let latestBalance = 0;
+                    let latestBalance = totalDeposited;
                     if (fund.balanceLogs && fund.balanceLogs.length > 0) {
                         const sortedLogs = [...fund.balanceLogs].sort((a, b) => new Date(b.date) - new Date(a.date));
                         latestBalance = sortedLogs[0].amount;
-                    } else {
-                        latestBalance = totalDeposited;
                     }
 
                     const realProfit = latestBalance - totalDeposited;
                     const profitPercentage = totalDeposited > 0 ? ((realProfit / totalDeposited) * 100) : 0;
 
+                    // Projeção 12 meses
+                    const proj = calculateCompoundProjection(fund.deposits, fund.balanceLogs);
+
                     globalTotalBalance += latestBalance;
                     globalTotalDeposited += totalDeposited;
+                    globalProjectedBalanceSum += proj.projectedBalance;
 
                     const profitClass = realProfit >= 0 ? 'text-green' : 'text-red';
                     const profitSign = realProfit >= 0 ? '+' : '';
@@ -1908,9 +1775,7 @@
                             <div class="log-item">
                                 <span>${isAporte ? '➕ Aporte' : '🔄 Saldo'} • ${isoToBrDate(log.date)}</span>
                                 <div style="display:flex; align-items:center; gap:6px;">
-                                    <span style="font-weight:700; color: ${isAporte ? '#58a6ff' : '#d29922'};">
-                                        ${formatCurrency(log.amount)}
-                                    </span>
+                                    <span style="font-weight:700; color: ${isAporte ? '#58a6ff' : '#d29922'};">${formatCurrency(log.amount)}</span>
                                     <button class="action-icon-btn delete" onclick="deleteInvestLog('${fund.id}', '${log.id}', '${log.type}')" title="Apagar">🗑️</button>
                                 </div>
                             </div>
@@ -1936,6 +1801,9 @@
                                     <span class="invest-metric-label">Rendimento</span>
                                     <span class="invest-metric-val ${profitClass}">${profitSign}${profitPercentage.toFixed(2)}%</span>
                                 </div>
+                            </div>
+                            <div style="margin-top: 8px; font-size: 0.75rem; color: #58a6ff; background: rgba(88, 166, 255, 0.08); padding: 5px 8px; border-radius: 6px;">
+                                🚀 Projeção 12 meses → <b>${formatCurrency(proj.projectedBalance)}</b> (${proj.projectedPct >= 0 ? '+' : ''}${proj.projectedPct.toFixed(2)}%)
                             </div>
                         </div>
 
@@ -1964,7 +1832,7 @@
                             </div>
 
                             <div style="display:flex; justify-content:space-between; align-items:center; margin-top:1rem; border-top:1px solid #21262d; padding-top:0.6rem;">
-                                <button class="btn btn-secondary" style="width:auto; padding:0.3rem 0.7rem; font-size:0.75rem; border-color:#d29922; color:#d29922;" onclick="toggleFinishFund('${fund.id}')">🏁 Finalizar / Resgatar</button>
+                                <button class="btn btn-secondary" style="width:auto; padding:0.3rem 0.7rem; font-size:0.75rem; border-color:#d29922; color:#d29922;" onclick="openFinishFundModal('${fund.id}')">🏁 Finalizar / Resgatar</button>
                                 <button class="btn btn-danger" style="width:auto; padding:0.3rem 0.7rem; font-size:0.75rem;" onclick="deleteFund('${fund.id}')">🗑️ Excluir</button>
                             </div>
                         </div>
@@ -1973,37 +1841,40 @@
                 });
             }
 
+            // Renderizar Histórico de Finalizados com IR
             if (finishedFunds.length === 0) {
                 finishedContainer.innerHTML = `<div class="empty-state">Nenhum investimento resgatado no histórico.</div>`;
             } else {
                 finishedFunds.forEach(fund => {
                     const totalDeposited = (fund.deposits || []).reduce((acc, d) => acc + d.amount, 0);
-                    let finalBalance = totalDeposited;
+                    let finalGross = totalDeposited;
                     if (fund.balanceLogs && fund.balanceLogs.length > 0) {
                         const sortedLogs = [...fund.balanceLogs].sort((a, b) => new Date(b.date) - new Date(a.date));
-                        finalBalance = sortedLogs[0].amount;
+                        finalGross = sortedLogs[0].amount;
                     }
-                    const realProfit = finalBalance - totalDeposited;
-                    const profitPercentage = totalDeposited > 0 ? ((realProfit / totalDeposited) * 100) : 0;
-                    const profitClass = realProfit >= 0 ? 'text-green' : 'text-red';
+                    const ir = fund.irAmount || 0;
+                    const finalNet = Math.max(finalGross - ir, 0);
+                    const realProfitNet = finalNet - totalDeposited;
+                    const profitPercentageNet = totalDeposited > 0 ? ((realProfitNet / totalDeposited) * 100) : 0;
+                    const profitClass = realProfitNet >= 0 ? 'text-green' : 'text-red';
 
                     const card = document.createElement('div');
                     card.className = 'invest-card';
-                    card.style.opacity = '0.8';
+                    card.style.opacity = '0.85';
                     card.innerHTML = `
                         <div class="invest-header" style="cursor: default;">
                             <div class="invest-header-top">
                                 <span class="invest-title" style="color:#3fb950;">🏁 ${fund.name} (Resgatado)</span>
                                 <span style="font-size:0.75rem; color:#3fb950; font-weight:700;">CONCLUÍDO</span>
                             </div>
-                            <div style="font-size: 0.78rem; color: #8b949e; margin-bottom: 6px;">
-                                Total Aportado: <b>${formatCurrency(totalDeposited)}</b> • Resgatado: <b>${formatCurrency(finalBalance)}</b>
+                            <div style="font-size: 0.78rem; color: #8b949e; margin-bottom: 4px;">
+                                Aportado: <b>${formatCurrency(totalDeposited)}</b> • Bruto: <b>${formatCurrency(finalGross)}</b> • IR Retido: <b style="color:#f85149;">-${formatCurrency(ir)}</b>
                             </div>
                             <div style="font-size: 0.78rem;">
-                                Lucro Real: <span class="${profitClass}" style="font-weight:700;">${formatCurrency(realProfit)} (${profitPercentage.toFixed(2)}%)</span>
+                                Líquido no Bolso: <span class="${profitClass}" style="font-weight:700;">${formatCurrency(finalNet)} (${realProfitNet >= 0 ? '+' : ''}${profitPercentageNet.toFixed(2)}%)</span>
                             </div>
                             <div style="margin-top:0.8rem; text-align:right;">
-                                <button class="btn btn-secondary" style="width:auto; padding:0.3rem 0.7rem; font-size:0.75rem; border-color:#58a6ff; color:#58a6ff;" onclick="toggleFinishFund('${fund.id}')">🔄 Reativar Investimento</button>
+                                <button class="btn btn-secondary" style="width:auto; padding:0.3rem 0.7rem; font-size:0.75rem; border-color:#58a6ff; color:#58a6ff;" onclick="toggleFinishFund('${fund.id}')">🔄 Reativar</button>
                                 <button class="btn btn-danger" style="width:auto; padding:0.3rem 0.7rem; font-size:0.75rem;" onclick="deleteFund('${fund.id}')">🗑️ Excluir</button>
                             </div>
                         </div>
@@ -2012,32 +1883,32 @@
                 });
             }
 
-            // Atualiza Resumo Global com Valor e Percentual
+            // Global Summary Updates
             const globalRealProfit = globalTotalBalance - globalTotalDeposited;
             const globalProfitPct = globalTotalDeposited > 0 ? ((globalRealProfit / globalTotalDeposited) * 100) : 0;
-            const globalSign = globalRealProfit >= 0 ? '+' : '';
+            const globalProjProfit = globalProjectedBalanceSum - globalTotalDeposited;
+            const globalProjPct = globalTotalDeposited > 0 ? (globalProjProfit / globalTotalDeposited) * 100 : 0;
 
             document.getElementById('invTotalBalance').innerText = formatCurrency(globalTotalBalance);
             document.getElementById('invTotalDeposited').innerText = formatCurrency(globalTotalDeposited);
             
             const profitEl = document.getElementById('invRealProfit');
-            profitEl.innerText = `${formatCurrency(globalRealProfit)} (${globalSign}${globalProfitPct.toFixed(2)}%)`;
-            profitEl.className = `history-metric-val ${globalRealProfit >= 0 ? 'text-green' : 'text-red'}`;        }
+            profitEl.innerText = `${formatCurrency(globalRealProfit)} (${globalRealProfit >= 0 ? '+' : ''}${globalProfitPct.toFixed(2)}%)`;
+            profitEl.className = `history-metric-val ${globalRealProfit >= 0 ? 'text-green' : 'text-red'}`;
+
+            document.getElementById('invGlobalProjection').innerText = `Proj. 12m: ${formatCurrency(globalProjectedBalanceSum)} (${globalProjPct >= 0 ? '+' : ''}${globalProjPct.toFixed(2)}%)`;
+        }
 
         function toggleInvestCard(fundId) {
             const card = document.getElementById(`investCard-${fundId}`);
-            if (card) {
-                card.classList.toggle('expanded');
-            }
+            if (card) card.classList.toggle('expanded');
         }
 
         function addFundDeposit(fundId) {
             const fund = db.investmentFunds.find(f => f.id === fundId);
             if (!fund) return;
-
             const date = document.getElementById(`depDate-${fundId}`).value;
             const amount = parseFloat(document.getElementById(`depAmount-${fundId}`).value) || 0;
-
             if (amount > 0) {
                 if (!fund.deposits) fund.deposits = [];
                 fund.deposits.push({ id: Date.now().toString(), date, amount });
@@ -2050,10 +1921,8 @@
         function addFundBalanceLog(fundId) {
             const fund = db.investmentFunds.find(f => f.id === fundId);
             if (!fund) return;
-
             const date = document.getElementById(`balDate-${fundId}`).value;
             const amount = parseFloat(document.getElementById(`balAmount-${fundId}`).value) || 0;
-
             if (amount >= 0) {
                 if (!fund.balanceLogs) fund.balanceLogs = [];
                 fund.balanceLogs.push({ id: Date.now().toString(), date, amount });
@@ -2066,13 +1935,9 @@
         function deleteInvestLog(fundId, logId, type) {
             const fund = db.investmentFunds.find(f => f.id === fundId);
             if (!fund) return;
-
-            if (confirm('Deseja apagar este registro do histórico?')) {
-                if (type === 'aporte') {
-                    fund.deposits = fund.deposits.filter(d => d.id !== logId);
-                } else {
-                    fund.balanceLogs = fund.balanceLogs.filter(b => b.id !== logId);
-                }
+            if (confirm('Deseja apagar este registro?')) {
+                if (type === 'aporte') fund.deposits = fund.deposits.filter(d => d.id !== logId);
+                else fund.balanceLogs = fund.balanceLogs.filter(b => b.id !== logId);
                 saveDatabase();
                 renderInvestmentsScreen();
                 setTimeout(() => toggleInvestCard(fundId), 50);
@@ -2082,14 +1947,13 @@
         function toggleFinishFund(fundId) {
             const fund = db.investmentFunds.find(f => f.id === fundId);
             if (!fund) return;
-
             fund.isFinished = !fund.isFinished;
             saveDatabase();
             renderInvestmentsScreen();
         }
 
         function deleteFund(fundId) {
-            if (confirm('Tem certeza que deseja apagar este investimento inteiro?')) {
+            if (confirm('Tem certeza que deseja apagar este investimento?')) {
                 db.investmentFunds = db.investmentFunds.filter(f => f.id !== fundId);
                 saveDatabase();
                 renderInvestmentsScreen();
@@ -2109,7 +1973,6 @@
         function importBackup(event) {
             const file = event.target.files[0];
             if (!file) return;
-
             const reader = new FileReader();
             reader.onload = function(e) {
                 try {
@@ -2118,20 +1981,15 @@
                         db = importedDb;
                         saveDatabase();
                         alert('✅ Backup restaurado com sucesso!');
-                        document.getElementById('configModal').classList.remove('active');
                         location.reload();
-                    } else {
-                        alert('❌ Arquivo de backup inválido.');
                     }
-                } catch (err) {
-                    alert('❌ Erro ao ler o arquivo JSON.');
-                }
+                } catch (err) { alert('❌ Erro ao ler o arquivo JSON.'); }
             };
             reader.readAsText(file);
         }
 
         function resetAllData() {
-            if (confirm('🚨 Tem certeza que deseja apagar TODOS os dados do Toba Bank? Esta ação não pode ser desfeita!')) {
+            if (confirm('🚨 Tem certeza que deseja apagar TODOS os dados?')) {
                 localStorage.removeItem(STORAGE_KEY);
                 location.reload();
             }
