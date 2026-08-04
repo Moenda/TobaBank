@@ -108,7 +108,7 @@
             box-shadow: 0 2px 8px rgba(0,0,0,0.3);
         }
 
-        /* Views Display (Main Hub vs Tools Hub) */
+        /* Views Display */
         .app-view {
             display: none;
         }
@@ -252,10 +252,12 @@
         .expense-details {
             display: flex;
             flex-direction: column;
+            max-width: 60%;
         }
         .expense-desc {
             font-weight: 600;
             font-size: 0.88rem;
+            word-break: break-word;
         }
         .expense-meta {
             font-size: 0.73rem;
@@ -265,12 +267,15 @@
         .expense-right {
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 6px;
+            white-space: nowrap;
         }
+        /* UX 1: Fonte reduzida do valor no celular para não quebrar linha */
         .expense-amount {
             font-weight: 700;
             color: #f85149;
-            font-size: 0.92rem;
+            font-size: 0.82rem;
+            white-space: nowrap;
         }
         .action-icon-btn {
             background: none;
@@ -521,6 +526,27 @@
             padding: 1.5rem 0;
             font-size: 0.85rem;
         }
+
+        /* Card de Investimento */
+        .invest-summary-card {
+            background: #0d1117;
+            border: 1px solid #30363d;
+            border-radius: 14px;
+            padding: 1rem;
+            margin-bottom: 1.2rem;
+        }
+        .invest-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        .invest-item-box {
+            background: #161b22;
+            padding: 0.6rem;
+            border-radius: 8px;
+            border: 1px solid #21262d;
+        }
     </style>
 </head>
 <body>
@@ -597,20 +623,27 @@
                     <span>💳 Compras Parceladas Ativas</span>
                 </div>
 
+                <!-- UX 2: Estrutura alinhada em 2 linhas para evitar layout estranho -->
                 <div class="metrics-grid" style="margin-bottom: 1.2rem;">
                     <div class="card">
                         <div class="card-title">Parcelas deste Mês</div>
                         <div class="card-value text-red" id="instMonthlyTotal">R$ 0,00</div>
-                        <div class="sub-text" id="instDailyDeductionSub">Impacto diário: -R$ 0,00/dia</div>
+                        <div class="sub-text" id="instDailyDeductionSub">Impacto diário:<br>-R$ 0,00/dia</div>
                     </div>
                     <div class="card">
                         <div class="card-title">Total a Quitar (Futuro)</div>
                         <div class="card-value text-gold" id="instTotalRemaining">R$ 0,00</div>
-                        <div class="sub-text" id="instActiveCountSub">0 compras ativas</div>
+                        <div class="sub-text" id="instActiveCountSub">0 compras no total<br>0 terminam este mês</div>
                     </div>
                 </div>
 
                 <div id="installmentsContainer"></div>
+
+                <!-- LÓGICA 1: Histórico de Parcelamentos Finalizados -->
+                <div class="section-title" style="margin-top: 2rem;">
+                    <span>✅ Parcelamentos Finalizados</span>
+                </div>
+                <div id="finishedInstallmentsContainer"></div>
             </div>
 
             <!-- TAB 3: HISTÓRICO -->
@@ -630,19 +663,31 @@
             </div>
 
             <div class="tools-grid">
-                <!-- Tool 1: Investimentos -->
-                <div class="tool-card" onclick="openToolPlaceholder('Investimentos')">
+                <!-- FERRAMENTAS 1: Card engraçado para o Dashboard de Gráficos -->
+                <div class="tool-card" onclick="alert('📈 CALMA RAFAEL! Os gráficos tão no forno, o Toby tá desenhando as barrinhas a mão!')">
+                    <div class="tool-card-info">
+                        <div class="tool-icon">📊</div>
+                        <div>
+                            <div class="tool-title">G R A F I C O S !! 🔥</div>
+                            <div class="tool-desc">Gráficos de barra, pizza e rosquinha pra fingir riqueza</div>
+                        </div>
+                    </div>
+                    <span class="tool-status" style="background: rgba(88, 166, 255, 0.15); color: #58a6ff;">⏳ Em Breve</span>
+                </div>
+
+                <!-- FERRAMENTAS 2: Investimentos -->
+                <div class="tool-card" onclick="openInvestmentsModal()">
                     <div class="tool-card-info">
                         <div class="tool-icon">📈</div>
                         <div>
-                            <div class="tool-title">Investimentos</div>
-                            <div class="tool-desc">Gestão de carteira e aportes</div>
+                            <div class="tool-title">Investimentos & Rendimento Real</div>
+                            <div class="tool-desc">Aportes e lucro real (sem roubar no aporte!)</div>
                         </div>
                     </div>
-                    <span class="tool-status">🚧 Em Breve</span>
+                    <span class="tool-status" style="background: rgba(63, 185, 80, 0.15); color: #3fb950;">✨ Ativo</span>
                 </div>
 
-                <!-- Tool 2: Raxador de Gastos -->
+                <!-- Tool 3: Raxador de Gastos -->
                 <div class="tool-card" onclick="openToolPlaceholder('Raxador de Gastos')">
                     <div class="tool-card-info">
                         <div class="tool-icon">🍕</div>
@@ -653,19 +698,90 @@
                     </div>
                     <span class="tool-status">🚧 Em Breve</span>
                 </div>
+            </div>
+        </div>
+    </div>
 
-                <!-- Tool 3: Espaço Futuro -->
-                <div class="tool-card" style="opacity: 0.6;" onclick="openToolPlaceholder('Espaço Futuro')">
-                    <div class="tool-card-info">
-                        <div class="tool-icon">🚀</div>
-                        <div>
-                            <div class="tool-title">Ideia Futura</div>
-                            <div class="tool-desc">Próxima invenção de chuveiro</div>
-                        </div>
+    <!-- MODAL DE INVESTIMENTOS (FERRAMENTAS 2) -->
+    <div class="modal-overlay" id="investModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3>📈 Carteira de Investimentos</h3>
+                <button class="close-btn" onclick="document.getElementById('investModal').classList.remove('active')">&times;</button>
+            </div>
+
+            <!-- Card de Resumo do Rendimento Real -->
+            <div class="invest-summary-card">
+                <div class="card-title">Resumo da Carteira</div>
+                <div class="card-value text-green" id="invTotalBalance">R$ 0,00</div>
+                
+                <div class="invest-grid">
+                    <div class="invest-item-box">
+                        <div class="card-title">Total Aportado</div>
+                        <div class="history-metric-val text-neutral" id="invTotalDeposited">R$ 0,00</div>
                     </div>
-                    <span class="tool-status" style="background: rgba(139, 148, 158, 0.15); color: #8b949e;">💡 Ideia</span>
+                    <div class="invest-item-box">
+                        <div class="card-title">Rendimento Real</div>
+                        <div class="history-metric-val" id="invRealProfit">R$ 0,00</div>
+                    </div>
                 </div>
             </div>
+
+            <div class="section-title" style="font-size: 0.82rem; color: #58a6ff;">➕ Registrar Novo Aporte</div>
+            <form id="depositForm" style="margin-bottom: 1.2rem;">
+                <div class="form-group">
+                    <label>Data do Aporte</label>
+                    <input type="date" id="depDate" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label>Valor Aportado (R$)</label>
+                    <input type="number" id="depAmount" class="form-control" step="0.01" min="0.01" placeholder="Ex: 500.00" required>
+                </div>
+                <button type="submit" class="btn btn-primary">+ Adicionar Aporte</button>
+            </form>
+
+            <div class="section-title" style="font-size: 0.82rem; color: #58a6ff;">🔄 Atualizar Saldo Atual da Carteira</div>
+            <form id="updateBalanceForm">
+                <div class="form-group">
+                    <label>Data da Leitura do Saldo</label>
+                    <input type="date" id="balDate" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label>Saldo Atual da Corretora/Banco (R$)</label>
+                    <input type="number" id="balAmount" class="form-control" step="0.01" min="0" placeholder="Ex: 1050.00" required>
+                </div>
+                <button type="submit" class="btn btn-secondary" style="border-color: #58a6ff; color: #58a6ff;">Atualizar Saldo</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL DE EDITAR PARCELA (LÓGICA 2) -->
+    <div class="modal-overlay" id="editInstallmentModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3>✏️ Editar Compra Parcelada</h3>
+                <button class="close-btn" onclick="document.getElementById('editInstallmentModal').classList.remove('active')">&times;</button>
+            </div>
+            <form id="editInstallmentForm">
+                <input type="hidden" id="editInstId">
+                <div class="form-group">
+                    <label>Descrição</label>
+                    <input type="text" id="editInstDesc" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label>Valor TOTAL da Compra (R$)</label>
+                    <input type="number" id="editInstTotalAmount" class="form-control" step="0.01" min="0.01" required>
+                </div>
+                <div class="form-group">
+                    <label>Número de Parcelas</label>
+                    <input type="number" id="editInstCount" class="form-control" min="1" max="120" required>
+                </div>
+                <div class="form-group">
+                    <label>Data da 1ª Parcela</label>
+                    <input type="date" id="editInstStartDate" class="form-control" required>
+                </div>
+                <button type="submit" class="btn btn-primary">Salvar Alterações</button>
+            </form>
         </div>
     </div>
 
@@ -795,13 +911,17 @@
         const STORAGE_KEY = 'TOBA_BANK_DB';
 
         let db = {
-            version: 7,
+            version: 8,
             config: {
                 startDate: new Date().toISOString().split('T')[0]
             },
             months: {},
             transactions: [],
-            installments: []
+            installments: [],
+            investments: {
+                deposits: [], // { id, date, amount }
+                balanceLog: [] // { date, amount }
+            }
         };
 
         // --- NAVEGAÇÃO DE VIEWS (HOME VS FERRAMENTAS) ---
@@ -905,12 +1025,13 @@
                     if (!db.installments) db.installments = [];
                     if (!db.config) db.config = { startDate: getTodayIsoDateStr() };
                     if (!db.months) db.months = {};
+                    if (!db.investments) db.investments = { deposits: [], balanceLog: [] };
                     
                     if (db.config.startDate && db.config.startDate.includes('/')) {
                         const [d, m, y] = db.config.startDate.split('/');
                         db.config.startDate = `${y}-${m.padStart(2,'0')}-${d.padStart(2,'0')}`;
                     }
-                    db.version = 7;
+                    db.version = 8;
                 } catch (e) {
                     console.error("Erro ao carregar banco de dados", e);
                 }
@@ -924,6 +1045,9 @@
             renderDashboard();
             if (document.getElementById('tabHistory').classList.contains('active')) {
                 renderHistory();
+            }
+            if (document.getElementById('tabInstallments').classList.contains('active')) {
+                renderInstallments();
             }
         }
 
@@ -980,6 +1104,35 @@
 
             document.getElementById('expenseAmountInput').addEventListener('input', updateInstallmentPreview);
             document.getElementById('installmentCountInput').addEventListener('input', updateInstallmentPreview);
+
+            // Modal Editar Parcela (LÓGICA 2)
+            document.getElementById('editInstallmentForm').addEventListener('submit', (e) => {
+                e.preventDefault();
+                saveEditedInstallment();
+            });
+
+            // Modal Investimentos (FERRAMENTAS 2)
+            document.getElementById('depositForm').addEventListener('submit', (e) => {
+                e.preventDefault();
+                const date = document.getElementById('depDate').value;
+                const amount = parseFloat(document.getElementById('depAmount').value) || 0;
+                if (amount > 0) {
+                    db.investments.deposits.push({ id: Date.now().toString(), date, amount });
+                    document.getElementById('depAmount').value = '';
+                    saveDatabase();
+                    renderInvestmentsSummary();
+                }
+            });
+
+            document.getElementById('updateBalanceForm').addEventListener('submit', (e) => {
+                e.preventDefault();
+                const date = document.getElementById('balDate').value;
+                const amount = parseFloat(document.getElementById('balAmount').value) || 0;
+                db.investments.balanceLog.push({ date, amount });
+                document.getElementById('balAmount').value = '';
+                saveDatabase();
+                renderInvestmentsSummary();
+            });
         }
 
         function toggleInstallmentFields() {
@@ -1109,6 +1262,39 @@
             saveDatabase();
         }
 
+        // LÓGICA 2: Editar Parcela
+        function openEditInstallmentModal(instId) {
+            const inst = db.installments.find(i => i.id === instId);
+            if (!inst) return;
+
+            document.getElementById('editInstId').value = inst.id;
+            document.getElementById('editInstDesc').value = inst.description;
+            document.getElementById('editInstTotalAmount').value = inst.totalAmount;
+            document.getElementById('editInstCount').value = inst.totalInstallments;
+            document.getElementById('editInstStartDate').value = inst.startDate;
+
+            document.getElementById('editInstallmentModal').classList.add('active');
+        }
+
+        function saveEditedInstallment() {
+            const id = document.getElementById('editInstId').value;
+            const inst = db.installments.find(i => i.id === id);
+
+            if (inst) {
+                const totalAmount = parseFloat(document.getElementById('editInstTotalAmount').value) || 0;
+                const totalCount = parseInt(document.getElementById('editInstCount').value, 10) || 1;
+
+                inst.description = document.getElementById('editInstDesc').value;
+                inst.totalAmount = totalAmount;
+                inst.totalInstallments = totalCount;
+                inst.installmentAmount = totalAmount / totalCount;
+                inst.startDate = document.getElementById('editInstStartDate').value;
+
+                saveDatabase();
+                document.getElementById('editInstallmentModal').classList.remove('active');
+            }
+        }
+
         function deleteExpense(id) {
             if (confirm('Deseja apagar este gasto?')) {
                 db.transactions = db.transactions.filter(t => t.id !== id);
@@ -1117,7 +1303,7 @@
         }
 
         function deleteInstallmentGroup(instId) {
-            if (confirm('Deseja apagar esta compra parcelada inteira e todas as parcelas relativas?')) {
+            if (confirm('Deseja apagar esta compra parcelada inteira?')) {
                 db.installments = db.installments.filter(i => i.id !== instId);
                 saveDatabase();
             }
@@ -1310,15 +1496,19 @@
                     </div>
                     <div class="expense-right">
                         <span class="expense-amount" style="color: #ff7b72;">- ${formatCurrency(p.amount)}</span>
+                        <button class="action-icon-btn" onclick="openEditInstallmentModal('${p.installmentGroupId}')" title="Editar Parcelamento">✏️</button>
                     </div>
                 `;
                 container.appendChild(itemEl);
             });
         }
 
+        // UX 2 & LÓGICA 1: Parcelamentos Ativos e Finalizados
         function renderInstallments() {
-            const container = document.getElementById('installmentsContainer');
-            container.innerHTML = '';
+            const activeContainer = document.getElementById('installmentsContainer');
+            const finishedContainer = document.getElementById('finishedInstallmentsContainer');
+            activeContainer.innerHTML = '';
+            finishedContainer.innerHTML = '';
 
             const currentMonthKey = getCurrentMonthKey();
             const activeInstallmentsMonth = getActiveInstallmentsForMonth(currentMonthKey);
@@ -1328,83 +1518,116 @@
             const dailyDeduction = totalDaysInMonth > 0 ? (instMonthlyTotal / totalDaysInMonth) : 0;
 
             let totalFutureRemaining = 0;
+            let endingThisMonthCount = 0;
+
+            const activeList = [];
+            const finishedList = [];
+
             db.installments.forEach(inst => {
                 const [sYear, sMonth] = inst.startDate.split('-').map(Number);
                 const [cYear, cMonth] = currentMonthKey.split('-').map(Number);
                 const monthDiff = (cYear - sYear) * 12 + (cMonth - sMonth);
                 
-                const remainingParcels = Math.max(inst.totalInstallments - Math.max(monthDiff, 0), 0);
-                totalFutureRemaining += (remainingParcels * inst.installmentAmount);
+                if (monthDiff >= inst.totalInstallments) {
+                    finishedList.push(inst);
+                } else {
+                    activeList.push({ inst, monthDiff });
+                    const remainingParcels = Math.max(inst.totalInstallments - Math.max(monthDiff, 0), 0);
+                    totalFutureRemaining += (remainingParcels * inst.installmentAmount);
+
+                    if (monthDiff + 1 === inst.totalInstallments) {
+                        endingThisMonthCount++;
+                    }
+                }
             });
 
             document.getElementById('instMonthlyTotal').innerText = formatCurrency(instMonthlyTotal);
-            document.getElementById('instDailyDeductionSub').innerText = `Impacto diário: -${formatCurrency(dailyDeduction)}/dia`;
+            // UX 2: Linha 2 corrigida
+            document.getElementById('instDailyDeductionSub').innerHTML = `Impacto diário:<br>-${formatCurrency(dailyDeduction)}/dia`;
             
             document.getElementById('instTotalRemaining').innerText = formatCurrency(totalFutureRemaining);
-            document.getElementById('instActiveCountSub').innerText = `${db.installments.length} compras parceladas no total`;
+            // UX 2: Total a quitar com 2 linhas
+            document.getElementById('instActiveCountSub').innerHTML = 
+                `${db.installments.length} compras no total<br><span style="color:#58a6ff; font-weight:600;">${endingThisMonthCount} terminam este mês</span>`;
 
-            if (db.installments.length === 0) {
-                container.innerHTML = `
+            if (activeList.length === 0) {
+                activeContainer.innerHTML = `
                     <div class="empty-state">
                         Nenhum parcelamento ativo.<br>
-                        Para cadastrar, clique em <b>+ Gasto</b> e marque a opção<br>
-                        <b>"💳 É uma compra parcelada?"</b>.
+                        Clique em <b>+ Gasto</b> e marque <b>"💳 Compra parcelada"</b>.
                     </div>`;
-                return;
+            } else {
+                activeList.forEach(({ inst, monthDiff }) => {
+                    const currentParcelNum = Math.min(Math.max(monthDiff + 1, 1), inst.totalInstallments);
+                    const progressPct = Math.min(Math.round((currentParcelNum / inst.totalInstallments) * 100), 100);
+
+                    const card = document.createElement('div');
+                    card.className = 'installment-card';
+                    card.id = `instCard-${inst.id}`;
+
+                    card.innerHTML = `
+                        <div class="installment-header" onclick="toggleInstallmentCard('${inst.id}')">
+                            <div class="installment-header-top">
+                                <span class="installment-title">💳 ${inst.description}</span>
+                                <span class="installment-arrow">▼</span>
+                            </div>
+                            <div style="margin-bottom: 0.6rem;">
+                                <div style="display: flex; justify-content: space-between; font-size: 0.78rem; color: #8b949e; margin-bottom: 4px;">
+                                    <span>Progresso: Parcela ${currentParcelNum} de ${inst.totalInstallments}</span>
+                                    <span><b>${progressPct}%</b></span>
+                                </div>
+                                <div class="progress-bar-bg">
+                                    <div class="progress-bar-fill" style="width: ${progressPct}%; background: #388bfd;"></div>
+                                </div>
+                            </div>
+                            <div class="installment-metrics">
+                                <div class="installment-metric-box">
+                                    <span class="installment-metric-label">Valor Parcela</span>
+                                    <span class="installment-metric-val text-red">${formatCurrency(inst.installmentAmount)}</span>
+                                </div>
+                                <div class="installment-metric-box">
+                                    <span class="installment-metric-label">Valor Total</span>
+                                    <span class="installment-metric-val text-neutral">${formatCurrency(inst.totalAmount)}</span>
+                                </div>
+                                <div class="installment-metric-box">
+                                    <span class="installment-metric-label">Categoria</span>
+                                    <span class="installment-metric-val text-blue" style="font-size:0.72rem;">${inst.category.split(' - ')[0]}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="installment-body">
+                            <div style="display: flex; justify-content: space-between; align-items: center; padding-top: 0.8rem; border-top: 1px solid #21262d;">
+                                <button class="btn btn-secondary" style="width: auto; padding: 0.4rem 0.8rem; font-size: 0.8rem;" onclick="openEditInstallmentModal('${inst.id}')">✏️ Editar</button>
+                                <button class="btn btn-danger" style="width: auto; padding: 0.4rem 0.8rem; font-size: 0.8rem;" onclick="deleteInstallmentGroup('${inst.id}')">🗑️ Apagar</button>
+                            </div>
+                        </div>
+                    `;
+                    activeContainer.appendChild(card);
+                });
             }
 
-            db.installments.forEach(inst => {
-                const [sYear, sMonth] = inst.startDate.split('-').map(Number);
-                const [cYear, cMonth] = currentMonthKey.split('-').map(Number);
-                const monthDiff = (cYear - sYear) * 12 + (cMonth - sMonth);
-
-                const currentParcelNum = Math.min(Math.max(monthDiff + 1, 1), inst.totalInstallments);
-                const progressPct = Math.min(Math.round((currentParcelNum / inst.totalInstallments) * 100), 100);
-
-                const card = document.createElement('div');
-                card.className = 'installment-card';
-                card.id = `instCard-${inst.id}`;
-
-                card.innerHTML = `
-                    <div class="installment-header" onclick="toggleInstallmentCard('${inst.id}')">
-                        <div class="installment-header-top">
-                            <span class="installment-title">💳 ${inst.description}</span>
-                            <span class="installment-arrow">▼</span>
-                        </div>
-                        <div style="margin-bottom: 0.6rem;">
-                            <div style="display: flex; justify-content: space-between; font-size: 0.78rem; color: #8b949e; margin-bottom: 4px;">
-                                <span>Progresso: Parcela ${currentParcelNum} de ${inst.totalInstallments}</span>
-                                <span><b>${progressPct}%</b></span>
+            // LÓGICA 1: Renderizar finalizados
+            if (finishedList.length === 0) {
+                finishedContainer.innerHTML = `<div class="empty-state">Nenhum parcelamento quitado ainda.</div>`;
+            } else {
+                finishedList.forEach(inst => {
+                    const card = document.createElement('div');
+                    card.className = 'installment-card';
+                    card.style.opacity = '0.75';
+                    card.innerHTML = `
+                        <div class="installment-header" style="cursor: default;">
+                            <div class="installment-header-top">
+                                <span class="installment-title" style="color:#3fb950;">🎉 ${inst.description} (Quitado)</span>
+                                <span style="font-size:0.75rem; color:#3fb950; font-weight:700;">100% CONCLUÍDO</span>
                             </div>
-                            <div class="progress-bar-bg">
-                                <div class="progress-bar-fill" style="width: ${progressPct}%; background: #388bfd;"></div>
+                            <div style="font-size: 0.78rem; color: #8b949e;">
+                                Total pago: <b>${formatCurrency(inst.totalAmount)}</b> em ${inst.totalInstallments}x de ${formatCurrency(inst.installmentAmount)}
                             </div>
                         </div>
-                        <div class="installment-metrics">
-                            <div class="installment-metric-box">
-                                <span class="installment-metric-label">Valor Parcela</span>
-                                <span class="installment-metric-val text-red">${formatCurrency(inst.installmentAmount)}</span>
-                            </div>
-                            <div class="installment-metric-box">
-                                <span class="installment-metric-label">Valor Total</span>
-                                <span class="installment-metric-val text-neutral">${formatCurrency(inst.totalAmount)}</span>
-                            </div>
-                            <div class="installment-metric-box">
-                                <span class="installment-metric-label">Categoria</span>
-                                <span class="installment-metric-val text-blue" style="font-size:0.72rem;">${inst.category.split(' - ')[0]}</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="installment-body">
-                        <div style="display: flex; justify-content: space-between; align-items: center; padding-top: 0.8rem; border-top: 1px solid #21262d;">
-                            <span style="font-size: 0.8rem; color: #8b949e;">Início: ${isoToBrDate(inst.startDate)}</span>
-                            <button class="btn btn-danger" style="width: auto; padding: 0.4rem 0.8rem; font-size: 0.8rem;" onclick="deleteInstallmentGroup('${inst.id}')">🗑️ Apagar Parcelamento</button>
-                        </div>
-                    </div>
-                `;
-
-                container.appendChild(card);
-            });
+                    `;
+                    finishedContainer.appendChild(card);
+                });
+            }
         }
 
         function toggleInstallmentCard(instId) {
@@ -1555,6 +1778,41 @@
             if (card) {
                 card.classList.toggle('expanded');
             }
+        }
+
+        // --- FERRAMENTAS 2: ABA INVESTIMENTOS & CÁLCULO DE RENDIMENTO REAL ---
+        function openInvestmentsModal() {
+            const modal = document.getElementById('investModal');
+            document.getElementById('depDate').value = getTodayIsoDateStr();
+            document.getElementById('balDate').value = getTodayIsoDateStr();
+            renderInvestmentsSummary();
+            modal.classList.add('active');
+        }
+
+        function renderInvestmentsSummary() {
+            const deposits = db.investments.deposits || [];
+            const balanceLog = db.investments.balanceLog || [];
+
+            const totalDeposited = deposits.reduce((acc, d) => acc + d.amount, 0);
+            
+            // Pega o saldo mais recente informado
+            let latestBalance = 0;
+            if (balanceLog.length > 0) {
+                const sorted = [...balanceLog].sort((a, b) => new Date(b.date) - new Date(a.date));
+                latestBalance = sorted[0].amount;
+            } else {
+                latestBalance = totalDeposited; // Se nunca informou saldo, assume o total aportado
+            }
+
+            // RENDIMENTO REAL = Saldo Atual - Total de Dinheiro Injetado (Aportes)
+            const realProfit = latestBalance - totalDeposited;
+
+            document.getElementById('invTotalBalance').innerText = formatCurrency(latestBalance);
+            document.getElementById('invTotalDeposited').innerText = formatCurrency(totalDeposited);
+
+            const profitEl = document.getElementById('invRealProfit');
+            profitEl.innerText = formatCurrency(realProfit);
+            profitEl.className = `history-metric-val ${realProfit >= 0 ? 'text-green' : 'text-red'}`;
         }
 
         // --- BACKUP & ZERAR ---
