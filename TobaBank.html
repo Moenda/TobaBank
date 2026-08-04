@@ -905,7 +905,7 @@
 
     </div>
 
-    <!-- MODAL DE RESGATE / IR / COFRINHO -->
+<!-- MODAL DE RESGATE / IR / COFRINHO -->
     <div class="modal-overlay" id="finishFundModal">
         <div class="modal">
             <div class="modal-header">
@@ -921,6 +921,11 @@
                         <option value="partial">🪙 Resgate Parcial (Lucro/Cofrinho)</option>
                         <option value="total">💀 Resgate Total (Encerrar Investimento)</option>
                     </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Data do Resgate</label>
+                    <input type="date" id="finishDateInput" class="form-control" required>
                 </div>
 
                 <!-- Sessão de Resgate Parcial -->
@@ -2097,7 +2102,7 @@
             document.getElementById('newFundModal').classList.add('active');
         }
 
-        function openFinishFundModal(fundId) {
+            function openFinishFundModal(fundId) {
             const fund = db.investmentFunds.find(f => f.id === fundId);
             if (!fund) return;
 
@@ -2113,6 +2118,7 @@
             document.getElementById('rescueTypeSelect').value = 'partial';
             document.getElementById('availableProfitAlert').innerText = `Lucro disponível: ${formatCurrency(realProfit)}`;
             document.getElementById('rescueAmountInput').value = '';
+            document.getElementById('finishDateInput').value = getTodayIsoDateStr();
             
             document.getElementById('finishGrossAmount').value = latestBalance.toFixed(2);
             document.getElementById('finishIrAmount').value = "0.00";
@@ -2129,9 +2135,10 @@
             document.getElementById('finishNetPreview').innerText = `Valor Líquido no Bolso: ${formatCurrency(net)}`;
         }
 
-        function confirmFinishFund() {
+            function confirmFinishFund() {
             const fundId = document.getElementById('finishFundIdInput').value;
             const rescueType = document.getElementById('rescueTypeSelect').value;
+            const rescueDate = document.getElementById('finishDateInput').value || getTodayIsoDateStr();
             const fund = db.investmentFunds.find(f => f.id === fundId);
             if (!fund) return;
 
@@ -2145,21 +2152,19 @@
                     latestBalance = sortedLogs[0].amount;
                 }
                 const newBalance = latestBalance - withdrawAmount;
-                const nowIso = getTodayIsoDateStr();
                 
                 if (!fund.withdrawals) fund.withdrawals = [];
-                fund.withdrawals.push({ id: Date.now().toString(), date: nowIso, amount: withdrawAmount });
+                fund.withdrawals.push({ id: Date.now().toString(), date: rescueDate, amount: withdrawAmount });
                 
                 if (!fund.balanceLogs) fund.balanceLogs = [];
-                fund.balanceLogs.push({ id: (Date.now() + 1).toString(), date: nowIso, amount: newBalance, isSystem: true });
+                fund.balanceLogs.push({ id: (Date.now() + 1).toString(), date: rescueDate, amount: newBalance, isSystem: true });
                 
             } else {
                 const finalGrossAmount = parseFloat(document.getElementById('finishGrossAmount').value) || 0;
                 const irAmount = parseFloat(document.getElementById('finishIrAmount').value) || 0;
-                const nowIso = getTodayIsoDateStr();
                 
                 if (!fund.balanceLogs) fund.balanceLogs = [];
-                fund.balanceLogs.push({ id: Date.now().toString(), date: nowIso, amount: finalGrossAmount, isSystem: true });
+                fund.balanceLogs.push({ id: Date.now().toString(), date: rescueDate, amount: finalGrossAmount, isSystem: true });
 
                 fund.isFinished = true;
                 fund.irAmount = irAmount;
