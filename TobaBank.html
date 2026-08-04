@@ -928,11 +928,6 @@
                 <input type="date" id="finishDateInput" class="form-control" required>
             </div>
 
-                <div class="form-group">
-                    <label>Data do Resgate</label>
-                    <input type="date" id="finishDateInput" class="form-control" required>
-                </div>
-
                 <!-- Sessão de Resgate Parcial -->
                 <div id="partialRescueSection">
                     <div style="font-size: 0.8rem; color: #58a6ff; margin-bottom: 0.8rem; background: rgba(88, 166, 255, 0.1); padding: 8px; border-radius: 8px; font-weight: 600;" id="availableProfitAlert">
@@ -2173,11 +2168,8 @@
 
                 fund.isFinished = true;
                 fund.irAmount = irAmount;
-                fund.closeDate = rescueDate;
-                fund.closeAmount = finalGrossAmount;
-            }
-
-            saveDatabase();
+                fund.closeDate = rescueDate; 
+                fund.closeAmount = finalGrossAmount; 
             }
 
             saveDatabase();
@@ -2415,11 +2407,10 @@
                     // Pegar a data final e bruto final
                     if (fund.balanceLogs && fund.balanceLogs.length > 0) {
                         const sortedLogs = [...fund.balanceLogs].sort((a, b) => new Date(b.date) - new Date(a.date));
-                        // Puxa o valor do resgate se existir, senão cai pro último saldo (pra não quebrar os velhos)
-                        finalGross = fund.closeAmount !== undefined ? fund.closeAmount : sortedLogs[0].amount;
                         
-                        // Puxa a data cravada do resgate se existir, senão cai pra data do último saldo
+                        finalGross = fund.closeAmount !== undefined ? fund.closeAmount : sortedLogs[0].amount;
                         const dateToUse = fund.closeDate ? fund.closeDate : sortedLogs[0].date;
+                        
                         const d = new Date(dateToUse);
                         d.setMinutes(d.getMinutes() + d.getTimezoneOffset());
                         finalDateStr = `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}/${String(d.getFullYear()).slice(-2)}`;
