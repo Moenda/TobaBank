@@ -591,9 +591,7 @@
             <div class="brand-title" onclick="switchView('main')" title="Voltar para Início">
                 <span>🏦 Toba Bank</span>
             </div>
-            <div class="header-actions" id="headerActionsContainer">
-                <!-- Botão dinâmico injetado via JS -->
-            </div>
+            <div class="header-actions" id="headerActionsContainer"></div>
         </div>
 
         <!-- VIEW 1: HOME PRINCIPAL DE CAIXA -->
@@ -899,6 +897,7 @@
                             <option value="Alimentação" selected>🍔 Rest. / Lanches / Delivery</option>
                             <option value="Lazer">🎉 Lazer & Rolês</option>
                             <option value="Viagens">✈️ Viagens & Passeios</option>
+                            <option value="Lembrancinhas / Presentes">🎁 Lembrancinhas / Presentes</option>
                             <option value="Assinaturas">📺 Assinaturas & Streaming</option>
                         </optgroup>
                         <optgroup label="🚗 Transporte">
@@ -973,7 +972,7 @@
         const STORAGE_KEY = 'TOBA_BANK_DB';
 
         let db = {
-            version: 12,
+            version: 13,
             config: {
                 startDate: new Date().toISOString().split('T')[0]
             },
@@ -1132,7 +1131,7 @@
                         const [d, m, y] = db.config.startDate.split('/');
                         db.config.startDate = `${y}-${m.padStart(2,'0')}-${d.padStart(2,'0')}`;
                     }
-                    db.version = 12;
+                    db.version = 13;
                 } catch (e) {
                     console.error("Erro ao carregar banco de dados", e);
                 }
@@ -1422,7 +1421,7 @@
             document.getElementById('dashTodayAvailable').className = `card-value ${todayAvailable < 0 ? 'text-red' : 'text-green'}`;
             
             let todaySubStr = `Gasto hoje: ${formatCurrency(todaySpent)}`;
-            if (dailyInstallmentDeduction > 0) todaySubStr += `<br><span style="color:#f85149; font-weight: 600;">-${formatCurrency(dailyInstallmentDeduction)}/dia parcelas</span>`;
+            if (dailyInstallmentDeduction > 0) todaySubStr += `<br><span style="color:#f85149; font-weight: 600;">-${formatCurrency(dailyInstallmentDeduction)}/dia (parcelas)</span>`;
             document.getElementById('dashTodaySpentSub').innerHTML = todaySubStr;
 
             document.getElementById('dashVaultBalance').innerText = formatCurrency(vaultBalance);
@@ -1486,14 +1485,19 @@
                 `;
                 container.appendChild(itemEl);
             });
-            activeInstallments.forEach(p => {
+                activeInstallments.forEach(p => {
                 const itemEl = document.createElement('div');
                 itemEl.className = 'expense-item';
                 itemEl.style.borderColor = '#388bfd';
                 itemEl.innerHTML = `
-                    <div class="expense-details"><span class="expense-desc" style="color: #58a6ff;">💳 ${p.description}</span><span class="expense-meta">${p.category} • Parcela Automática</span></div>
-                    <div class="expense-right"><span class="expense-amount" style="color: #ff7b72;">- ${formatCurrency(p.amount)}</span>
-                    <button class="action-icon-btn" onclick="openEditInstallmentModal('${p.installmentGroupId}')" title="Editar Parcelamento">✏️</button></div>
+                    <div class="expense-details">
+                        <span class="expense-desc" style="color: #58a6ff;">💳 ${p.description}</span>
+                        <span class="expense-meta">${p.category} • (parcelas)</span>
+                    </div>
+                    <div class="expense-right">
+                        <span class="expense-amount" style="color: #ff7b72;">- ${formatCurrency(p.amount)}</span>
+                        <button class="action-icon-btn" onclick="openEditInstallmentModal('${p.installmentGroupId}')" title="Editar Parcelamento">✏️</button>
+                    </div>
                 `;
                 container.appendChild(itemEl);
             });
@@ -1663,14 +1667,15 @@
             const diffTime = latestDate - firstDate;
             const daysInvested = Math.max(Math.ceil(diffTime / (1000 * 60 * 60 * 24)), 1);
 
-            if (latestBalance <= totalDeposited || daysInvested <= 0) {
+            if (totalDeposited <= 0 || daysInvested <= 0) {
                 return { projectedBalance: latestBalance, projectedPct: 0 };
             }
 
+            // Calcula taxa diária (mesmo se negativa, ex: S&P 500 no vermelho)
             const dailyRate = Math.pow(latestBalance / totalDeposited, 1 / daysInvested) - 1;
             const projectedBalance = latestBalance * Math.pow(1 + dailyRate, 365);
             const projectedProfit = projectedBalance - totalDeposited;
-            const projectedPct = totalDeposited > 0 ? (projectedProfit / totalDeposited) * 100 : 0;
+            const projectedPct = (projectedProfit / totalDeposited) * 100;
 
             return { projectedBalance, projectedPct };
         }
@@ -1754,6 +1759,9 @@
                     const profitClass = realProfit >= 0 ? 'text-green' : 'text-red';
                     const profitSign = realProfit >= 0 ? '+' : '';
 
+                    const projClass = proj.projectedPct >= 0 ? 'text-green' : 'text-red';
+                    const projSign = proj.projectedPct >= 0 ? '+' : '';
+
                     const card = document.createElement('div');
                     card.className = 'invest-card';
                     card.id = `investCard-${fund.id}`;
@@ -1797,8 +1805,8 @@
                                     <span class="invest-metric-val ${profitClass}">${profitSign}${profitPercentage.toFixed(2)}%</span>
                                 </div>
                             </div>
-                            <div style="margin-top: 8px; font-size: 0.75rem; color: #58a6ff; background: rgba(88, 166, 255, 0.08); padding: 5px 8px; border-radius: 6px;">
-                                🚀 Projeção 12 meses → <b>${formatCurrency(proj.projectedBalance)}</b> (${proj.projectedPct >= 0 ? '+' : ''}${proj.projectedPct.toFixed(2)}%)
+                            <div style="margin-top: 8px; font-size: 0.75rem; background: rgba(88, 166, 255, 0.08); padding: 5px 8px; border-radius: 6px;">
+                                🚀 Projeção 12 meses → <b class="${projClass}">${formatCurrency(proj.projectedBalance)} (${projSign}${proj.projectedPct.toFixed(2)}%)</b>
                             </div>
                         </div>
 
@@ -1879,7 +1887,8 @@
 
             const globalRealProfit = globalTotalBalance - globalTotalDeposited;
             const globalProfitPct = globalTotalDeposited > 0 ? ((globalRealProfit / globalTotalDeposited) * 100) : 0;
-            const globalProjPct = globalTotalDeposited > 0 ? ((globalProjectedBalanceSum - globalTotalDeposited) / globalTotalDeposited) * 100 : 0;
+            const globalProjProfit = globalProjectedBalanceSum - globalTotalDeposited;
+            const globalProjPct = globalTotalDeposited > 0 ? (globalProjProfit / globalTotalDeposited) * 100 : 0;
 
             document.getElementById('invTotalBalance').innerText = formatCurrency(globalTotalBalance);
             document.getElementById('invTotalDeposited').innerText = formatCurrency(globalTotalDeposited);
@@ -1888,8 +1897,11 @@
             profitEl.innerText = `${formatCurrency(globalRealProfit)} (${globalRealProfit >= 0 ? '+' : ''}${globalProfitPct.toFixed(2)}%)`;
             profitEl.className = `history-metric-val ${globalRealProfit >= 0 ? 'text-green' : 'text-red'}`;
 
-            // AQUI JÁ ESTÁ FORMATADO EXATAMENTE COMO VOCÊ PEDIU: VALOR E PERCENTUAL LIMPO LÁ EMBAIXO
-            document.getElementById('invGlobalProjection').innerText = `${formatCurrency(globalProjectedBalanceSum)} (${globalProjPct >= 0 ? '+' : ''}${globalProjPct.toFixed(2)}%)`;
+            const globalProjClass = globalProjPct >= 0 ? 'text-green' : 'text-red';
+            const globalProjSign = globalProjPct >= 0 ? '+' : '';
+            const projEl = document.getElementById('invGlobalProjection');
+            projEl.innerText = `${formatCurrency(globalProjectedBalanceSum)} (${globalProjSign}${globalProjPct.toFixed(2)}%)`;
+            projEl.style.color = globalProjPct >= 0 ? '#3fb950' : '#f85149';
         }
 
         function toggleInvestCard(fundId) {
