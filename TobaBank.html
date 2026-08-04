@@ -898,7 +898,7 @@
 
             <!-- Lista de Ativos Ativos (Cores no próprio texto + Checkboxes) -->
             <div class="active-assets-list">
-                <h3>Ativos Ativos</h3>
+                <h3>Seus Ativos</h3>
                 <ul id="assetColorList"></ul>
             </div>
         </div>
@@ -947,7 +947,7 @@
                     </div>
                     <div class="form-group">
                         <label>Imposto de Renda Retido (IR em R$)</label>
-                        <input type="number" id="finishIrAmount" class="form-control" step="0.01" min="0" value="0.00" placeholder="Ex: 15.50">
+                        <input type="number" id="finishIrAmount" class="form-control" step="0.01" min="0" placeholder="Ex: 15.50">
                     </div>
                     <div style="font-size: 0.8rem; color: #3fb950; margin-bottom: 1rem;" id="finishNetPreview">
                         Valor Líquido no Bolso: R$ 0,00
@@ -1839,7 +1839,10 @@
                 return;
             }
             const catMap = {};
-            transactions.forEach(t => { catMap[t.category] = (catMap[t.category] || 0) + t.amount; });
+            transactions.forEach(t => { 
+                let cleanCat = t.category.includes(' - ') ? t.category.split(' - ')[1] : t.category;
+                catMap[cleanCat] = (catMap[cleanCat] || 0) + t.amount; 
+            });
             Object.entries(catMap).sort((a, b) => b[1] - a[1]).forEach(([cat, amount]) => {
                 const percentage = Math.min(Math.round((amount / totalSpent) * 100), 100);
                 const itemEl = document.createElement('div');
@@ -1860,24 +1863,26 @@
                 return;
             }
             [...transactions].sort((a, b) => new Date(b.date) - new Date(a.date)).forEach(t => {
+                let cleanCat = t.category.includes(' - ') ? t.category.split(' - ')[1] : t.category;
                 const itemEl = document.createElement('div');
                 itemEl.className = 'expense-item';
                 itemEl.innerHTML = `
-                    <div class="expense-details"><span class="expense-desc">${t.description}</span><span class="expense-meta">${t.category} • ${isoToBrDate(t.date)}</span></div>
+                    <div class="expense-details"><span class="expense-desc">${t.description}</span><span class="expense-meta">${cleanCat} • ${isoToBrDate(t.date)}</span></div>
                     <div class="expense-right"><span class="expense-amount">- ${formatCurrency(t.amount)}</span>
                     <button class="action-icon-btn" onclick="openExpenseModal('${t.id}')" title="Editar">✏️</button>
                     <button class="action-icon-btn delete" onclick="deleteExpense('${t.id}')" title="Apagar">🗑️</button></div>
                 `;
                 container.appendChild(itemEl);
             });
-                activeInstallments.forEach(p => {
+            activeInstallments.forEach(p => {
+                let cleanCat = p.category.includes(' - ') ? p.category.split(' - ')[1] : p.category;
                 const itemEl = document.createElement('div');
                 itemEl.className = 'expense-item';
                 itemEl.style.borderColor = '#388bfd';
                 itemEl.innerHTML = `
                     <div class="expense-details">
                         <span class="expense-desc" style="color: #58a6ff;">💳 ${p.description}</span>
-                        <span class="expense-meta">${p.category} • (parcelas)</span>
+                        <span class="expense-meta">${cleanCat} • (parcelas)</span>
                     </div>
                     <div class="expense-right">
                         <span class="expense-amount" style="color: #ff7b72;">- ${formatCurrency(p.amount)}</span>
@@ -1944,7 +1949,7 @@
                             <div class="installment-metrics">
                                 <div class="installment-metric-box"><span class="installment-metric-label">Parcela</span><span class="installment-metric-val text-red">${formatCurrency(inst.installmentAmount)}</span></div>
                                 <div class="installment-metric-box"><span class="installment-metric-label">Total</span><span class="installment-metric-val text-neutral">${formatCurrency(inst.totalAmount)}</span></div>
-                                <div class="installment-metric-box"><span class="installment-metric-label">Categoria</span><span class="installment-metric-val text-blue" style="font-size:0.72rem;">${inst.category.split(' - ')[0]}</span></div>
+                                <div class="installment-metric-box"><span class="installment-metric-label">Categoria</span><span class="installment-metric-val text-blue" style="font-size:0.72rem;">${inst.category.includes(' - ') ? inst.category.split(' - ')[1] : inst.category}</span></div>
                             </div>
                         </div>
                         <div class="installment-body">
@@ -2121,7 +2126,7 @@
             document.getElementById('finishDateInput').value = getTodayIsoDateStr();
             
             document.getElementById('finishGrossAmount').value = latestBalance.toFixed(2);
-            document.getElementById('finishIrAmount').value = "0.00";
+            document.getElementById('finishIrAmount').value = "";
             
             toggleRescueType();
             updateFinishNetPreview();
@@ -2247,6 +2252,7 @@
 
             if (fund.isCofrinho) {
                 const realProfit = latestBalance + totalWithdrawn - totalDeposited;
+                const profitPct = totalDeposited > 0 ? (realProfit / totalDeposited) * 100 : 0;
                 const profitClass = realProfit >= 0 ? 'text-green' : 'text-red';
                 const profitSign = realProfit >= 0 ? '+' : '';
 
@@ -2259,22 +2265,21 @@
                             </span>
                             <span class="invest-arrow">▼</span>
                         </div>
-                        <div class="invest-metrics">
-                            <div class="invest-metric-box">
-                                <span class="invest-metric-label">Aporte Inicial</span>
-                                <span class="invest-metric-val text-neutral">${formatCurrency(totalDeposited)}</span>
-                            </div>
+                        
+                        <div style="margin: 12px 0; text-align: center; background: rgba(88, 166, 255, 0.08); padding: 12px; border-radius: 10px; border: 1px solid rgba(88, 166, 255, 0.15);">
+                            <div style="font-size: 0.75rem; color: #8b949e; text-transform: uppercase; margin-bottom: 4px; letter-spacing: 0.5px;">Saldo Atual em Caixa</div>
+                            <div style="font-size: 1.6rem; font-weight: 700; color: #58a6ff;">${formatCurrency(latestBalance)}</div>
+                        </div>
+
+                        <div class="invest-metrics" style="grid-template-columns: 1fr 1fr;">
                             <div class="invest-metric-box">
                                 <span class="invest-metric-label">Rendimento</span>
-                                <span class="invest-metric-val ${profitClass}">${profitSign}${formatCurrency(realProfit)}</span>
+                                <span class="invest-metric-val ${profitClass}">${profitSign}${profitPct.toFixed(2)}%</span>
                             </div>
                             <div class="invest-metric-box">
                                 <span class="invest-metric-label">Resgatado</span>
-                                <span class="invest-metric-val text-red" style="font-size:0.78rem;">${formatCurrency(totalWithdrawn)}</span>
+                                <span class="invest-metric-val text-red">${formatCurrency(totalWithdrawn)}</span>
                             </div>
-                        </div>
-                        <div style="margin-top: 8px; font-size: 0.75rem; background: rgba(88, 166, 255, 0.08); padding: 5px 8px; border-radius: 6px;">
-                            Saldo Atual em Caixa: <b class="text-blue">${formatCurrency(latestBalance)}</b>
                         </div>
                     </div>
                     ${bodyActionsHtml}
