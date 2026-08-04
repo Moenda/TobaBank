@@ -691,7 +691,7 @@
         <div class="app-view" id="viewTools">
             <div class="section-title" style="margin-top: 0.5rem;">
                 <span>🛠️ Hub de Ferramentas</span>
-                <button class="btn btn-secondary" onclick="switchView('main')" style="width: auto; padding: 0.4rem 0.8rem; font-size: 0.78rem;">⬅️ Voltar pro Caixa</button>
+                <button class="btn btn-secondary" onclick="switchView('main')" style="width: auto; padding: 0.4rem 0.8rem; font-size: 0.78rem;">⬅️ Voltar</button>
             </div>
 
             <div class="tools-grid">
@@ -707,7 +707,7 @@
                     <span class="tool-status" style="background: rgba(88, 166, 255, 0.15); color: #58a6ff;">⏳ Em Breve</span>
                 </div>
 
-                <!-- FERRAMENTAS 2: Investimentos (AGORA ABRE TELA INTEGRAL) -->
+                <!-- FERRAMENTAS 2: Investimentos -->
                 <div class="tool-card" onclick="switchView('investments')">
                     <div class="tool-card-info">
                         <div class="tool-icon">📈</div>
@@ -736,8 +736,8 @@
         <!-- VIEW 3: TELA CHEIA DE INVESTIMENTOS (📈) -->
         <div class="app-view" id="viewInvestments">
             <div class="section-title" style="margin-top: 0.5rem;">
-                <span>📈 Carteira de Investimentos</span>
-                <button class="btn btn-secondary" onclick="switchView('tools')" style="width: auto; padding: 0.4rem 0.8rem; font-size: 0.78rem;">⬅️ Voltar pras Ferramentas</button>
+                <span>Investimentos</span>
+                <button class="btn btn-secondary" onclick="switchView('tools')" style="width: auto; padding: 0.4rem 0.8rem; font-size: 0.78rem;">⬅️ Voltar</button>
             </div>
 
             <!-- Resumo Global de Investimentos -->
@@ -760,10 +760,14 @@
             <button class="btn btn-primary" onclick="openNewFundModal()" style="margin-bottom: 1.2rem;">+ Criar Novo Card de Investimento</button>
 
             <div class="section-title">
-                <span>📦 Meus Ativos & Fundos</span>
+                <span>📦 Ativos Ativos</span>
             </div>
-            
             <div id="investmentsContainer"></div>
+
+            <div class="section-title" style="margin-top: 2rem;">
+                <span>🏁 Histórico de Investimentos Resgatados</span>
+            </div>
+            <div id="finishedInvestmentsContainer"></div>
         </div>
 
     </div>
@@ -949,21 +953,27 @@
         const STORAGE_KEY = 'TOBA_BANK_DB';
 
         let db = {
-            version: 9,
+            version: 10,
             config: {
                 startDate: new Date().toISOString().split('T')[0]
             },
             months: {},
             transactions: [],
             installments: [],
-            investmentFunds: [] // { id, name, deposits: [{id, date, amount}], balanceLogs: [{id, date, amount}] }
+            investmentFunds: [] // { id, name, isFinished, finishedDate, deposits: [], balanceLogs: [] }
         };
 
-        // --- NAVEGAÇÃO DE VIEWS (HOME VS FERRAMENTAS VS INVESTIMENTOS) ---
+        // --- NAVEGAÇÃO DE VIEWS (OCULTA BOTÃO +GASTO SE FOR FORA DO CAIXA) ---
         function switchView(viewName) {
             document.getElementById('viewMain').classList.toggle('active', viewName === 'main');
             document.getElementById('viewTools').classList.toggle('active', viewName === 'tools');
             document.getElementById('viewInvestments').classList.toggle('active', viewName === 'investments');
+
+            // UX: Some botão + Gasto quando não estiver na Home (Caixa)
+            const addExpenseBtn = document.getElementById('openAddExpenseBtn');
+            if (addExpenseBtn) {
+                addExpenseBtn.style.display = (viewName === 'main') ? 'flex' : 'none';
+            }
 
             if (viewName === 'investments') {
                 renderInvestmentsScreen();
@@ -1065,25 +1075,18 @@
                     if (!db.installments) db.installments = [];
                     if (!db.config) db.config = { startDate: getTodayIsoDateStr() };
                     if (!db.months) db.months = {};
-                    
-                    // Migração de estrutura antiga de investimentos para Cards Individuais
-                    if (!db.investmentFunds) {
-                        db.investmentFunds = [];
-                        if (db.investments && db.investments.deposits && db.investments.deposits.length > 0) {
-                            db.investmentFunds.push({
-                                id: 'legacy_fund_1',
-                                name: 'Carteira Principal (Antigo)',
-                                deposits: db.investments.deposits || [],
-                                balanceLogs: db.investments.balanceLog ? db.investments.balanceLog.map(b => ({ id: Date.now().toString(), date: b.date, amount: b.amount })) : []
-                            });
-                        }
-                    }
+                    if (!db.investmentFunds) db.investmentFunds = [];
+
+                    // Garantir propriedade isFinished em fundos antigos
+                    db.investmentFunds.forEach(f => {
+                        if (f.isFinished === undefined) f.isFinished = false;
+                    });
 
                     if (db.config.startDate && db.config.startDate.includes('/')) {
                         const [d, m, y] = db.config.startDate.split('/');
                         db.config.startDate = `${y}-${m.padStart(2,'0')}-${d.padStart(2,'0')}`;
                     }
-                    db.version = 9;
+                    db.version = 10;
                 } catch (e) {
                     console.error("Erro ao carregar banco de dados", e);
                 }
@@ -1141,7 +1144,6 @@
                 saveDatabase();
             });
 
-            // Modal Gastos
             const expenseModal = document.getElementById('expenseModal');
             const openAddExpenseBtn = document.getElementById('openAddExpenseBtn');
             const closeExpenseBtn = document.getElementById('closeExpenseBtn');
@@ -1160,13 +1162,11 @@
             document.getElementById('expenseAmountInput').addEventListener('input', updateInstallmentPreview);
             document.getElementById('installmentCountInput').addEventListener('input', updateInstallmentPreview);
 
-            // Modal Editar Parcela
             document.getElementById('editInstallmentForm').addEventListener('submit', (e) => {
                 e.preventDefault();
                 saveEditedInstallment();
             });
 
-            // Modal Novo Fundo de Investimento
             document.getElementById('newFundForm').addEventListener('submit', (e) => {
                 e.preventDefault();
                 const name = document.getElementById('fundNameInput').value;
@@ -1176,6 +1176,7 @@
                 const newFund = {
                     id: Date.now().toString(),
                     name: name,
+                    isFinished: false,
                     deposits: [{ id: Date.now().toString(), date: initialDate, amount: initialAmount }],
                     balanceLogs: [{ id: (Date.now() + 1).toString(), date: initialDate, amount: initialAmount }]
                 };
@@ -1230,7 +1231,6 @@
                 `Para <b>${monthFormatted}</b> ${noteStr}, <b>R$ ${dailyVal.toFixed(2)}</b>/dia = <b>${formatCurrency(monthlyTotal)}</b>.`;
         }
 
-        // --- LÓGICA DE GASTOS & PARCELAMENTOS ---
         function openExpenseModal(id = null, presetDateIso = null) {
             const modal = document.getElementById('expenseModal');
             const title = document.getElementById('expenseModalTitle');
@@ -1387,7 +1387,6 @@
             return result;
         }
 
-        // --- RENDERIZAÇÃO DA DASHBOARD & COFRE ---
         function renderDashboard() {
             const now = new Date();
             const currentMonthKey = getCurrentMonthKey();
@@ -1827,7 +1826,7 @@
             }
         }
 
-        // --- FERRAMENTAS 2: NOVA TELA DE INVESTIMENTOS COM CARDS ---
+        // --- TELA DE INVESTIMENTOS COM SUPORTE A FINALIZADOS ---
         function openNewFundModal() {
             document.getElementById('fundInitialDateInput').value = getTodayIsoDateStr();
             document.getElementById('newFundModal').classList.add('active');
@@ -1835,21 +1834,27 @@
 
         function renderInvestmentsScreen() {
             const container = document.getElementById('investmentsContainer');
+            const finishedContainer = document.getElementById('finishedInvestmentsContainer');
             container.innerHTML = '';
+            finishedContainer.innerHTML = '';
 
             const funds = db.investmentFunds || [];
 
             let globalTotalBalance = 0;
             let globalTotalDeposited = 0;
 
-            if (funds.length === 0) {
+            const activeFunds = funds.filter(f => !f.isFinished);
+            const finishedFunds = funds.filter(f => f.isFinished);
+
+            // Renderizar Ativos Ativos
+            if (activeFunds.length === 0) {
                 container.innerHTML = `
                     <div class="empty-state">
-                        Nenhum fundo de investimento cadastrado.<br>
+                        Nenhum fundo de investimento ativo.<br>
                         Clique no botão acima para cadastrar seu primeiro card!
                     </div>`;
             } else {
-                funds.forEach(fund => {
+                activeFunds.forEach(fund => {
                     const totalDeposited = (fund.deposits || []).reduce((acc, d) => acc + d.amount, 0);
                     
                     let latestBalance = 0;
@@ -1873,7 +1878,6 @@
                     card.className = 'invest-card';
                     card.id = `investCard-${fund.id}`;
 
-                    // Histórico formatado
                     let historyLogsHtml = '';
                     const allLogs = [
                         ...(fund.deposits || []).map(d => ({ type: 'aporte', id: d.id, date: d.date, amount: d.amount })),
@@ -1918,7 +1922,6 @@
                         </div>
 
                         <div class="invest-body">
-                            <!-- Form Adicionar Aporte -->
                             <div class="card-action-box">
                                 <div class="card-action-title">➕ Novo Aporte neste fundo</div>
                                 <div style="display:flex; gap:6px;">
@@ -1928,7 +1931,6 @@
                                 </div>
                             </div>
 
-                            <!-- Form Atualizar Saldo -->
                             <div class="card-action-box">
                                 <div class="card-action-title">🔄 Atualizar Saldo Atual (Corretora)</div>
                                 <div style="display:flex; gap:6px;">
@@ -1938,14 +1940,14 @@
                                 </div>
                             </div>
 
-                            <!-- Histórico -->
                             <div style="font-size:0.78rem; font-weight:700; color:#8b949e; margin: 0.8rem 0 0.4rem 0;">📜 Histórico de Lançamentos</div>
                             <div class="log-list">
                                 ${historyLogsHtml || '<div style="font-size:0.73rem; color:#8b949e;">Nenhum histórico registrado.</div>'}
                             </div>
 
-                            <div style="text-align:right; margin-top:1rem; border-top:1px solid #21262d; padding-top:0.6rem;">
-                                <button class="btn btn-danger" style="width:auto; padding:0.3rem 0.7rem; font-size:0.75rem;" onclick="deleteFund('${fund.id}')">🗑️ Excluir Card de Investimento</button>
+                            <div style="display:flex; justify-content:space-between; align-items:center; margin-top:1rem; border-top:1px solid #21262d; padding-top:0.6rem;">
+                                <button class="btn btn-secondary" style="width:auto; padding:0.3rem 0.7rem; font-size:0.75rem; border-color:#d29922; color:#d29922;" onclick="toggleFinishFund('${fund.id}')">🏁 Finalizar / Resgatar</button>
+                                <button class="btn btn-danger" style="width:auto; padding:0.3rem 0.7rem; font-size:0.75rem;" onclick="deleteFund('${fund.id}')">🗑️ Excluir</button>
                             </div>
                         </div>
                     `;
@@ -1953,7 +1955,46 @@
                 });
             }
 
-            // Atualiza Resumo Global
+            // Renderizar Histórico de Finalizados
+            if (finishedFunds.length === 0) {
+                finishedContainer.innerHTML = `<div class="empty-state">Nenhum investimento resgatado no histórico.</div>`;
+            } else {
+                finishedFunds.forEach(fund => {
+                    const totalDeposited = (fund.deposits || []).reduce((acc, d) => acc + d.amount, 0);
+                    let finalBalance = totalDeposited;
+                    if (fund.balanceLogs && fund.balanceLogs.length > 0) {
+                        const sortedLogs = [...fund.balanceLogs].sort((a, b) => new Date(b.date) - new Date(a.date));
+                        finalBalance = sortedLogs[0].amount;
+                    }
+                    const realProfit = finalBalance - totalDeposited;
+                    const profitPercentage = totalDeposited > 0 ? ((realProfit / totalDeposited) * 100) : 0;
+                    const profitClass = realProfit >= 0 ? 'text-green' : 'text-red';
+
+                    const card = document.createElement('div');
+                    card.className = 'invest-card';
+                    card.style.opacity = '0.8';
+                    card.innerHTML = `
+                        <div class="invest-header" style="cursor: default;">
+                            <div class="invest-header-top">
+                                <span class="invest-title" style="color:#3fb950;">🏁 ${fund.name} (Resgatado)</span>
+                                <span style="font-size:0.75rem; color:#3fb950; font-weight:700;">CONCLUÍDO</span>
+                            </div>
+                            <div style="font-size: 0.78rem; color: #8b949e; margin-bottom: 6px;">
+                                Total Aportado: <b>${formatCurrency(totalDeposited)}</b> • Resgatado: <b>${formatCurrency(finalBalance)}</b>
+                            </div>
+                            <div style="font-size: 0.78rem;">
+                                Lucro Real: <span class="${profitClass}" style="font-weight:700;">${formatCurrency(realProfit)} (${profitPercentage.toFixed(2)}%)</span>
+                            </div>
+                            <div style="margin-top:0.8rem; text-align:right;">
+                                <button class="btn btn-secondary" style="width:auto; padding:0.3rem 0.7rem; font-size:0.75rem; border-color:#58a6ff; color:#58a6ff;" onclick="toggleFinishFund('${fund.id}')">🔄 Reativar Investimento</button>
+                                <button class="btn btn-danger" style="width:auto; padding:0.3rem 0.7rem; font-size:0.75rem;" onclick="deleteFund('${fund.id}')">🗑️ Excluir</button>
+                            </div>
+                        </div>
+                    `;
+                    finishedContainer.appendChild(card);
+                });
+            }
+
             const globalRealProfit = globalTotalBalance - globalTotalDeposited;
             document.getElementById('invTotalBalance').innerText = formatCurrency(globalTotalBalance);
             document.getElementById('invTotalDeposited').innerText = formatCurrency(globalTotalDeposited);
@@ -1982,7 +2023,6 @@
                 fund.deposits.push({ id: Date.now().toString(), date, amount });
                 saveDatabase();
                 renderInvestmentsScreen();
-                // Manter card aberto
                 setTimeout(() => toggleInvestCard(fundId), 50);
             }
         }
@@ -1999,7 +2039,6 @@
                 fund.balanceLogs.push({ id: Date.now().toString(), date, amount });
                 saveDatabase();
                 renderInvestmentsScreen();
-                // Manter card aberto
                 setTimeout(() => toggleInvestCard(fundId), 50);
             }
         }
@@ -2020,6 +2059,15 @@
             }
         }
 
+        function toggleFinishFund(fundId) {
+            const fund = db.investmentFunds.find(f => f.id === fundId);
+            if (!fund) return;
+
+            fund.isFinished = !fund.isFinished;
+            saveDatabase();
+            renderInvestmentsScreen();
+        }
+
         function deleteFund(fundId) {
             if (confirm('Tem certeza que deseja apagar este investimento inteiro?')) {
                 db.investmentFunds = db.investmentFunds.filter(f => f.id !== fundId);
@@ -2028,7 +2076,6 @@
             }
         }
 
-        // --- BACKUP & ZERAR ---
         function exportBackup() {
             const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(db, null, 2));
             const downloadAnchor = document.createElement('a');
