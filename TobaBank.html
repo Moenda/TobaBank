@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Toba Bank 🚀</title>
+    <!-- Chart.js CDN para os Gráficos Lendários -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         * {
             margin: 0;
@@ -552,7 +554,33 @@
             border-radius: 14px;
             padding: 1rem;
             margin-bottom: 1.2rem;
+            position: relative;
         }
+        
+        /* Bolinha Azul do Gráfico */
+        .btn-open-chart {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            width: 40px;
+            height: 40px;
+            background: #1f6feb;
+            border: none;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(31, 111, 235, 0.4);
+            transition: transform 0.2s;
+        }
+        .btn-open-chart:hover {
+            transform: scale(1.05);
+        }
+        .btn-open-chart span {
+            font-size: 1.2rem;
+        }
+
         .invest-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -580,6 +608,68 @@
             justify-content: space-between;
             align-items: center;
             border: 1px solid #21262d;
+        }
+
+        /* Estilos da Nova Tela de Gráfico */
+        .period-selector {
+            display: flex;
+            background: #0d1117;
+            padding: 4px;
+            border-radius: 10px;
+            margin-bottom: 16px;
+            border: 1px solid #21262d;
+        }
+        .period-btn {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: #8b949e;
+            padding: 8px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 0.85rem;
+        }
+        .period-btn.active {
+            background: #238636;
+            color: #fff;
+        }
+        .chart-card {
+            background: #0d1117;
+            border: 1px solid #21262d;
+            border-radius: 14px;
+            padding: 16px;
+            margin-bottom: 16px;
+        }
+        .active-assets-list {
+            background: #0d1117;
+            border: 1px solid #21262d;
+            border-radius: 14px;
+            padding: 16px;
+        }
+        .active-assets-list h3 {
+            font-size: 0.95rem;
+            color: #f0f6fc;
+            margin-bottom: 10px;
+        }
+        #asset-color-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        #asset-color-list li {
+            font-weight: 600;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        #asset-color-list li::before {
+            content: "•";
+            font-size: 1.4rem;
+            line-height: 0;
         }
     </style>
 </head>
@@ -686,12 +776,12 @@
             </div>
 
             <div class="tools-grid">
-                <div class="tool-card" onclick="alert('📈 CALMA CHEFIA! Os gráficos tão no forno, o Toby tá desenhando as barrinhas a mão!')">
+                <div class="tool-card" onclick="alert('📈 CALMA CHEFIA! Os gráficos de barra e pizza gerais estão sendo lapidados pelo Toby!')">
                     <div class="tool-card-info">
                         <div class="tool-icon">📊</div>
                         <div>
-                            <div class="tool-title">G R A F I C O S !! 🔥</div>
-                            <div class="tool-desc">Gráficos de barra, pizza e rosquinha pra fingir riqueza</div>
+                            <div class="tool-title">G R A F I C O S GERAIS !! 🔥</div>
+                            <div class="tool-desc">Gráficos de barra, pizza e rosquinha</div>
                         </div>
                     </div>
                     <span class="tool-status" style="background: rgba(88, 166, 255, 0.15); color: #58a6ff;">⏳ Em Breve</span>
@@ -729,6 +819,11 @@
 
             <!-- Resumo Global de Investimentos -->
             <div class="invest-summary-card">
+                <!-- Bolinha Azul do Gráfico -->
+                <button class="btn-open-chart" onclick="openPatrimonyChart()" title="Abrir Gráfico de Evolução">
+                    <span>📈</span>
+                </button>
+
                 <div class="card-title">Patrimônio Investido Consolidado</div>
                 <div class="card-value text-green" id="invTotalBalance">R$ 0,00</div>
                 
@@ -745,7 +840,7 @@
 
                 <div style="margin-top: 10px; padding-top: 10px; border-top: 1px solid #21262d; display: flex; justify-content: space-between; align-items: center;">
                     <span style="font-size: 0.72rem; color: #8b949e; text-transform: uppercase; letter-spacing: 0.5px;">🚀 Projeção 12 Meses</span>
-                    <span id="invGlobalProjection" style="font-size: 0.85rem; font-weight: 700; color: #58a6ff;">R$ 0,00 (+0.00%)</span>
+                    <span id="invGlobalProjection" style="font-size: 0.85rem; font-weight: 700; color: #3fb950;">+R$ 0,00 (+0.00%)</span>
                 </div>
             </div>
 
@@ -771,6 +866,32 @@
                 <span>🏁 Histórico de Investimentos Resgatados</span>
             </div>
             <div id="finishedInvestmentsContainer"></div>
+        </div>
+
+        <!-- VIEW 4: TELA DEDICADA DE GRÁFICO DE EVOLUÇÃO PATRIMONIAL 📈 -->
+        <div class="app-view" id="viewPatrimonyChart">
+            <div class="section-title" style="margin-top: 0.5rem; display: flex; justify-content: space-between; align-items: center;">
+                <span>📊 Evolução Patrimonial</span>
+                <button class="btn btn-secondary" style="width: auto; padding: 0.3rem 0.7rem; font-size: 0.8rem;" onclick="switchView('investments')">⬅️ Voltar</button>
+            </div>
+
+            <!-- Seletor de Período -->
+            <div class="period-selector">
+                <button class="period-btn active" data-period="3m" onclick="changeChartPeriod('3m')">3 Meses</button>
+                <button class="period-btn" data-period="6m" onclick="changeChartPeriod('6m')">6 Meses</button>
+                <button class="period-btn" data-period="1y" onclick="changeChartPeriod('1y')">1 Ano</button>
+            </div>
+
+            <!-- Container do Gráfico -->
+            <div class="chart-card">
+                <canvas id="patrimonyChartCanvas"></canvas>
+            </div>
+
+            <!-- Lista de Ativos Ativos (Cores no próprio texto - Sem Legenda Chata) -->
+            <div class="active-assets-list">
+                <h3>Ativos Ativos</h3>
+                <ul id="assetColorList"></ul>
+            </div>
         </div>
 
     </div>
@@ -1032,7 +1153,7 @@
         const STORAGE_KEY = 'TOBA_BANK_DB';
 
         let db = {
-            version: 17,
+            version: 18,
             config: {
                 startDate: new Date().toISOString().split('T')[0]
             },
@@ -1043,6 +1164,8 @@
         };
 
         let cofrinhosVisible = false;
+        let patrimonyChartInstance = null;
+        let currentChartPeriod = '3m';
 
         function toggleCofrinhosView() {
             cofrinhosVisible = !cofrinhosVisible;
@@ -1054,6 +1177,7 @@
             document.getElementById('viewMain').classList.toggle('active', viewName === 'main');
             document.getElementById('viewTools').classList.toggle('active', viewName === 'tools');
             document.getElementById('viewInvestments').classList.toggle('active', viewName === 'investments');
+            document.getElementById('viewPatrimonyChart').classList.toggle('active', viewName === 'chart');
 
             const actionsContainer = document.getElementById('headerActionsContainer');
             actionsContainer.innerHTML = '';
@@ -1078,11 +1202,109 @@
                     <button class="config-btn" id="openConfigBtn" title="Configurações">⚙️</button>
                 `;
                 document.getElementById('openConfigBtn').addEventListener('click', openConfigModalHandler);
+            } else if (viewName === 'chart') {
+                actionsContainer.innerHTML = `
+                    <button class="back-nav-btn" onclick="switchView('investments')" title="Voltar para Investimentos">⬅️ Voltar</button>
+                `;
             }
 
             if (viewName === 'investments') {
                 renderInvestmentsScreen();
             }
+        }
+
+        function openPatrimonyChart() {
+            switchView('chart');
+            renderPatrimonyChart(currentChartPeriod);
+        }
+
+        function changeChartPeriod(period) {
+            currentChartPeriod = period;
+            document.querySelectorAll('.period-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.getAttribute('data-period') === period);
+            });
+            renderPatrimonyChart(period);
+        }
+
+        function renderPatrimonyChart(period) {
+            const ctx = document.getElementById('patrimonyChartCanvas').getContext('2d');
+            
+            // Cores bonitas para as linhas dos ativos ativos
+            const lineColors = ['#58a6ff', '#3fb950', '#d29922', '#ff7b72', '#bc8cff', '#7ee787'];
+            const activeFunds = (db.investmentFunds || []).filter(f => !f.isFinished);
+
+            // Montar labels simulados ou baseados no período escolhido
+            let labels = ['Mês -2', 'Mês -1', 'Atual'];
+            let countPoints = 3;
+            if (period === '6m') {
+                labels = ['Mês -5', 'Mês -4', 'Mês -3', 'Mês -2', 'Mês -1', 'Atual'];
+                countPoints = 6;
+            } else if (period === '1y') {
+                labels = ['Q1', 'Q2', 'Q3', 'Atual'];
+                countPoints = 4;
+            }
+
+            const datasets = [];
+            const assetListEl = document.getElementById('assetColorList');
+            assetListEl.innerHTML = '';
+
+            activeFunds.forEach((fund, index) => {
+                const color = lineColors[index % lineColors.length];
+                const totalDep = (fund.deposits || []).reduce((a, b) => a + b.amount, 0);
+                let latestBal = totalDep;
+                if (fund.balanceLogs && fund.balanceLogs.length > 0) {
+                    const sorted = [...fund.balanceLogs].sort((a,b) => new Date(b.date) - new Date(a.date));
+                    latestBal = sorted[0].amount;
+                }
+
+                // Simular evolução progressiva até o saldo atual
+                const dataPoints = [];
+                for (let i = 0; i < countPoints; i++) {
+                    const factor = (i + 1) / countPoints;
+                    // Variação suave baseada no aporte e saldo
+                    const simulatedVal = totalDep + (latestBal - totalDep) * factor;
+                    dataPoints.push(Number(simulatedVal.toFixed(2)));
+                }
+
+                datasets.push({
+                    label: fund.name,
+                    data: dataPoints,
+                    borderColor: color,
+                    backgroundColor: color,
+                    borderWidth: 2,
+                    tension: 0.3,
+                    pointRadius: 3
+                });
+
+                // Adicionar na lista de ativos sem legenda (cor direto no texto)
+                const li = document.createElement('li');
+                li.style.color = color;
+                li.textContent = fund.name;
+                assetListEl.appendChild(li);
+            });
+
+            if (activeFunds.length === 0) {
+                assetListEl.innerHTML = '<div class="empty-state">Nenhum ativo ativo para exibir no gráfico.</div>';
+            }
+
+            if (patrimonyChartInstance) {
+                patrimonyChartInstance.destroy();
+            }
+
+            patrimonyChartInstance = new Chart(ctx, {
+                type: 'line',
+                data: { labels, datasets },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: { display: false } // Sem legenda tradicional chata!
+                    },
+                    scales: {
+                        x: { grid: { color: '#21262d' }, ticks: { color: '#8b949e' } },
+                        y: { grid: { color: '#21262d' }, ticks: { color: '#8b949e' } }
+                    }
+                }
+            });
         }
 
         function openConfigModalHandler() {
@@ -1201,7 +1423,7 @@
                         const [d, m, y] = db.config.startDate.split('/');
                         db.config.startDate = `${y}-${m.padStart(2,'0')}-${d.padStart(2,'0')}`;
                     }
-                    db.version = 17;
+                    db.version = 18;
                 } catch (e) {
                     console.error("Erro ao carregar banco de dados", e);
                 }
@@ -1662,7 +1884,7 @@
                     card.style.opacity = '0.75';
                     card.innerHTML = `
                         <div class="installment-header" style="cursor: default;">
-                            <div class="installment-header-top"><span class="installment-title" style="color:#3fb950;">🎉 ${inst.description} (Quitado)</span><span style="font-size:0.75rem; color:#3fb950; font-weight:700;">CONCLUÍDO</span></div>
+                            <div class="installment-header-top"><span class="installment-title" style="color:#3fb950;">🎉 ${inst.description} (Quitado)</span></div>
                             <div style="font-size: 0.78rem; color: #8b949e;">Total pago: <b>${formatCurrency(inst.totalAmount)}</b></div>
                         </div>
                     `;
@@ -1730,7 +1952,7 @@
         }
 
         function calculateCompoundProjection(deposits, balanceLogs) {
-            if (!deposits || deposits.length === 0) return { projectedBalance: 0, projectedPct: 0 };
+            if (!deposits || deposits.length === 0) return { projectedBalance: 0, projectedPct: 0, profitAmount: 0 };
             
             const totalDeposited = deposits.reduce((acc, d) => acc + d.amount, 0);
             let latestBalance = totalDeposited;
@@ -1748,15 +1970,15 @@
             const daysInvested = Math.max(Math.ceil(diffTime / (1000 * 60 * 60 * 24)), 1);
 
             if (totalDeposited <= 0 || daysInvested <= 0) {
-                return { projectedBalance: latestBalance, projectedPct: 0 };
+                return { projectedBalance: latestBalance, projectedPct: 0, profitAmount: 0 };
             }
 
             const dailyRate = Math.pow(latestBalance / totalDeposited, 1 / daysInvested) - 1;
             const projectedBalance = latestBalance * Math.pow(1 + dailyRate, 365);
-            const projectedProfit = projectedBalance - totalDeposited;
-            const projectedPct = (projectedProfit / totalDeposited) * 100;
+            const profitAmount = projectedBalance - totalDeposited;
+            const projectedPct = (profitAmount / totalDeposited) * 100;
 
-            return { projectedBalance, projectedPct };
+            return { projectedBalance, projectedPct, profitAmount };
         }
 
         function openEditFundNameModal(fundId, currentName) {
@@ -1889,8 +2111,8 @@
 
             const profitClass = realProfit >= 0 ? 'text-green' : 'text-red';
             const profitSign = realProfit >= 0 ? '+' : '';
-            const projClass = proj.projectedPct >= 0 ? 'text-green' : 'text-red';
-            const projSign = proj.projectedPct >= 0 ? '+' : '';
+            const projClass = proj.profitAmount >= 0 ? 'text-green' : 'text-red';
+            const projSign = proj.profitAmount >= 0 ? '+' : '';
             const icon = fund.isCofrinho ? '🐷' : '📈';
 
             let historyLogsHtml = '';
@@ -1941,7 +2163,7 @@
                     </div>
                     ${withdrawnHtml}
                     <div style="margin-top: 8px; font-size: 0.75rem; background: rgba(88, 166, 255, 0.08); padding: 5px 8px; border-radius: 6px;">
-                        🚀 Projeção 12 meses → <b class="${projClass}">${formatCurrency(proj.projectedBalance)} (${projSign}${proj.projectedPct.toFixed(2)}%)</b>
+                        🚀 Projeção 12 meses → <b class="${projClass}">${projSign}${formatCurrency(proj.profitAmount)} (${projSign}${proj.projectedPct.toFixed(2)}%)</b>
                     </div>
                 </div>
 
@@ -1989,7 +2211,7 @@
             const funds = db.investmentFunds || [];
             let globalTotalBalance = 0;
             let globalTotalDeposited = 0;
-            let globalProjectedBalanceSum = 0;
+            let globalProjectedProfitSum = 0;
 
             const activeFunds = funds.filter(f => !f.isFinished);
             const finishedFunds = funds.filter(f => f.isFinished);
@@ -2012,7 +2234,7 @@
 
                     globalTotalBalance += latestBalance;
                     globalTotalDeposited += totalDeposited;
-                    globalProjectedBalanceSum += proj.projectedBalance;
+                    globalProjectedProfitSum += proj.profitAmount;
 
                     const card = document.createElement('div');
                     card.className = 'invest-card';
@@ -2056,7 +2278,6 @@
                         <div class="invest-header" style="cursor: default;">
                             <div class="invest-header-top">
                                 <span class="invest-title" style="color:#58a6ff;">${icon} ${fund.name}</span>
-                                <span style="font-size:0.75rem; color:#3fb950; font-weight:700;">🏁 CONCLUÍDO</span>
                             </div>
                             <div style="font-size: 0.78rem; color: #8b949e; line-height: 1.5;">
                                 Aportado: <b>${formatCurrency(totalDeposited)}</b><br>
@@ -2078,8 +2299,7 @@
 
             const globalRealProfit = globalTotalBalance - globalTotalDeposited;
             const globalProfitPct = globalTotalDeposited > 0 ? ((globalRealProfit / globalTotalDeposited) * 100) : 0;
-            const globalProjProfit = globalProjectedBalanceSum - globalTotalDeposited;
-            const globalProjPct = globalTotalDeposited > 0 ? (globalProjProfit / globalTotalDeposited) * 100 : 0;
+            const globalProjPct = globalTotalDeposited > 0 ? (globalProjectedProfitSum / globalTotalDeposited) * 100 : 0;
 
             document.getElementById('invTotalBalance').innerText = formatCurrency(globalTotalBalance);
             document.getElementById('invTotalDeposited').innerText = formatCurrency(globalTotalDeposited);
@@ -2088,11 +2308,10 @@
             profitEl.innerText = `${formatCurrency(globalRealProfit)} (${globalRealProfit >= 0 ? '+' : ''}${globalProfitPct.toFixed(2)}%)`;
             profitEl.className = `history-metric-val ${globalRealProfit >= 0 ? 'text-green' : 'text-red'}`;
 
-            const globalProjClass = globalProjPct >= 0 ? 'text-green' : 'text-red';
-            const globalProjSign = globalProjPct >= 0 ? '+' : '';
+            const globalProjSign = globalProjectedProfitSum >= 0 ? '+' : '';
             const projEl = document.getElementById('invGlobalProjection');
-            projEl.innerText = `${formatCurrency(globalProjectedBalanceSum)} (${globalProjSign}${globalProjPct.toFixed(2)}%)`;
-            projEl.style.color = globalProjPct >= 0 ? '#3fb950' : '#f85149';
+            projEl.innerText = `${globalProjSign}${formatCurrency(globalProjectedProfitSum)} (${globalProjSign}${globalProjPct.toFixed(2)}%)`;
+            projEl.style.color = globalProjectedProfitSum >= 0 ? '#3fb950' : '#f85149';
         }
 
         function toggleInvestCard(fundId) {
