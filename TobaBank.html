@@ -686,7 +686,7 @@
             </div>
 
             <div class="tools-grid">
-                <div class="tool-card" onclick="alert('📈 CALMA RAFAEL! Os gráficos tão no forno, o Toby tá desenhando as barrinhas a mão!')">
+                <div class="tool-card" onclick="alert('📈 CALMA CHEFIA! Os gráficos tão no forno, o Toby tá desenhando as barrinhas a mão!')">
                     <div class="tool-card-info">
                         <div class="tool-icon">📊</div>
                         <div>
@@ -753,7 +753,7 @@
             <button class="btn btn-primary" onclick="openNewFundModal()" style="margin-bottom: 1.2rem;">+ Criar Novo Card de Investimento</button>
 
             <div class="section-title">
-                <span>📦 Ativos Ativos</span>
+                <span>📊 Ativos na Carteira</span>
             </div>
             <div id="investmentsContainer"></div>
 
@@ -765,27 +765,51 @@
 
     </div>
 
-    <!-- MODAL DE RESGATE / IR -->
+    <!-- MODAL DE RESGATE / IR / COFRINHO -->
     <div class="modal-overlay" id="finishFundModal">
         <div class="modal">
             <div class="modal-header">
-                <h3>🏁 Resgatar / Finalizar Investimento</h3>
+                <h3>🏁 Resgatar / Finalizar</h3>
                 <button class="close-btn" onclick="document.getElementById('finishFundModal').classList.remove('active')">&times;</button>
             </div>
             <form id="finishFundForm">
                 <input type="hidden" id="finishFundIdInput">
+                
                 <div class="form-group">
-                    <label>Valor Bruto do Resgate (R$)</label>
-                    <input type="number" id="finishGrossAmount" class="form-control" step="0.01" readonly style="opacity: 0.7;">
+                    <label>Tipo de Resgate</label>
+                    <select id="rescueTypeSelect" class="form-control" onchange="toggleRescueType()">
+                        <option value="partial">🪙 Resgate Parcial (Lucro/Cofrinho)</option>
+                        <option value="total">💀 Resgate Total (Encerrar Investimento)</option>
+                    </select>
                 </div>
-                <div class="form-group">
-                    <label>Imposto de Renda Retido (IR em R$)</label>
-                    <input type="number" id="finishIrAmount" class="form-control" step="0.01" min="0" value="0.00" placeholder="Ex: 15.50">
+
+                <!-- Sessão de Resgate Parcial -->
+                <div id="partialRescueSection">
+                    <div style="font-size: 0.8rem; color: #58a6ff; margin-bottom: 0.8rem; background: rgba(88, 166, 255, 0.1); padding: 8px; border-radius: 8px; font-weight: 600;" id="availableProfitAlert">
+                        Lucro disponível: R$ 0,00
+                    </div>
+                    <div class="form-group">
+                        <label>Valor a Retirar (R$)</label>
+                        <input type="number" id="rescueAmountInput" class="form-control" step="0.01" min="0.01" placeholder="Ex: 30.50">
+                    </div>
                 </div>
-                <div style="font-size: 0.8rem; color: #3fb950; margin-bottom: 1rem;" id="finishNetPreview">
-                    Valor Líquido no Bolso: R$ 0,00
+
+                <!-- Sessão de Resgate Total -->
+                <div id="totalRescueSection" style="display:none;">
+                    <div class="form-group">
+                        <label>Valor Bruto do Resgate (R$)</label>
+                        <input type="number" id="finishGrossAmount" class="form-control" step="0.01" readonly style="opacity: 0.7;">
+                    </div>
+                    <div class="form-group">
+                        <label>Imposto de Renda Retido (IR em R$)</label>
+                        <input type="number" id="finishIrAmount" class="form-control" step="0.01" min="0" value="0.00" placeholder="Ex: 15.50">
+                    </div>
+                    <div style="font-size: 0.8rem; color: #3fb950; margin-bottom: 1rem;" id="finishNetPreview">
+                        Valor Líquido no Bolso: R$ 0,00
+                    </div>
                 </div>
-                <button type="submit" class="btn btn-primary">Confirmar Resgate Definitivo</button>
+
+                <button type="submit" class="btn btn-primary" id="confirmRescueBtn">Confirmar Retirada</button>
             </form>
         </div>
     </div>
@@ -972,7 +996,7 @@
         const STORAGE_KEY = 'TOBA_BANK_DB';
 
         let db = {
-            version: 13,
+            version: 14,
             config: {
                 startDate: new Date().toISOString().split('T')[0]
             },
@@ -1125,13 +1149,14 @@
                     db.investmentFunds.forEach(f => {
                         if (f.isFinished === undefined) f.isFinished = false;
                         if (f.irAmount === undefined) f.irAmount = 0;
+                        if (!f.withdrawals) f.withdrawals = [];
                     });
 
                     if (db.config.startDate && db.config.startDate.includes('/')) {
                         const [d, m, y] = db.config.startDate.split('/');
                         db.config.startDate = `${y}-${m.padStart(2,'0')}-${d.padStart(2,'0')}`;
                     }
-                    db.version = 13;
+                    db.version = 14;
                 } catch (e) {
                     console.error("Erro ao carregar banco de dados", e);
                 }
@@ -1203,7 +1228,8 @@
                     isFinished: false,
                     irAmount: 0,
                     deposits: [{ id: Date.now().toString(), date: initialDate, amount: initialAmount }],
-                    balanceLogs: [{ id: (Date.now() + 1).toString(), date: initialDate, amount: initialAmount }]
+                    balanceLogs: [{ id: (Date.now() + 1).toString(), date: initialDate, amount: initialAmount }],
+                    withdrawals: []
                 };
 
                 db.investmentFunds.push(newFund);
@@ -1680,6 +1706,31 @@
             return { projectedBalance, projectedPct };
         }
 
+        function renameFund(fundId) {
+            const fund = db.investmentFunds.find(f => f.id === fundId);
+            if (!fund) return;
+            const newName = document.getElementById(`editName-${fundId}`).value;
+            if (newName && newName.trim() !== '') {
+                fund.name = newName.trim();
+                saveDatabase();
+                renderInvestmentsScreen();
+                setTimeout(() => toggleInvestCard(fundId), 50);
+            }
+        }
+
+        function toggleRescueType() {
+            const type = document.getElementById('rescueTypeSelect').value;
+            if (type === 'partial') {
+                document.getElementById('partialRescueSection').style.display = 'block';
+                document.getElementById('totalRescueSection').style.display = 'none';
+                document.getElementById('confirmRescueBtn').innerText = 'Confirmar Retirada';
+            } else {
+                document.getElementById('partialRescueSection').style.display = 'none';
+                document.getElementById('totalRescueSection').style.display = 'block';
+                document.getElementById('confirmRescueBtn').innerText = 'Confirmar Resgate Definitivo';
+            }
+        }
+
         function openNewFundModal() {
             document.getElementById('fundInitialDateInput').value = getTodayIsoDateStr();
             document.getElementById('newFundModal').classList.add('active');
@@ -1689,15 +1740,23 @@
             const fund = db.investmentFunds.find(f => f.id === fundId);
             if (!fund) return;
 
-            let latestBalance = fund.deposits.reduce((acc, d) => acc + d.amount, 0);
+            const totalDeposited = (fund.deposits || []).reduce((acc, d) => acc + d.amount, 0);
+            let latestBalance = totalDeposited;
             if (fund.balanceLogs && fund.balanceLogs.length > 0) {
                 const sortedLogs = [...fund.balanceLogs].sort((a, b) => new Date(b.date) - new Date(a.date));
                 latestBalance = sortedLogs[0].amount;
             }
+            const realProfit = Math.max(latestBalance - totalDeposited, 0);
 
             document.getElementById('finishFundIdInput').value = fund.id;
+            document.getElementById('rescueTypeSelect').value = 'partial';
+            document.getElementById('availableProfitAlert').innerText = `Lucro disponível: ${formatCurrency(realProfit)}`;
+            document.getElementById('rescueAmountInput').value = '';
+            
             document.getElementById('finishGrossAmount').value = latestBalance.toFixed(2);
             document.getElementById('finishIrAmount').value = "0.00";
+            
+            toggleRescueType();
             updateFinishNetPreview();
             document.getElementById('finishFundModal').classList.add('active');
         }
@@ -1711,16 +1770,38 @@
 
         function confirmFinishFund() {
             const fundId = document.getElementById('finishFundIdInput').value;
-            const irAmount = parseFloat(document.getElementById('finishIrAmount').value) || 0;
+            const rescueType = document.getElementById('rescueTypeSelect').value;
             const fund = db.investmentFunds.find(f => f.id === fundId);
+            if (!fund) return;
 
-            if (fund) {
+            if (rescueType === 'partial') {
+                const withdrawAmount = parseFloat(document.getElementById('rescueAmountInput').value) || 0;
+                if (withdrawAmount <= 0) return alert("Insira um valor válido para retirar.");
+                
+                let latestBalance = (fund.deposits || []).reduce((acc, d) => acc + d.amount, 0);
+                if (fund.balanceLogs && fund.balanceLogs.length > 0) {
+                    const sortedLogs = [...fund.balanceLogs].sort((a, b) => new Date(b.date) - new Date(a.date));
+                    latestBalance = sortedLogs[0].amount;
+                }
+                const newBalance = latestBalance - withdrawAmount;
+                const nowIso = getTodayIsoDateStr();
+                
+                if (!fund.withdrawals) fund.withdrawals = [];
+                fund.withdrawals.push({ id: Date.now().toString(), date: nowIso, amount: withdrawAmount });
+                
+                // Cria saldo atualizado pelo sistema pra não zoar os graficos
+                if (!fund.balanceLogs) fund.balanceLogs = [];
+                fund.balanceLogs.push({ id: (Date.now() + 1).toString(), date: nowIso, amount: newBalance, isSystem: true });
+                
+            } else {
+                const irAmount = parseFloat(document.getElementById('finishIrAmount').value) || 0;
                 fund.isFinished = true;
                 fund.irAmount = irAmount;
-                saveDatabase();
-                document.getElementById('finishFundModal').classList.remove('active');
-                renderInvestmentsScreen();
             }
+
+            saveDatabase();
+            document.getElementById('finishFundModal').classList.remove('active');
+            renderInvestmentsScreen();
         }
 
         function renderInvestmentsScreen() {
@@ -1769,16 +1850,20 @@
                     let historyLogsHtml = '';
                     const allLogs = [
                         ...(fund.deposits || []).map(d => ({ type: 'aporte', id: d.id, date: d.date, amount: d.amount })),
-                        ...(fund.balanceLogs || []).map(b => ({ type: 'saldo', id: b.id, date: b.date, amount: b.amount }))
+                        ...(fund.balanceLogs || []).filter(b => !b.isSystem).map(b => ({ type: 'saldo', id: b.id, date: b.date, amount: b.amount })),
+                        ...(fund.withdrawals || []).map(w => ({ type: 'resgate', id: w.id, date: w.date, amount: w.amount }))
                     ].sort((a, b) => new Date(b.date) - new Date(a.date));
 
                     allLogs.forEach(log => {
-                        const isAporte = log.type === 'aporte';
+                        let icon = '🔄', label = 'Saldo', color = '#d29922', sign = '';
+                        if (log.type === 'aporte') { icon = '➕'; label = 'Aporte'; color = '#58a6ff'; sign = '+'; }
+                        else if (log.type === 'resgate') { icon = '🪙'; label = 'Resgate'; color = '#ff7b72'; sign = '-'; }
+
                         historyLogsHtml += `
                             <div class="log-item">
-                                <span>${isAporte ? '➕ Aporte' : '🔄 Saldo'} • ${isoToBrDate(log.date)}</span>
+                                <span>${icon} ${label} • ${isoToBrDate(log.date)}</span>
                                 <div style="display:flex; align-items:center; gap:6px;">
-                                    <span style="font-weight:700; color: ${isAporte ? '#58a6ff' : '#d29922'};">${formatCurrency(log.amount)}</span>
+                                    <span style="font-weight:700; color: ${color};">${sign}${formatCurrency(log.amount)}</span>
                                     <button class="action-icon-btn delete" onclick="deleteInvestLog('${fund.id}', '${log.id}', '${log.type}')" title="Apagar">🗑️</button>
                                 </div>
                             </div>
@@ -1811,6 +1896,14 @@
                         </div>
 
                         <div class="invest-body">
+                            <div class="card-action-box">
+                                <div class="card-action-title">✏️ Editar Nome do Investimento</div>
+                                <div style="display:flex; gap:6px;">
+                                    <input type="text" id="editName-${fund.id}" class="form-control" value="${fund.name}" style="padding:0.4rem; font-size:0.8rem;">
+                                    <button class="btn btn-secondary" onclick="renameFund('${fund.id}')" style="width:auto; padding:0.4rem 0.8rem; font-size:0.78rem; border-color:#58a6ff; color:#58a6ff;">Salvar</button>
+                                </div>
+                            </div>
+
                             <div class="card-action-box">
                                 <div class="card-action-title">➕ Novo Aporte neste fundo</div>
                                 <div style="display:flex; gap:6px;">
@@ -1942,6 +2035,7 @@
             if (!fund) return;
             if (confirm('Deseja apagar este registro?')) {
                 if (type === 'aporte') fund.deposits = fund.deposits.filter(d => d.id !== logId);
+                else if (type === 'resgate') fund.withdrawals = fund.withdrawals.filter(w => w.id !== logId);
                 else fund.balanceLogs = fund.balanceLogs.filter(b => b.id !== logId);
                 saveDatabase();
                 renderInvestmentsScreen();
