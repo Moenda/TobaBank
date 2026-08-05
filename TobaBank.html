@@ -847,6 +847,15 @@
 
             <!-- SESSÃO DOS COFRINHOS (ESCONDIDA POR PADRÃO) -->
             <div id="cofrinhosWrapper" style="display: none; background: rgba(255, 123, 114, 0.05); padding: 10px; border-radius: 14px; border: 1px solid rgba(255, 123, 114, 0.2); margin-bottom: 1.5rem;">
+                <div style="background: #161b22; border: 1px solid rgba(255, 123, 114, 0.3); border-radius: 10px; padding: 10px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <div style="font-size: 0.7rem; color: #8b949e; text-transform: uppercase;">Resumo dos Cofrinhos</div>
+                        <div style="font-size: 0.85rem; font-weight: 700; margin-top: 2px;">
+                            Saques: <span style="color: #ff7b72;" id="cofrinhosTotalWithdrawalsVal">R$ 0,00</span> • Rend. Médio: <span style="color: #3fb950;" id="cofrinhosAvgYieldVal">0.00%</span>
+                        </div>
+                    </div>
+                    <button onclick="openCofrinhoHelpModal()" style="background: #21262d; border: 1px solid #30363d; color: #58a6ff; width: 32px; height: 32px; border-radius: 50%; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center;" title="Como funciona?">?</button>
+                </div>
                 <div class="section-title" style="margin-top: 0.5rem; color: #ff7b72;">
                     <span>🐷 Seus Cofrinhos</span>
                 </div>
@@ -905,7 +914,27 @@
 
     </div>
 
-<!-- MODAL DE RESGATE / IR / COFRINHO -->
+    <!-- MODAL DE AJUDA DOS COFRINHOS -->
+    <div class="modal-overlay" id="cofrinhoHelpModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3>🐷 Como funcionam os Cofrinhos?</h3>
+                <button class="close-btn" onclick="document.getElementById('cofrinhoHelpModal').classList.remove('active')">&times;</button>
+            </div>
+            <div style="font-size: 0.85rem; color: #c9d1d9; line-height: 1.6;">
+                <p style="margin-bottom: 8px;">Os <b>Cofrinhos</b> foram desenhados para ativos de alta liquidez (como caixas diários e contas rendidas) onde a grana entra e sai com frequência.</p>
+                <p style="margin-bottom: 8px;">• <b>Saldo Base:</b> Mantém o valor principal fixo em caixa.</p>
+                <p style="margin-bottom: 8px;">• <b>Rendimento (%):</b> Mostra o quanto o ativo rendeu proporcionalmente com base nos seus ajustes de saldo e saques.</p>
+                <p style="margin-bottom: 8px;">• <b>Resgatado (R$):</b> Soma todo o lucro ou valor que você já puxou de volta para o bolso sem desfalcar o principal.</p>
+                <p>No topo da seção, você acompanha o consolidado de saques de todos os cofrinhos e a rentabilidade média da carteira!</p>
+            </div>
+            <div style="margin-top: 1.2rem; text-align: right;">
+                <button class="btn btn-primary" onclick="document.getElementById('cofrinhoHelpModal').classList.remove('active')">Entendi, valeu!</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL DE RESGATE / IR / COFRINHO -->
     <div class="modal-overlay" id="finishFundModal">
         <div class="modal">
             <div class="modal-header">
@@ -1167,7 +1196,7 @@
         const STORAGE_KEY = 'TOBA_BANK_DB';
 
         let db = {
-            version: 18,
+            version: 20,
             config: {
                 startDate: new Date().toISOString().split('T')[0]
             },
@@ -1187,6 +1216,10 @@
             cofrinhosVisible = !cofrinhosVisible;
             document.getElementById('cofrinhosWrapper').style.display = cofrinhosVisible ? 'block' : 'none';
             document.getElementById('btnToggleCofrinhos').innerText = cofrinhosVisible ? '🐷 Esconder' : '🐷 Ver Cofrinhos';
+        }
+
+        function openCofrinhoHelpModal() {
+            document.getElementById('cofrinhoHelpModal').classList.add('active');
         }
 
         function switchView(viewName) {
@@ -1230,7 +1263,6 @@
         }
 
         function openPatrimonyChart() {
-            // Inicializar checkboxes se estiver vazio
             if(chartVisibleAssets.size === 0) {
                 (db.investmentFunds || []).filter(f => !f.isFinished).forEach(f => chartVisibleAssets.add(f.id));
             }
@@ -1264,8 +1296,6 @@
 
         function renderPatrimonyChart(period) {
             const ctx = document.getElementById('patrimonyChartCanvas').getContext('2d');
-            
-            // Cores bonitas para as linhas dos ativos ativos
             const lineColors = ['#58a6ff', '#3fb950', '#d29922', '#ff7b72', '#bc8cff', '#7ee787'];
             const activeFunds = (db.investmentFunds || []).filter(f => !f.isFinished);
 
@@ -1286,7 +1316,6 @@
             activeFunds.forEach((fund, index) => {
                 const color = lineColors[index % lineColors.length];
                 
-                // Add to Checkbox List
                 const li = document.createElement('li');
                 li.style.color = color;
                 li.style.cursor = 'pointer';
@@ -1298,7 +1327,7 @@
                 `;
                 assetListEl.appendChild(li);
 
-                if (!chartVisibleAssets.has(fund.id)) return; // Skip dataset if not checked
+                if (!chartVisibleAssets.has(fund.id)) return;
 
                 const totalDep = (fund.deposits || []).reduce((a, b) => a + b.amount, 0);
                 let latestBal = totalDep;
@@ -1309,7 +1338,6 @@
                     latestDate = new Date(sorted[0].date);
                 }
 
-                // Calculate real daily rate to retro-calculate curve (Juros compostos reversos)
                 let dailyRate = 0;
                 const sortedDeposits = [...(fund.deposits||[])].sort((a, b) => new Date(a.date) - new Date(b.date));
                 if(sortedDeposits.length > 0) {
@@ -1327,7 +1355,7 @@
 
                 for (let i = 0; i < countPoints; i++) {
                     const monthsBack = (countPoints - 1) - i;
-                    const daysBack = monthsBack * 30; // approx
+                    const daysBack = monthsBack * 30;
                     let simulatedVal = latestBal / Math.pow(1 + dailyRate, daysBack);
                     
                     if (chartMode === 'pct') {
@@ -1506,7 +1534,7 @@
                         const [d, m, y] = db.config.startDate.split('/');
                         db.config.startDate = `${y}-${m.padStart(2,'0')}-${d.padStart(2,'0')}`;
                     }
-                    db.version = 18;
+                    db.version = 20;
                 } catch (e) {
                     console.error("Erro ao carregar banco de dados", e);
                 }
@@ -2107,7 +2135,7 @@
             document.getElementById('newFundModal').classList.add('active');
         }
 
-            function openFinishFundModal(fundId) {
+        function openFinishFundModal(fundId) {
             const fund = db.investmentFunds.find(f => f.id === fundId);
             if (!fund) return;
 
@@ -2140,7 +2168,7 @@
             document.getElementById('finishNetPreview').innerText = `Valor Líquido no Bolso: ${formatCurrency(net)}`;
         }
 
-            function confirmFinishFund() {
+        function confirmFinishFund() {
             const fundId = document.getElementById('finishFundIdInput').value;
             const rescueType = document.getElementById('rescueTypeSelect').value;
             const rescueDate = document.getElementById('finishDateInput').value || getTodayIsoDateStr();
@@ -2221,7 +2249,7 @@
             const bodyActionsHtml = `
                 <div class="invest-body">
                     <div class="card-action-box">
-                        <div class="card-action-title">➕ Novo Aporte neste fundo</div>
+                        <div class="card-action-title">➕ Novo Aporte</div>
                         <div style="display:flex; gap:6px;">
                             <input type="date" id="depDate-${fund.id}" class="form-control" value="${getTodayIsoDateStr()}" style="padding:0.4rem; font-size:0.8rem;">
                             <input type="number" id="depAmount-${fund.id}" class="form-control" placeholder="R$" step="0.01" style="padding:0.4rem; font-size:0.8rem;">
@@ -2230,7 +2258,7 @@
                     </div>
 
                     <div class="card-action-box">
-                        <div class="card-action-title">🔄 Atualizar Saldo Atual (Corretora)</div>
+                        <div class="card-action-title">🔄 Atualizar Saldo</div>
                         <div style="display:flex; gap:6px;">
                             <input type="date" id="balDate-${fund.id}" class="form-control" value="${getTodayIsoDateStr()}" style="padding:0.4rem; font-size:0.8rem;">
                             <input type="number" id="balAmount-${fund.id}" class="form-control" placeholder="R$ Atual" step="0.01" style="padding:0.4rem; font-size:0.8rem;">
@@ -2271,12 +2299,12 @@
                             <div style="font-size: 1.6rem; font-weight: 700; color: #58a6ff;">${formatCurrency(latestBalance)}</div>
                         </div>
 
-                        <div class="invest-metrics" style="grid-template-columns: 1fr 1fr;">
-                            <div class="invest-metric-box">
+                        <div class="invest-metrics" style="grid-template-columns: 1fr 1fr; text-align: center;">
+                            <div class="invest-metric-box" style="align-items: center;">
                                 <span class="invest-metric-label">Rendimento</span>
                                 <span class="invest-metric-val ${profitClass}">${profitSign}${profitPct.toFixed(2)}%</span>
                             </div>
-                            <div class="invest-metric-box">
+                            <div class="invest-metric-box" style="align-items: center;">
                                 <span class="invest-metric-label">Resgatado</span>
                                 <span class="invest-metric-val text-red">${formatCurrency(totalWithdrawn)}</span>
                             </div>
@@ -2340,6 +2368,10 @@
             let globalTotalBalance = 0;
             let globalTotalDeposited = 0;
             let globalProjectedProfitSum = 0;
+            
+            let cofrinhosWithdrawalsSum = 0;
+            let cofrinhosYieldSum = 0;
+            let cofrinhosCount = 0;
 
             const activeFunds = funds.filter(f => !f.isFinished);
             const finishedFunds = funds.filter(f => f.isFinished);
@@ -2365,6 +2397,15 @@
                     globalTotalDeposited += totalDeposited;
                     globalProjectedProfitSum += proj.profitAmount;
 
+                    if (fund.isCofrinho) {
+                        const totalWithdrawn = (fund.withdrawals || []).reduce((acc, w) => acc + w.amount, 0);
+                        cofrinhosWithdrawalsSum += totalWithdrawn;
+                        const profit = (latestBalance + totalWithdrawn) - totalDeposited;
+                        const pct = totalDeposited > 0 ? (profit / totalDeposited) * 100 : 0;
+                        cofrinhosYieldSum += pct;
+                        cofrinhosCount++;
+                    }
+
                     const card = document.createElement('div');
                     card.className = 'invest-card';
                     card.id = `investCard-${fund.id}`;
@@ -2383,6 +2424,15 @@
                 if (!hasCofrinhos) cofrinhosContainer.innerHTML = `<div class="empty-state">Nenhum cofrinho ativo.</div>`;
             }
 
+            const cofrinhosAvgYield = cofrinhosCount > 0 ? (cofrinhosYieldSum / cofrinhosCount) : 0;
+            const totalWEl = document.getElementById('cofrinhosTotalWithdrawalsVal');
+            const avgYEl = document.getElementById('cofrinhosAvgYieldVal');
+            if (totalWEl && avgYEl) {
+                totalWEl.innerText = formatCurrency(cofrinhosWithdrawalsSum);
+                avgYEl.innerText = `${cofrinhosAvgYield >= 0 ? '+' : ''}${cofrinhosAvgYield.toFixed(2)}%`;
+                avgYEl.style.color = cofrinhosAvgYield >= 0 ? '#3fb950' : '#f85149';
+            }
+
             // Ordendação DESC para histórico finalizado
             finishedFunds.sort((a, b) => {
                 const dateA = a.balanceLogs?.length ? new Date([...a.balanceLogs].sort((x,y) => new Date(y.date) - new Date(x.date))[0].date) : new Date(0);
@@ -2395,13 +2445,12 @@
             if (finishedFunds.length === 0) {
                 finishedContainer.innerHTML = `<div class="empty-state">Nenhum investimento resgatado no histórico.</div>`;
             } else {
-                    finishedFunds.forEach(fund => {
+                finishedFunds.forEach(fund => {
                     const totalDeposited = (fund.deposits || []).reduce((acc, d) => acc + d.amount, 0);
                     let finalGross = totalDeposited;
                     let finalDateStr = 'N/A';
                     let startDateStr = 'N/A';
 
-                    // Pegar a data inicial (Primeiro Aporte)
                     if (fund.deposits && fund.deposits.length > 0) {
                         const sortedDeps = [...fund.deposits].sort((a, b) => new Date(a.date) - new Date(b.date));
                         const sd = new Date(sortedDeps[0].date);
@@ -2409,7 +2458,6 @@
                         startDateStr = `${String(sd.getDate()).padStart(2, '0')}/${String(sd.getMonth() + 1).padStart(2, '0')}/${String(sd.getFullYear()).slice(-2)}`;
                     }
 
-                    // Pegar a data final e bruto final
                     if (fund.balanceLogs && fund.balanceLogs.length > 0) {
                         const sortedLogs = [...fund.balanceLogs].sort((a, b) => new Date(b.date) - new Date(a.date));
                         
@@ -2425,17 +2473,16 @@
                     const finalNet = Math.max(finalGross - ir, 0);
                     const totalWithdrawn = (fund.withdrawals || []).reduce((acc, w) => acc + w.amount, 0);
                     
-                    const allOut = finalNet + totalWithdrawn; // Saque Líquido Total
-                    const realProfitNet = allOut - totalDeposited; // Apenas o Lucro
+                    const allOut = finalNet + totalWithdrawn;
+                    const realProfitNet = allOut - totalDeposited;
                     
                     totalLiquidProfit += realProfitNet;
 
                     const profitPercentageNet = totalDeposited > 0 ? ((realProfitNet / totalDeposited) * 100) : 0;
                     const profitClass = realProfitNet >= 0 ? 'text-green' : 'text-red';
                     const icon = fund.isCofrinho ? '🐷' : '🏁';
-                    const titleText = `${icon} ${fund.name}`; // Título Limpo!
+                    const titleText = `${icon} ${fund.name}`;
 
-                    // Pesquisa
                     if (searchTerm && !titleText.toLowerCase().includes(searchTerm)) return;
 
                     const card = document.createElement('div');
