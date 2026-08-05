@@ -841,21 +841,38 @@
             </div>
 
             <div style="display: flex; gap: 8px; margin-bottom: 1.2rem;">
-                <button class="btn btn-primary" onclick="openNewFundModal()" style="flex: 1;">+ Investimento</button>
+                <button class="btn btn-primary" onclick="openNewFundModal(false)" style="flex: 1;">+ Investimento</button>
                 <button class="btn btn-secondary" onclick="toggleCofrinhosView()" style="flex: 1; border-color: #ff7b72; color: #ff7b72;" id="btnToggleCofrinhos">🐷 Ver Cofrinhos</button>
             </div>
 
-            <!-- SESSÃO DOS COFRINHOS (ESCONDIDA POR PADRÃO) -->
+            <!-- SESSÃO DOS COFRINHOS -->
             <div id="cofrinhosWrapper" style="display: none; background: rgba(255, 123, 114, 0.05); padding: 10px; border-radius: 14px; border: 1px solid rgba(255, 123, 114, 0.2); margin-bottom: 1.5rem;">
-                <div style="background: #161b22; border: 1px solid rgba(255, 123, 114, 0.3); border-radius: 10px; padding: 10px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center;">
-                    <div>
-                        <div style="font-size: 0.7rem; color: #8b949e; text-transform: uppercase;">Resumo dos Cofrinhos</div>
-                        <div style="font-size: 0.85rem; font-weight: 700; margin-top: 2px;">
-                            Saques: <span style="color: #3fb950;" id="cofrinhosTotalWithdrawalsVal">R$ 0,00</span> • Rend. Médio: <span style="color: #3fb950;" id="cofrinhosAvgYieldVal">+0.00%</span>
+                <!-- NOVO LAYOUT DE SUMÁRIO DOS COFRINHOS EM 3 LINHAS -->
+                <div style="background: #161b22; border: 1px solid rgba(255, 123, 114, 0.3); border-radius: 10px; padding: 12px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: flex-start;">
+                    <div style="flex: 1;">
+                        <div style="font-size: 0.72rem; color: #8b949e; text-transform: uppercase; margin-bottom: 8px; font-weight: 700; letter-spacing: 0.5px;">Resumo dos Cofrinhos</div>
+                        
+                        <div style="font-size: 0.9rem; font-weight: 600; margin-bottom: 6px; display: flex; align-items: center; gap: 6px;">
+                            <span style="color: #8b949e; width: 60px;">Saques</span> 
+                            <span style="color: #3fb950;" id="cofrinhosTotalWithdrawalsVal">R$ 0,00</span>
+                        </div>
+                        
+                        <div style="font-size: 0.9rem; font-weight: 600; margin-bottom: 6px; display: flex; align-items: center; gap: 6px;">
+                            <span style="color: #8b949e; width: 60px;">Rend.</span> 
+                            <span style="color: #3fb950;" id="cofrinhosAvgYieldVal">+0.00%</span>
+                        </div>
+                        
+                        <div style="font-size: 0.85rem; font-weight: 600; display: flex; align-items: center; gap: 6px;">
+                            <span style="color: #8b949e; width: 60px;">Proj. 12m</span> 
+                            <span style="color: #58a6ff;" id="cofrinhosProjectionVal">R$ 0,00 (+0.00%)</span>
                         </div>
                     </div>
-                    <button onclick="openCofrinhoHelpModal()" style="background: #21262d; border: 1px solid #30363d; color: #58a6ff; width: 32px; height: 32px; border-radius: 50%; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center;" title="Como funciona?">?</button>
+                    <div style="display: flex; gap: 8px; flex-direction: column; align-items: center;">
+                        <button onclick="openNewFundModal(true)" style="background: #238636; border: 1px solid #2ea043; color: #fff; width: 36px; height: 36px; border-radius: 50%; font-weight: 700; font-size: 1.2rem; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 8px rgba(0,0,0,0.3); transition: transform 0.2s;" title="Novo Cofrinho" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">+</button>
+                        <button onclick="openCofrinhoHelpModal()" style="background: #21262d; border: 1px solid #30363d; color: #58a6ff; width: 36px; height: 36px; border-radius: 50%; font-weight: 700; font-size: 1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: transform 0.2s;" title="Como funciona?" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">?</button>
+                    </div>
                 </div>
+
                 <div class="section-title" style="margin-top: 0.5rem; color: #ff7b72;">
                     <span>🐷 Seus Cofrinhos</span>
                 </div>
@@ -914,7 +931,7 @@
 
     </div>
 
-    <!-- MODAL DE AJUDA DOS COFRINHOS -->
+    <!-- MODAL DE AJUDA DOS COFRINHOS ATUALIZADO -->
     <div class="modal-overlay" id="cofrinhoHelpModal">
         <div class="modal">
             <div class="modal-header">
@@ -922,11 +939,10 @@
                 <button class="close-btn" onclick="document.getElementById('cofrinhoHelpModal').classList.remove('active')">&times;</button>
             </div>
             <div style="font-size: 0.85rem; color: #c9d1d9; line-height: 1.6;">
-                <p style="margin-bottom: 8px;">Os <b>Cofrinhos</b> foram desenhados para ativos de alta liquidez onde o saldo base fica travado no valor máximo e você apenas registra os saques de rendimento.</p>
-                <p style="margin-bottom: 8px;">• <b>Saldo Base:</b> Valor principal fixo em caixa.</p>
-                <p style="margin-bottom: 8px;">• <b>Rendimento (%):</b> Proporção gerada com base nos saques efetuados em relação ao saldo base.</p>
-                <p style="margin-bottom: 8px;">• <b>Resgatado (R$):</b> Soma total de bufunfa que já caiu no bolso.</p>
-                <p>No topo, você acompanha o consolidado dos saques e o rendimento médio da carteira!</p>
+                <p style="margin-bottom: 8px;">Os <b>Cofrinhos (Giro Rápido)</b> são o motor de liquidez da sua carteira. Ideais para ativos onde o saldo fica "travado" (como caixinhas e contas rendendo 100% do CDI) e você só colhe os frutos.</p>
+                <p style="margin-bottom: 8px;">🎯 <b>A Dinâmica:</b> O seu <b>Saldo Base Fixo</b> é o combustível estático. Ele gera o rendimento contínuo. Você só precisa registrar os <b>Saques</b> (que são os lucros que você bota direto no bolso).</p>
+                <p style="margin-bottom: 8px;">📈 <b>Performance Real:</b> O TobaBank cruza os seus saques com o tempo e o saldo base, te entregando a <b>% real de crescimento</b>. Alterne o Gráfico de Evolução para "Crescimento %" e veja o seu Cofrinho espancar a inflação ao vivo!</p>
+                <p>Bora botar essa grana pra girar, chefia! 🚀</p>
             </div>
             <div style="margin-top: 1.2rem; text-align: right;">
                 <button class="btn btn-primary" onclick="document.getElementById('cofrinhoHelpModal').classList.remove('active')">Entendi, valeu!</button>
@@ -1004,25 +1020,22 @@
         </div>
     </div>
 
-    <!-- MODAL CRIAR NOVO FUNDO -->
+    <!-- MODAL CRIAR NOVO FUNDO / COFRINHO -->
     <div class="modal-overlay" id="newFundModal">
         <div class="modal">
             <div class="modal-header">
-                <h3>📈 Novo Card de Investimento</h3>
+                <h3 id="newFundModalTitle">📈 Novo Card de Investimento</h3>
                 <button class="close-btn" onclick="document.getElementById('newFundModal').classList.remove('active')">&times;</button>
             </div>
             <form id="newFundForm">
+                <input type="hidden" id="fundIsCofrinhoValue" value="false">
+                
                 <div class="form-group">
                     <label>Nome do Fundo / Ativo</label>
                     <input type="text" id="fundNameInput" class="form-control" placeholder="Ex: CDB 110% Sofisa, Tesouro Selic..." required>
                 </div>
-                
-                <div class="form-group">
-                    <label class="switch-container">
-                        <input type="checkbox" id="fundIsCofrinho">
-                        <span style="font-size: 0.88rem; font-weight: 600; color: #ff7b72;">🐷 É um Cofrinho (Giro Rápido)?</span>
-                    </label>
-                </div>
+
+                <!-- Checkbox foi REMOVIDO daqui conforme Patch Notes -->
 
                 <div class="form-group">
                     <label>Aporte Inicial (R$)</label>
@@ -1194,7 +1207,7 @@
         const STORAGE_KEY = 'TOBA_BANK_DB';
 
         let db = {
-            version: 21,
+            version: 22,
             config: {
                 startDate: new Date().toISOString().split('T')[0]
             },
@@ -1284,6 +1297,10 @@
         }
 
         function toggleChartAsset(fundId) {
+            // Ignora o clique se for cofrinho e modo brl
+            const fund = db.investmentFunds.find(f => f.id === fundId);
+            if(fund && fund.isCofrinho && chartMode === 'brl') return;
+
             if(chartVisibleAssets.has(fundId)) {
                 chartVisibleAssets.delete(fundId);
             } else {
@@ -1313,27 +1330,40 @@
 
             activeFunds.forEach((fund, index) => {
                 const color = lineColors[index % lineColors.length];
+                const isCofrinho = fund.isCofrinho;
+                const isDisabledInMode = (isCofrinho && chartMode === 'brl');
+                const disabledAttr = isDisabledInMode ? 'disabled' : '';
+                const opacityStyle = isDisabledInMode ? 'opacity: 0.5;' : '';
                 
                 const li = document.createElement('li');
                 li.style.color = color;
-                li.style.cursor = 'pointer';
+                li.style.cursor = disabledAttr ? 'not-allowed' : 'pointer';
+                li.style.cssText += opacityStyle;
                 li.innerHTML = `
-                    <label style="cursor:pointer; display:flex; align-items:center; gap:8px;">
-                        <input type="checkbox" id="chk-${fund.id}" style="accent-color: ${color}; width:16px; height:16px;" ${chartVisibleAssets.has(fund.id) ? 'checked' : ''} onclick="toggleChartAsset('${fund.id}')">
-                        ${fund.name}
+                    <label style="cursor:${disabledAttr ? 'not-allowed' : 'pointer'}; display:flex; align-items:center; gap:8px;">
+                        <input type="checkbox" id="chk-${fund.id}" style="accent-color: ${color}; width:16px; height:16px;" ${(chartVisibleAssets.has(fund.id) && !disabledAttr) ? 'checked' : ''} ${disabledAttr} onclick="toggleChartAsset('${fund.id}')">
+                        ${fund.name} ${isDisabledInMode ? '<span style="font-size: 0.7rem; color: #8b949e;">(apenas em %)</span>' : ''}
                     </label>
                 `;
                 assetListEl.appendChild(li);
 
-                if (!chartVisibleAssets.has(fund.id)) return;
+                if (!chartVisibleAssets.has(fund.id) || isDisabledInMode) return;
 
                 const totalDep = (fund.deposits || []).reduce((a, b) => a + b.amount, 0);
                 let latestBal = totalDep;
                 let latestDate = new Date();
-                if (fund.balanceLogs && fund.balanceLogs.length > 0) {
-                    const sorted = [...fund.balanceLogs].sort((a,b) => new Date(b.date) - new Date(a.date));
-                    latestBal = sorted[0].amount;
-                    latestDate = new Date(sorted[0].date);
+                
+                if (isCofrinho) {
+                    const totalWithdrawn = (fund.withdrawals || []).reduce((a, b) => a + b.amount, 0);
+                    // No cofrinho, o "saldo final" para o gráfico é o saldo depositado + o que já foi sacado de lucro
+                    latestBal = totalDep + totalWithdrawn; 
+                    latestDate = new Date(); 
+                } else {
+                    if (fund.balanceLogs && fund.balanceLogs.length > 0) {
+                        const sorted = [...fund.balanceLogs].sort((a,b) => new Date(b.date) - new Date(a.date));
+                        latestBal = sorted[0].amount;
+                        latestDate = new Date(sorted[0].date);
+                    }
                 }
 
                 let dailyRate = 0;
@@ -1532,7 +1562,7 @@
                         const [d, m, y] = db.config.startDate.split('/');
                         db.config.startDate = `${y}-${m.padStart(2,'0')}-${d.padStart(2,'0')}`;
                     }
-                    db.version = 21;
+                    db.version = 22;
                 } catch (e) {
                     console.error("Erro ao carregar banco de dados", e);
                 }
@@ -1597,7 +1627,7 @@
                 const name = document.getElementById('fundNameInput').value;
                 const initialAmount = parseFloat(document.getElementById('fundInitialAmountInput').value) || 0;
                 const initialDate = document.getElementById('fundInitialDateInput').value;
-                const isCofrinho = document.getElementById('fundIsCofrinho').checked;
+                const isCofrinho = document.getElementById('fundIsCofrinhoValue').value === 'true';
 
                 const newFund = {
                     id: Date.now().toString(),
@@ -2127,9 +2157,10 @@
             }
         }
 
-        function openNewFundModal() {
+        function openNewFundModal(isCofrinho = false) {
             document.getElementById('fundInitialDateInput').value = getTodayIsoDateStr();
-            document.getElementById('fundIsCofrinho').checked = false;
+            document.getElementById('fundIsCofrinhoValue').value = isCofrinho ? 'true' : 'false';
+            document.getElementById('newFundModalTitle').innerText = isCofrinho ? '🐷 Novo Cofrinho' : '📈 Novo Card de Investimento';
             document.getElementById('newFundModal').classList.add('active');
         }
 
@@ -2283,14 +2314,14 @@
                         <div class="invest-header-top">
                             <span class="invest-title">
                                 🐷 ${fund.name} 
-                                <span onclick="openEditFundNameModal('${fund.id}', '${fund.name.replace(/'/g, "\\'")}'); event.stopPropagation();" style="cursor:pointer; font-size:0.9rem; margin-left:8px; opacity: 0.7;">✏️</span>
+                                <span onclick="openEditFundNameModal('${fund.id}', '${fund.name.replace(/'/g, "\\'") }'); event.stopPropagation();" style="cursor:pointer; font-size:0.9rem; margin-left:8px; opacity: 0.7;">✏️</span>
                             </span>
                             <span class="invest-arrow">▼</span>
                         </div>
                         
-                        <div style="margin: 12px 0; text-align: center; background: rgba(88, 166, 255, 0.08); padding: 12px; border-radius: 10px; border: 1px solid rgba(88, 166, 255, 0.15);">
-                            <div style="font-size: 0.75rem; color: #8b949e; text-transform: uppercase; margin-bottom: 4px; letter-spacing: 0.5px;">Saldo Atual em Caixa</div>
-                            <div style="font-size: 1.6rem; font-weight: 700; color: #58a6ff;">${formatCurrency(totalDeposited)}</div>
+                        <div style="margin: 10px 0; display: flex; justify-content: space-between; align-items: center; background: #161b22; padding: 8px 12px; border-radius: 8px; border: 1px solid #21262d;">
+                            <span style="font-size: 0.75rem; color: #8b949e; text-transform: uppercase; letter-spacing: 0.5px;">Saldo Base Fixo</span>
+                            <span style="font-size: 1rem; font-weight: 700; color: #58a6ff;">${formatCurrency(totalDeposited)}</span>
                         </div>
 
                         <div class="invest-metrics" style="grid-template-columns: 1fr 1fr; text-align: center;">
@@ -2389,7 +2420,7 @@
                     <div class="invest-header-top">
                         <span class="invest-title">
                             📈 ${fund.name} 
-                            <span onclick="openEditFundNameModal('${fund.id}', '${fund.name.replace(/'/g, "\\'")}'); event.stopPropagation();" style="cursor:pointer; font-size:0.9rem; margin-left:8px; opacity: 0.7;">✏️</span>
+                            <span onclick="openEditFundNameModal('${fund.id}', '${fund.name.replace(/'/g, "\\'") }'); event.stopPropagation();" style="cursor:pointer; font-size:0.9rem; margin-left:8px; opacity: 0.7;">✏️</span>
                         </span>
                         <span class="invest-arrow">▼</span>
                     </div>
@@ -2430,9 +2461,11 @@
             let globalTotalDeposited = 0;
             let globalProjectedProfitSum = 0;
             
+            let cofrinhosTotalDeposited = 0;
             let cofrinhosWithdrawalsSum = 0;
             let cofrinhosYieldSum = 0;
             let cofrinhosCount = 0;
+            let cofrinhosProjectedProfitSum = 0;
 
             const activeFunds = funds.filter(f => !f.isFinished);
             const finishedFunds = funds.filter(f => f.isFinished);
@@ -2448,15 +2481,11 @@
                 activeFunds.forEach(fund => {
                     const totalDeposited = (fund.deposits || []).reduce((acc, d) => acc + d.amount, 0);
                     let latestBalance = totalDeposited;
-                    if (fund.balanceLogs && fund.balanceLogs.length > 0) {
+                    
+                    if (!fund.isCofrinho && fund.balanceLogs && fund.balanceLogs.length > 0) {
                         const sortedLogs = [...fund.balanceLogs].sort((a, b) => new Date(b.date) - new Date(a.date));
                         latestBalance = sortedLogs[0].amount;
                     }
-                    const proj = calculateCompoundProjection(fund.deposits, fund.balanceLogs);
-
-                    globalTotalBalance += latestBalance;
-                    globalTotalDeposited += totalDeposited;
-                    globalProjectedProfitSum += proj.profitAmount;
 
                     if (fund.isCofrinho) {
                         const totalWithdrawn = (fund.withdrawals || []).reduce((acc, w) => acc + w.amount, 0);
@@ -2464,7 +2493,31 @@
                         const pct = totalDeposited > 0 ? (totalWithdrawn / totalDeposited) * 100 : 0;
                         cofrinhosYieldSum += pct;
                         cofrinhosCount++;
+                        cofrinhosTotalDeposited += totalDeposited;
+                        
+                        let cDays = 1;
+                        if(fund.deposits && fund.deposits.length > 0) {
+                            const sortedDeps = [...fund.deposits].sort((a,b) => new Date(a.date) - new Date(b.date));
+                            const firstDate = new Date(sortedDeps[0].date);
+                            const diffTime = new Date() - firstDate;
+                            cDays = Math.max(Math.ceil(diffTime / (1000 * 60 * 60 * 24)), 1);
+                        }
+                        let dailyYieldRate = 0;
+                        if(totalDeposited > 0) {
+                            const currentTotal = totalDeposited + totalWithdrawn;
+                            dailyYieldRate = Math.pow(currentTotal / totalDeposited, 1 / cDays) - 1;
+                        }
+                        const projectedCofProfit = totalDeposited * Math.pow(1 + dailyYieldRate, 365) - totalDeposited;
+                        cofrinhosProjectedProfitSum += projectedCofProfit;
+                        
+                        latestBalance = totalDeposited + totalWithdrawn; // pra nao bugar a projecao global
+                    } else {
+                        const proj = calculateCompoundProjection(fund.deposits, fund.balanceLogs);
+                        globalProjectedProfitSum += proj.profitAmount;
                     }
+
+                    globalTotalBalance += fund.isCofrinho ? totalDeposited : latestBalance;
+                    globalTotalDeposited += totalDeposited;
 
                     const card = document.createElement('div');
                     card.className = 'invest-card';
@@ -2483,14 +2536,20 @@
                 if (!hasInvestments) investContainer.innerHTML = `<div class="empty-state">Nenhum investimento longo prazo.</div>`;
                 if (!hasCofrinhos) cofrinhosContainer.innerHTML = `<div class="empty-state">Nenhum cofrinho ativo.</div>`;
             }
+            
+            globalProjectedProfitSum += cofrinhosProjectedProfitSum;
 
             const cofrinhosAvgYield = cofrinhosCount > 0 ? (cofrinhosYieldSum / cofrinhosCount) : 0;
+            const cofrinhosProjectedYieldPct = cofrinhosTotalDeposited > 0 ? (cofrinhosProjectedProfitSum / cofrinhosTotalDeposited) * 100 : 0;
+            
             const totalWEl = document.getElementById('cofrinhosTotalWithdrawalsVal');
             const avgYEl = document.getElementById('cofrinhosAvgYieldVal');
-            if (totalWEl && avgYEl) {
+            const projElCof = document.getElementById('cofrinhosProjectionVal');
+            
+            if (totalWEl && avgYEl && projElCof) {
                 totalWEl.innerText = formatCurrency(cofrinhosWithdrawalsSum);
                 avgYEl.innerText = `+${cofrinhosAvgYield.toFixed(2)}%`;
-                avgYEl.style.color = '#3fb950';
+                projElCof.innerText = `${formatCurrency(cofrinhosProjectedProfitSum)} (+${cofrinhosProjectedYieldPct.toFixed(2)}%)`;
             }
 
             finishedFunds.sort((a, b) => {
