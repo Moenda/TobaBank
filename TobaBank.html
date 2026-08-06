@@ -126,17 +126,39 @@
             display: block;
         }
 
-        /* Badge Mês */
+        /* Badge Mês & Histórico Button */
+        .month-header-row {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            margin-bottom: 1rem;
+        }
         .month-badge {
-            display: inline-block;
             background: rgba(88, 166, 255, 0.15);
             color: #58a6ff;
             font-size: 0.8rem;
             font-weight: 700;
             padding: 4px 12px;
             border-radius: 12px;
-            margin-bottom: 1rem;
             text-transform: capitalize;
+        }
+        .history-mini-btn {
+            position: absolute;
+            right: 0;
+            background: #161b22;
+            border: 1px solid #30363d;
+            color: #8b949e;
+            padding: 4px 10px;
+            border-radius: 8px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .history-mini-btn:hover {
+            color: #f0f6fc;
+            border-color: #58a6ff;
         }
 
         /* Metrics Cards Grid */
@@ -183,6 +205,24 @@
             font-size: 0.73rem;
             color: #8b949e;
             line-height: 1.35;
+        }
+        .help-tooltip-btn {
+            background: #21262d;
+            color: #8b949e;
+            border: 1px solid #30363d;
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .help-tooltip-btn:hover {
+            color: #58a6ff;
+            border-color: #58a6ff;
         }
 
         /* Advice Alert Banner */
@@ -685,12 +725,14 @@
             <div class="tab-nav">
                 <button class="tab-btn active" id="tabBtnCurrent" onclick="switchTab('current')">📅 Mês Atual</button>
                 <button class="tab-btn" id="tabBtnInstallments" onclick="switchTab('installments')">💳 Parcelas</button>
-                <button class="tab-btn" id="tabBtnHistory" onclick="switchTab('history')">📜 Histórico</button>
+                <button class="tab-btn" id="tabBtnFixed" onclick="switchTab('fixed')">🔁 Gasto Fixo</button>
             </div>
 
             <div class="tab-content active" id="tabCurrent">
-                <div style="text-align: center;">
+                <!-- Atalho Histórico Relocado -->
+                <div class="month-header-row">
                     <span class="month-badge" id="dashMonthBadge">Carregando...</span>
+                    <button class="history-mini-btn" onclick="switchTab('history')">📜 Histórico</button>
                 </div>
 
                 <div class="advice-banner" id="adviceBanner">
@@ -707,10 +749,16 @@
                         </div>
                     </div>
 
+                    <!-- CARD DISPONÍVEL HOJE COM RATEIO -->
                     <div class="card">
                         <div class="card-title">Disponível Hoje</div>
                         <div class="card-value" id="dashTodayAvailable">R$ 0,00</div>
-                        <div class="sub-text" id="dashTodaySpentSub" style="margin-top: 4px;">Gasto hoje: R$ 0,00</div>
+                        
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 8px;">
+                            <span class="sub-text" id="dashFixedDeduction" style="color: #f85149; font-weight: 600;">Fixo mensal: -R$ 0,00/dia</span>
+                            <span class="help-tooltip-btn" onclick="alert('Rateio Diário: Os valores dos seus Gastos Fixos e Parcelas são divididos por todos os dias do mês. Isso garante que o peso deles seja descontado gradativamente, revelando o seu saldo diário REAL para não comer o orçamento todo no dia do pagamento! 🧠💸')">?</span>
+                        </div>
+                        <div class="sub-text" id="dashInstDeduction" style="color: #f85149; font-weight: 600; margin-top: 4px;">Parcelas: -R$ 0,00/dia</div>
                     </div>
 
                     <div class="card">
@@ -757,6 +805,27 @@
                 <div id="finishedInstallmentsContainer"></div>
             </div>
 
+            <!-- NOVA ABA: GASTO FIXO -->
+            <div class="tab-content" id="tabFixed">
+                <div class="section-title">
+                    <span>🔁 Gastos Fixos Mensais</span>
+                </div>
+                <div class="card" style="margin-bottom: 1rem;">
+                    <div class="card-title">Total de Gastos Fixos</div>
+                    <div style="display:flex; gap:10px; margin-top: 10px;">
+                        <input type="number" id="fixedTotalInput" class="form-control" placeholder="Ex: 300,00" min="0" step="0.01">
+                        <button class="btn btn-primary" onclick="saveFixedTotal()" style="width: auto;">Salvar</button>
+                    </div>
+                    <div class="sub-text" style="margin-top: 10px; color: #58a6ff;">
+                        Soma de assinaturas, ração dos gatos, academia, etc. Este valor será rateado diariamente no seu painel para não consumir o saldo todo de uma vez!
+                    </div>
+                </div>
+                <div style="text-align: center; margin-top: 20px;">
+                    <img src="https://media.giphy.com/media/YJjvTqoRFgZaM/giphy.gif" alt="Cat Cash" style="width: 150px; border-radius: 12px; opacity: 0.8;">
+                </div>
+            </div>
+
+            <!-- ABA HISTÓRICO ISOLADA -->
             <div class="tab-content" id="tabHistory">
                 <div class="section-title">
                     <span>📂 Histórico de Meses Fechados</span>
@@ -847,7 +916,6 @@
 
             <!-- SESSÃO DOS COFRINHOS -->
             <div id="cofrinhosWrapper" style="display: none; background: rgba(255, 123, 114, 0.05); padding: 10px; border-radius: 14px; border: 1px solid rgba(255, 123, 114, 0.2); margin-bottom: 1.5rem;">
-                <!-- NOVO LAYOUT DE SUMÁRIO DOS COFRINHOS EM 3 LINHAS -->
                 <div style="background: #161b22; border: 1px solid rgba(255, 123, 114, 0.3); border-radius: 10px; padding: 12px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: flex-start;">
                     <div style="flex: 1;">
                         <div style="font-size: 0.72rem; color: #8b949e; text-transform: uppercase; margin-bottom: 8px; font-weight: 700; letter-spacing: 0.5px;">Resumo dos Cofrinhos</div>
@@ -941,7 +1009,7 @@
             <div style="font-size: 0.85rem; color: #c9d1d9; line-height: 1.6;">
                 <p style="margin-bottom: 8px;">Os <b>Cofrinhos (Giro Rápido)</b> são o motor de liquidez da sua carteira. Ideais para ativos onde o saldo fica "travado" (como caixinhas e contas rendendo 100% do CDI) e você só colhe os frutos.</p>
                 <p style="margin-bottom: 8px;">🎯 <b>A Dinâmica:</b> O seu <b>Saldo Base Fixo</b> é o combustível estático. Ele gera o rendimento contínuo. Você só precisa registrar os <b>Saques</b> (que são os lucros que você bota direto no bolso).</p>
-                <p style="margin-bottom: 8px;">📈 <b>Performance Real:</b> O TobaBank cruza os seus saques com o tempo e o saldo base, te entregando a <b>% real de crescimento</b>. Alterne o Gráfico de Evolução para "Crescimento %" e veja o seu Cofrinho espancar a inflação ao vivo!</p>
+                <p style="margin-bottom: 8px;">📈 <b>Performance Real:</b> O TobaBank cruza os seus saques com o tempo e o saldo base, te entregando a <b>% real de crescimento</b> e a sua <b>Média Mensal</b>.</p>
                 <p>Bora botar essa grana pra girar, chefia! 🚀</p>
             </div>
             <div style="margin-top: 1.2rem; text-align: right;">
@@ -1034,8 +1102,6 @@
                     <label>Nome do Fundo / Ativo</label>
                     <input type="text" id="fundNameInput" class="form-control" placeholder="Ex: CDB 110% Sofisa, Tesouro Selic..." required>
                 </div>
-
-                <!-- Checkbox foi REMOVIDO daqui conforme Patch Notes -->
 
                 <div class="form-group">
                     <label>Aporte Inicial (R$)</label>
@@ -1209,7 +1275,8 @@
         let db = {
             version: 22,
             config: {
-                startDate: new Date().toISOString().split('T')[0]
+                startDate: new Date().toISOString().split('T')[0],
+                fixedTotal: 0
             },
             months: {},
             transactions: [],
@@ -1297,7 +1364,6 @@
         }
 
         function toggleChartAsset(fundId) {
-            // Ignora o clique se for cofrinho e modo brl
             const fund = db.investmentFunds.find(f => f.id === fundId);
             if(fund && fund.isCofrinho && chartMode === 'brl') return;
 
@@ -1355,7 +1421,6 @@
                 
                 if (isCofrinho) {
                     const totalWithdrawn = (fund.withdrawals || []).reduce((a, b) => a + b.amount, 0);
-                    // No cofrinho, o "saldo final" para o gráfico é o saldo depositado + o que já foi sacado de lucro
                     latestBal = totalDep + totalWithdrawn; 
                     latestDate = new Date(); 
                 } else {
@@ -1402,7 +1467,7 @@
                     backgroundColor: color,
                     borderWidth: 2,
                     tension: 0.3,
-                    pointRadius: 4
+                    pointRadius: 0 // << GRÁFICO CLEAN, SEM BOLINHA
                 });
             });
 
@@ -1463,19 +1528,41 @@
         }
 
         function switchTab(tabName) {
-            document.getElementById('tabBtnCurrent').classList.toggle('active', tabName === 'current');
-            document.getElementById('tabBtnInstallments').classList.toggle('active', tabName === 'installments');
-            document.getElementById('tabBtnHistory').classList.toggle('active', tabName === 'history');
+            // Remove active classes
+            document.getElementById('tabBtnCurrent').classList.remove('active');
+            document.getElementById('tabBtnInstallments').classList.remove('active');
+            document.getElementById('tabBtnFixed').classList.remove('active');
             
-            document.getElementById('tabCurrent').classList.toggle('active', tabName === 'current');
-            document.getElementById('tabInstallments').classList.toggle('active', tabName === 'installments');
-            document.getElementById('tabHistory').classList.toggle('active', tabName === 'history');
+            document.getElementById('tabCurrent').classList.remove('active');
+            document.getElementById('tabInstallments').classList.remove('active');
+            document.getElementById('tabFixed').classList.remove('active');
+            document.getElementById('tabHistory').classList.remove('active');
 
-            if (tabName === 'history') {
+            // Apply specific active classes based on selection
+            if (tabName !== 'history') {
+                if(tabName === 'current') {
+                    document.getElementById('tabBtnCurrent').classList.add('active');
+                    document.getElementById('tabCurrent').classList.add('active');
+                } else if(tabName === 'installments') {
+                    document.getElementById('tabBtnInstallments').classList.add('active');
+                    document.getElementById('tabInstallments').classList.add('active');
+                    renderInstallments();
+                } else if(tabName === 'fixed') {
+                    document.getElementById('tabBtnFixed').classList.add('active');
+                    document.getElementById('tabFixed').classList.add('active');
+                    document.getElementById('fixedTotalInput').value = db.config.fixedTotal || '';
+                }
+            } else {
+                document.getElementById('tabHistory').classList.add('active');
                 renderHistory();
-            } else if (tabName === 'installments') {
-                renderInstallments();
             }
+        }
+
+        function saveFixedTotal() {
+            const val = parseFloat(document.getElementById('fixedTotalInput').value) || 0;
+            db.config.fixedTotal = val;
+            saveDatabase();
+            alert('🚀 Gasto fixo mensal salvo com sucesso! O rateio diário já está atualizado no seu painel principal.');
         }
 
         function isoToBrDate(isoStr) {
@@ -1547,7 +1634,7 @@
                     db = JSON.parse(data);
                     if (!db.transactions) db.transactions = [];
                     if (!db.installments) db.installments = [];
-                    if (!db.config) db.config = { startDate: getTodayIsoDateStr() };
+                    if (!db.config) db.config = { startDate: getTodayIsoDateStr(), fixedTotal: 0 };
                     if (!db.months) db.months = {};
                     if (!db.investmentFunds) db.investmentFunds = [];
 
@@ -1829,12 +1916,18 @@
             const grossMonthlyBudget = baseDailyBudget * effectiveDays;
             const activeInstallmentsMonth = getActiveInstallmentsForMonth(currentMonthKey);
             const monthInstallmentsTotal = activeInstallmentsMonth.reduce((acc, p) => acc + p.amount, 0);
+            
+            // Rateio Diário (Patch Notes)
+            const fixedTotal = db.config.fixedTotal || 0;
+            const dailyFixedDeduction = totalDaysInMonth > 0 ? (fixedTotal / totalDaysInMonth) : 0;
             const dailyInstallmentDeduction = totalDaysInMonth > 0 ? (monthInstallmentsTotal / totalDaysInMonth) : 0;
-            const netDailyBudget = Math.max(baseDailyBudget - dailyInstallmentDeduction, 0);
+            
+            const netDailyBudget = Math.max(baseDailyBudget - dailyInstallmentDeduction - dailyFixedDeduction, 0);
 
             const currentMonthTransactions = db.transactions.filter(t => t.date && t.date.startsWith(currentMonthKey));
             const monthlySpentVista = currentMonthTransactions.reduce((acc, t) => acc + t.amount, 0);
-            const totalMonthlySpent = monthlySpentVista + monthInstallmentsTotal;
+            const totalMonthlySpent = monthlySpentVista + monthInstallmentsTotal + fixedTotal;
+            
             const todaySpent = db.transactions.filter(t => t.date === todayIso).reduce((acc, t) => acc + t.amount, 0);
             const todayAvailable = netDailyBudget - todaySpent;
 
@@ -1861,9 +1954,9 @@
             document.getElementById('dashTodayAvailable').innerText = formatCurrency(todayAvailable);
             document.getElementById('dashTodayAvailable').className = `card-value ${todayAvailable < 0 ? 'text-red' : 'text-green'}`;
             
-            let todaySubStr = `Gasto hoje: ${formatCurrency(todaySpent)}`;
-            if (dailyInstallmentDeduction > 0) todaySubStr += `<br><span style="color:#f85149; font-weight: 600;">-${formatCurrency(dailyInstallmentDeduction)}/dia (parcelas)</span>`;
-            document.getElementById('dashTodaySpentSub').innerHTML = todaySubStr;
+            // Atualizando Rateio Diário na tela Principal
+            document.getElementById('dashFixedDeduction').innerText = `Fixo mensal: -${formatCurrency(dailyFixedDeduction)}/dia`;
+            document.getElementById('dashInstDeduction').innerText = `Parcelas: -${formatCurrency(dailyInstallmentDeduction)}/dia`;
 
             document.getElementById('dashVaultBalance').innerText = formatCurrency(vaultBalance);
             document.getElementById('dashVaultBalance').className = `card-value ${vaultBalance < 0 ? 'text-red' : 'text-green'}`;
@@ -2272,6 +2365,20 @@
                 const totalWithdrawn = (fund.withdrawals || []).reduce((acc, w) => acc + w.amount, 0);
                 const yieldPct = totalDeposited > 0 ? (totalWithdrawn / totalDeposited) * 100 : 0;
 
+                // Lógica Data e Média (Patch Notes)
+                let startDateStr = 'N/A';
+                let monthsElapsed = 1;
+                if(fund.deposits && fund.deposits.length > 0) {
+                    const sortedDeps = [...fund.deposits].sort((a,b) => new Date(a.date) - new Date(b.date));
+                    const firstDate = new Date(sortedDeps[0].date);
+                    firstDate.setMinutes(firstDate.getMinutes() + firstDate.getTimezoneOffset());
+                    startDateStr = `${String(firstDate.getDate()).padStart(2, '0')}/${String(firstDate.getMonth() + 1).padStart(2, '0')}/${String(firstDate.getFullYear()).slice(-2)}`;
+                    const diffTime = new Date() - firstDate;
+                    const days = Math.max(Math.ceil(diffTime / (1000 * 60 * 60 * 24)), 1);
+                    monthsElapsed = Math.max(days / 30.4, 1);
+                }
+                const avgYieldMonthly = yieldPct / monthsElapsed;
+
                 let withdrawalsLogsHtml = '';
                 const sortedWithdrawals = [...(fund.withdrawals || [])].sort((a, b) => new Date(b.date) - new Date(a.date));
 
@@ -2324,14 +2431,23 @@
                             <span style="font-size: 1rem; font-weight: 700; color: #58a6ff;">${formatCurrency(totalDeposited)}</span>
                         </div>
 
-                        <div class="invest-metrics" style="grid-template-columns: 1fr 1fr; text-align: center;">
+                        <!-- 4 Colunas para os Cofrinhos (Add Data e Média) -->
+                        <div class="invest-metrics" style="grid-template-columns: 1fr 1fr 1fr 1fr; text-align: center; gap: 4px; padding: 0.6rem 0.2rem;">
                             <div class="invest-metric-box" style="align-items: center;">
-                                <span class="invest-metric-label">Rendimento</span>
-                                <span class="invest-metric-val text-green">+${yieldPct.toFixed(2)}%</span>
+                                <span class="invest-metric-label" style="font-size: 0.6rem;">Início</span>
+                                <span class="invest-metric-val text-neutral" style="font-size: 0.75rem;">${startDateStr}</span>
                             </div>
                             <div class="invest-metric-box" style="align-items: center;">
-                                <span class="invest-metric-label">Resgatado</span>
-                                <span class="invest-metric-val text-green">${formatCurrency(totalWithdrawn)}</span>
+                                <span class="invest-metric-label" style="font-size: 0.6rem;">Rendimento</span>
+                                <span class="invest-metric-val text-green" style="font-size: 0.75rem;">+${yieldPct.toFixed(2)}%</span>
+                            </div>
+                            <div class="invest-metric-box" style="align-items: center;">
+                                <span class="invest-metric-label" style="font-size: 0.6rem;">Média/mês</span>
+                                <span class="invest-metric-val text-green" style="font-size: 0.75rem;">+${avgYieldMonthly.toFixed(2)}%</span>
+                            </div>
+                            <div class="invest-metric-box" style="align-items: center;">
+                                <span class="invest-metric-label" style="font-size: 0.6rem;">Resgatado</span>
+                                <span class="invest-metric-val text-green" style="font-size: 0.75rem;">${formatCurrency(totalWithdrawn)}</span>
                             </div>
                         </div>
                     </div>
@@ -2510,7 +2626,7 @@
                         const projectedCofProfit = totalDeposited * Math.pow(1 + dailyYieldRate, 365) - totalDeposited;
                         cofrinhosProjectedProfitSum += projectedCofProfit;
                         
-                        latestBalance = totalDeposited + totalWithdrawn; // pra nao bugar a projecao global
+                        latestBalance = totalDeposited + totalWithdrawn; 
                     } else {
                         const proj = calculateCompoundProjection(fund.deposits, fund.balanceLogs);
                         globalProjectedProfitSum += proj.profitAmount;
