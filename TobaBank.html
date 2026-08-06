@@ -725,7 +725,7 @@
             <div class="tab-nav">
                 <button class="tab-btn active" id="tabBtnCurrent" onclick="switchTab('current')">📅 Mês Atual</button>
                 <button class="tab-btn" id="tabBtnInstallments" onclick="switchTab('installments')">💳 Parcelas</button>
-                <button class="tab-btn" id="tabBtnFixed" onclick="switchTab('fixed')">🔁 Gasto Fixo</button>
+                <button class="tab-btn" id="tabBtnFixed" onclick="switchTab('fixed')">🔁 Fixo</button>
             </div>
 
             <div class="tab-content active" id="tabCurrent">
@@ -805,23 +805,39 @@
                 <div id="finishedInstallmentsContainer"></div>
             </div>
 
-            <!-- NOVA ABA: GASTO FIXO -->
+            <!-- NOVA ABA: GASTO FIXO REFORMULADA -->
             <div class="tab-content" id="tabFixed">
                 <div class="section-title">
                     <span>🔁 Gastos Fixos Mensais</span>
                 </div>
-                <div class="card" style="margin-bottom: 1rem;">
-                    <div class="card-title">Total de Gastos Fixos</div>
-                    <div style="display:flex; gap:10px; margin-top: 10px;">
-                        <input type="number" id="fixedTotalInput" class="form-control" placeholder="Ex: 300,00" min="0" step="0.01">
-                        <button class="btn btn-primary" onclick="saveFixedTotal()" style="width: auto;">Salvar</button>
-                    </div>
-                    <div class="sub-text" style="margin-top: 10px; color: #58a6ff;">
-                        Soma de assinaturas, ração dos gatos, academia, etc. Este valor será rateado diariamente no seu painel para não consumir o saldo todo de uma vez!
+
+                <!-- Resumo -->
+                <div class="metrics-grid" style="margin-bottom: 1.2rem;">
+                    <div class="card card-full">
+                        <div class="card-title">Total Fixo Mensal</div>
+                        <div class="card-value text-red" id="fixedTotalDisplay">R$ 0,00</div>
+                        <div class="sub-text" style="color: #58a6ff; margin-top: 6px;">
+                            Esse valor total é rateado por dia no painel principal pra não engolir seu saldo de uma vez só!
+                        </div>
                     </div>
                 </div>
-                <div style="text-align: center; margin-top: 20px;">
-                    <img src="https://media.giphy.com/media/YJjvTqoRFgZaM/giphy.gif" alt="Cat Cash" style="width: 150px; border-radius: 12px; opacity: 0.8;">
+
+                <!-- Formulário Adicionar -->
+                <div class="card" style="margin-bottom: 1.2rem; padding: 1rem;">
+                    <div class="card-title" style="margin-bottom: 10px; color: #3fb950;">➕ Novo Gasto Fixo</div>
+                    <div style="display: flex; gap: 8px;">
+                        <input type="text" id="fixedNameInput" class="form-control" placeholder="Ex: Muay Thai, Netflix, Ração..." style="flex: 2;">
+                        <input type="number" id="fixedAmountInput" class="form-control" placeholder="R$" step="0.01" min="0" style="flex: 1;">
+                        <button class="btn btn-primary" onclick="addFixedExpense()" style="width: auto; padding: 0 1rem;">Add</button>
+                    </div>
+                </div>
+
+                <!-- Lista de Gastos Fixos -->
+                <div class="section-title" style="margin-top: 1rem;">
+                    <span>📋 Suas Assinaturas e Contas</span>
+                </div>
+                <div class="expense-list" id="fixedExpensesList">
+                    <!-- Itens renderizados aqui -->
                 </div>
             </div>
 
@@ -1273,10 +1289,10 @@
         const STORAGE_KEY = 'TOBA_BANK_DB';
 
         let db = {
-            version: 22,
+            version: 23,
             config: {
                 startDate: new Date().toISOString().split('T')[0],
-                fixedTotal: 0
+                fixedExpenses: []
             },
             months: {},
             transactions: [],
@@ -1289,6 +1305,10 @@
         let currentChartPeriod = '3m';
         let chartMode = 'brl';
         let chartVisibleAssets = new Set();
+
+        function getFixedTotal() {
+            return (db.config.fixedExpenses || []).reduce((acc, item) => acc + item.amount, 0);
+        }
 
         function toggleCofrinhosView() {
             cofrinhosVisible = !cofrinhosVisible;
@@ -1467,7 +1487,7 @@
                     backgroundColor: color,
                     borderWidth: 2,
                     tension: 0.3,
-                    pointRadius: 0 // << GRÁFICO CLEAN, SEM BOLINHA
+                    pointRadius: 0
                 });
             });
 
@@ -1528,7 +1548,6 @@
         }
 
         function switchTab(tabName) {
-            // Remove active classes
             document.getElementById('tabBtnCurrent').classList.remove('active');
             document.getElementById('tabBtnInstallments').classList.remove('active');
             document.getElementById('tabBtnFixed').classList.remove('active');
@@ -1538,7 +1557,6 @@
             document.getElementById('tabFixed').classList.remove('active');
             document.getElementById('tabHistory').classList.remove('active');
 
-            // Apply specific active classes based on selection
             if (tabName !== 'history') {
                 if(tabName === 'current') {
                     document.getElementById('tabBtnCurrent').classList.add('active');
@@ -1550,7 +1568,7 @@
                 } else if(tabName === 'fixed') {
                     document.getElementById('tabBtnFixed').classList.add('active');
                     document.getElementById('tabFixed').classList.add('active');
-                    document.getElementById('fixedTotalInput').value = db.config.fixedTotal || '';
+                    renderFixedExpenses();
                 }
             } else {
                 document.getElementById('tabHistory').classList.add('active');
@@ -1558,11 +1576,57 @@
             }
         }
 
-        function saveFixedTotal() {
-            const val = parseFloat(document.getElementById('fixedTotalInput').value) || 0;
-            db.config.fixedTotal = val;
-            saveDatabase();
-            alert('🚀 Gasto fixo mensal salvo com sucesso! O rateio diário já está atualizado no seu painel principal.');
+        // Lógica de Gastos Fixos por Itens
+        function addFixedExpense() {
+            const name = document.getElementById('fixedNameInput').value;
+            const amount = parseFloat(document.getElementById('fixedAmountInput').value) || 0;
+            if (name && amount > 0) {
+                if (!db.config.fixedExpenses) db.config.fixedExpenses = [];
+                db.config.fixedExpenses.push({ id: Date.now().toString(), name, amount });
+                saveDatabase();
+                document.getElementById('fixedNameInput').value = '';
+                document.getElementById('fixedAmountInput').value = '';
+                renderFixedExpenses();
+            }
+        }
+
+        function deleteFixedExpense(id) {
+            if (confirm('Deseja apagar esse gasto fixo?')) {
+                db.config.fixedExpenses = db.config.fixedExpenses.filter(e => e.id !== id);
+                saveDatabase();
+                renderFixedExpenses();
+            }
+        }
+
+        function renderFixedExpenses() {
+            const listContainer = document.getElementById('fixedExpensesList');
+            const totalDisplay = document.getElementById('fixedTotalDisplay');
+            listContainer.innerHTML = '';
+            
+            const expenses = db.config.fixedExpenses || [];
+            const total = getFixedTotal();
+            totalDisplay.innerText = formatCurrency(total);
+
+            if (expenses.length === 0) {
+                listContainer.innerHTML = '<div class="empty-state">Nenhum gasto fixo cadastrado ainda. Manda bala ali em cima!</div>';
+                return;
+            }
+
+            expenses.forEach(item => {
+                const el = document.createElement('div');
+                el.className = 'expense-item';
+                el.innerHTML = `
+                    <div class="expense-details">
+                        <span class="expense-desc">${item.name}</span>
+                        <span class="expense-meta">Gasto Mensal Fixo</span>
+                    </div>
+                    <div class="expense-right">
+                        <span class="expense-amount" style="color: #ff7b72;">- ${formatCurrency(item.amount)}</span>
+                        <button class="action-icon-btn delete" onclick="deleteFixedExpense('${item.id}')" title="Apagar">🗑️</button>
+                    </div>
+                `;
+                listContainer.appendChild(el);
+            });
         }
 
         function isoToBrDate(isoStr) {
@@ -1634,9 +1698,22 @@
                     db = JSON.parse(data);
                     if (!db.transactions) db.transactions = [];
                     if (!db.installments) db.installments = [];
-                    if (!db.config) db.config = { startDate: getTodayIsoDateStr(), fixedTotal: 0 };
+                    if (!db.config) db.config = { startDate: getTodayIsoDateStr(), fixedExpenses: [] };
                     if (!db.months) db.months = {};
                     if (!db.investmentFunds) db.investmentFunds = [];
+
+                    // Migração do total fixo antigo para o novo array se ele existir
+                    if (db.config.fixedTotal && !db.config.fixedExpenses) {
+                        db.config.fixedExpenses = [];
+                        if (db.config.fixedTotal > 0) {
+                            db.config.fixedExpenses.push({
+                                id: Date.now().toString(),
+                                name: 'Gastos Legado (Atualize)',
+                                amount: db.config.fixedTotal
+                            });
+                        }
+                    }
+                    if (!db.config.fixedExpenses) db.config.fixedExpenses = [];
 
                     db.investmentFunds.forEach(f => {
                         if (f.isFinished === undefined) f.isFinished = false;
@@ -1649,7 +1726,7 @@
                         const [d, m, y] = db.config.startDate.split('/');
                         db.config.startDate = `${y}-${m.padStart(2,'0')}-${d.padStart(2,'0')}`;
                     }
-                    db.version = 22;
+                    db.version = 23;
                 } catch (e) {
                     console.error("Erro ao carregar banco de dados", e);
                 }
@@ -1663,6 +1740,7 @@
             renderDashboard();
             if (document.getElementById('tabHistory').classList.contains('active')) renderHistory();
             if (document.getElementById('tabInstallments').classList.contains('active')) renderInstallments();
+            if (document.getElementById('tabFixed').classList.contains('active')) renderFixedExpenses();
             if (document.getElementById('viewInvestments').classList.contains('active')) renderInvestmentsScreen();
         }
 
@@ -1917,8 +1995,7 @@
             const activeInstallmentsMonth = getActiveInstallmentsForMonth(currentMonthKey);
             const monthInstallmentsTotal = activeInstallmentsMonth.reduce((acc, p) => acc + p.amount, 0);
             
-            // Rateio Diário (Patch Notes)
-            const fixedTotal = db.config.fixedTotal || 0;
+            const fixedTotal = getFixedTotal();
             const dailyFixedDeduction = totalDaysInMonth > 0 ? (fixedTotal / totalDaysInMonth) : 0;
             const dailyInstallmentDeduction = totalDaysInMonth > 0 ? (monthInstallmentsTotal / totalDaysInMonth) : 0;
             
@@ -1954,7 +2031,6 @@
             document.getElementById('dashTodayAvailable').innerText = formatCurrency(todayAvailable);
             document.getElementById('dashTodayAvailable').className = `card-value ${todayAvailable < 0 ? 'text-red' : 'text-green'}`;
             
-            // Atualizando Rateio Diário na tela Principal
             document.getElementById('dashFixedDeduction').innerText = `Fixo mensal: -${formatCurrency(dailyFixedDeduction)}/dia`;
             document.getElementById('dashInstDeduction').innerText = `Parcelas: -${formatCurrency(dailyInstallmentDeduction)}/dia`;
 
