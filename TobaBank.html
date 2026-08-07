@@ -58,6 +58,7 @@
         .header-actions {
             display: flex;
             gap: 8px;
+            align-items: center;
         }
         .config-btn, .tools-btn, .add-btn, .back-nav-btn {
             background: #21262d;
@@ -144,8 +145,6 @@
             text-transform: capitalize;
         }
         .history-mini-btn {
-            position: absolute;
-            right: 0;
             background: #161b22;
             border: 1px solid #30363d;
             color: #8b949e;
@@ -589,7 +588,6 @@
             position: relative;
         }
         
-        /* Bolinha Azul do Gráfico */
         .btn-open-chart {
             position: absolute;
             top: 1rem;
@@ -642,7 +640,6 @@
             border: 1px solid #21262d;
         }
 
-        /* Estilos da Nova Tela de Gráfico */
         .period-selector {
             display: flex;
             background: #0d1117;
@@ -720,7 +717,6 @@
             </div>
 
             <div class="tab-content active" id="tabCurrent">
-                <!-- Atalho Histórico Relocado -->
                 <div class="month-header-row">
                     <span class="month-badge" id="dashMonthBadge">Carregando...</span>
                     <button class="history-mini-btn" onclick="switchTab('history')">📜 Histórico</button>
@@ -746,7 +742,6 @@
                         </div>
                     </div>
 
-                    <!-- CARD DISPONÍVEL HOJE COM RATEIO -->
                     <div class="card">
                         <div class="card-title">Disponível Hoje</div>
                         <div class="card-value" id="dashTodayAvailable">R$ 0,00</div>
@@ -801,13 +796,11 @@
                 <div id="finishedInstallmentsContainer"></div>
             </div>
 
-            <!-- NOVA ABA: GASTO FIXO REFORMULADA -->
             <div class="tab-content" id="tabFixed">
                 <div class="section-title">
                     <span>🔁 Gastos Fixos Mensais</span>
                 </div>
 
-                <!-- Resumo -->
                 <div class="metrics-grid" style="margin-bottom: 1.2rem;">
                     <div class="card card-full">
                         <div class="card-title">Total Fixo Mensal</div>
@@ -818,7 +811,6 @@
                     </div>
                 </div>
 
-                <!-- Formulário Adicionar -->
                 <div class="card" style="margin-bottom: 1.2rem; padding: 1rem;">
                     <div class="card-title" style="margin-bottom: 10px; color: #3fb950;">➕ Adicionar gasto fixo</div>
                     <div style="display: flex; flex-direction: column; gap: 8px;">
@@ -861,16 +853,12 @@
                     </div>
                 </div>
 
-                <!-- Lista de Gastos Fixos -->
                 <div class="section-title" style="margin-top: 1rem;">
                     <span>📋 Suas Assinaturas e Contas</span>
                 </div>
-                <div class="expense-list" id="fixedExpensesList">
-                    <!-- Itens renderizados aqui -->
-                </div>
+                <div class="expense-list" id="fixedExpensesList"></div>
             </div>
 
-            <!-- ABA HISTÓRICO ISOLADA -->
             <div class="tab-content" id="tabHistory">
                 <div class="section-title">
                     <span>📂 Histórico de Meses Fechados</span>
@@ -923,13 +911,12 @@
 
         <!-- VIEW 3: TELA CHEIA DE INVESTIMENTOS (📈) -->
         <div class="app-view" id="viewInvestments">
-            <div class="section-title" style="margin-top: 0.5rem;">
+            <div class="section-title" style="margin-top: 0.5rem; display: flex; justify-content: space-between; align-items: center;">
                 <span>Investimentos</span>
+                <button class="history-mini-btn" onclick="openInvestmentsHistoryModal()">📜 Histórico</button>
             </div>
 
-            <!-- Resumo Global de Investimentos -->
             <div class="invest-summary-card">
-                <!-- Bolinha Azul do Gráfico -->
                 <button class="btn-open-chart" onclick="openPatrimonyChart()" title="Abrir Gráfico de Evolução">
                     <span>📈</span>
                 </button>
@@ -959,7 +946,6 @@
                 <button class="btn btn-secondary" onclick="toggleCofrinhosView()" style="flex: 1; border-color: #ff7b72; color: #ff7b72;" id="btnToggleCofrinhos">🐷 Ver Cofrinhos</button>
             </div>
 
-            <!-- SESSÃO DOS COFRINHOS -->
             <div id="cofrinhosWrapper" style="display: none; background: rgba(255, 123, 114, 0.05); padding: 10px; border-radius: 14px; border: 1px solid rgba(255, 123, 114, 0.2); margin-bottom: 1.5rem;">
                 <div style="background: #161b22; border: 1px solid rgba(255, 123, 114, 0.3); border-radius: 10px; padding: 12px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: flex-start;">
                     <div style="flex: 1;">
@@ -1017,31 +1003,43 @@
                 <span>📊 Evolução Patrimonial</span>
             </div>
 
-            <!-- Toggle R$ vs % -->
             <div style="display: flex; gap: 8px; margin-bottom: 12px;">
                 <button class="btn btn-secondary active" id="chartModeBrl" onclick="changeChartMode('brl')" style="flex:1;">R$ Valor Bruto</button>
                 <button class="btn btn-secondary" id="chartModePct" onclick="changeChartMode('pct')" style="flex:1;">% Crescimento</button>
             </div>
 
-            <!-- Seletor de Período -->
             <div class="period-selector">
                 <button class="period-btn active" data-period="3m" onclick="changeChartPeriod('3m')">3 Meses</button>
                 <button class="period-btn" data-period="6m" onclick="changeChartPeriod('6m')">6 Meses</button>
                 <button class="period-btn" data-period="1y" onclick="changeChartPeriod('1y')">1 Ano</button>
             </div>
 
-            <!-- Container do Gráfico -->
             <div class="chart-card">
                 <canvas id="patrimonyChartCanvas"></canvas>
             </div>
 
-            <!-- Lista de Ativos Ativos (Cores no próprio texto + Checkboxes) -->
             <div class="active-assets-list">
                 <h3>Seus Ativos</h3>
                 <ul id="assetColorList"></ul>
             </div>
         </div>
 
+    </div>
+
+    <!-- MODAL DE HISTÓRICO DE RENDIMENTOS DE INVESTIMENTOS -->
+    <div class="modal-overlay" id="investmentsHistoryModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3>📜 Histórico de Rendimentos</h3>
+                <button class="close-btn" onclick="document.getElementById('investmentsHistoryModal').classList.remove('active')">&times;</button>
+            </div>
+            <div id="investmentsHistoryContent" style="display: flex; flex-direction: column; gap: 10px;">
+                <!-- Preenchido via JS -->
+            </div>
+            <div style="margin-top: 1.2rem; text-align: right;">
+                <button class="btn btn-primary" onclick="document.getElementById('investmentsHistoryModal').classList.remove('active')">Fechar</button>
+            </div>
+        </div>
     </div>
 
     <!-- MODAL DE AJUDA DOS COFRINHOS ATUALIZADO -->
@@ -1073,18 +1071,18 @@
             <form id="finishFundForm">
                 <input type="hidden" id="finishFundIdInput">
                 
-            <div class="form-group">
-                <label>Tipo de Resgate</label>
-                <select id="rescueTypeSelect" class="form-control" onchange="toggleRescueType()">
-                    <option value="partial">🪙 Resgate Parcial (Lucro)</option>
-                    <option value="total">💀 Resgate Total (Encerrar Investimento)</option>
-                </select>
-            </div>
+                <div class="form-group">
+                    <label>Tipo de Resgate</label>
+                    <select id="rescueTypeSelect" class="form-control" onchange="toggleRescueType()">
+                        <option value="partial">🪙 Resgate Parcial (Lucro)</option>
+                        <option value="total">💀 Resgate Total (Encerrar Investimento)</option>
+                    </select>
+                </div>
 
-            <div class="form-group">
-                <label>Data do Resgate</label>
-                <input type="date" id="finishDateInput" class="form-control" required>
-            </div>
+                <div class="form-group">
+                    <label>Data do Resgate</label>
+                    <input type="date" id="finishDateInput" class="form-control" required>
+                </div>
 
                 <div id="partialRescueSection">
                     <div style="font-size: 0.8rem; color: #58a6ff; margin-bottom: 0.8rem; background: rgba(88, 166, 255, 0.1); padding: 8px; border-radius: 8px; font-weight: 600;" id="availableProfitAlert">
@@ -1318,7 +1316,7 @@
         const STORAGE_KEY = 'TOBA_BANK_DB';
 
         let db = {
-            version: 25,
+            version: 26,
             config: {
                 startDate: new Date().toISOString().split('T')[0],
                 fixedExpenses: []
@@ -1365,6 +1363,63 @@
 
         function openCofrinhoHelpModal() {
             document.getElementById('cofrinhoHelpModal').classList.add('active');
+        }
+
+        function openInvestmentsHistoryModal() {
+            const content = document.getElementById('investmentsHistoryContent');
+            content.innerHTML = '';
+
+            const funds = db.investmentFunds || [];
+            const monthlyData = {};
+
+            funds.forEach(fund => {
+                if (fund.isCofrinho) {
+                    (fund.withdrawals || []).forEach(w => {
+                        if (!w.date) return;
+                        const mKey = w.date.slice(0, 7);
+                        if (!monthlyData[mKey]) monthlyData[mKey] = { investYield: 0, cofrinhoYield: 0 };
+                        monthlyData[mKey].cofrinhoYield += w.amount;
+                    });
+                } else {
+                    (fund.balanceLogs || []).forEach(log => {
+                        if (!log.date || log.isSystem) return;
+                        const mKey = log.date.slice(0, 7);
+                        const totalDep = (fund.deposits || []).filter(d => d.date <= log.date).reduce((a,b) => a + b.amount, 0);
+                        const profit = log.amount - totalDep;
+                        if (!monthlyData[mKey]) monthlyData[mKey] = { investYield: 0, cofrinhoYield: 0 };
+                        monthlyData[mKey].investYield += profit;
+                    });
+                }
+            });
+
+            const sortedKeys = Object.keys(monthlyData).sort((a,b) => b.localeCompare(a));
+
+            if (sortedKeys.length === 0) {
+                content.innerHTML = '<div class="empty-state">Nenhum rendimento registrado nos meses anteriores ainda.</div>';
+            } else {
+                sortedKeys.forEach(mKey => {
+                    const [y, m] = mKey.split('-');
+                    const mName = formatMonthYearLabel(y, parseInt(m, 10) - 1);
+                    const data = monthlyData[mKey];
+
+                    const el = document.createElement('div');
+                    el.style.cssText = "background: #0d1117; border: 1px solid #21262d; border-radius: 12px; padding: 10px; display: flex; flex-direction: column; gap: 4px;";
+                    el.innerHTML = `
+                        <div style="font-weight: 700; color: #58a6ff; font-size: 0.9rem; margin-bottom: 2px;">📅 ${mName}</div>
+                        <div style="display: flex; justify-content: space-between; font-size: 0.82rem;">
+                            <span style="color: #8b949e;">📈 Investimentos:</span>
+                            <span style="font-weight: 700; color: ${data.investYield >= 0 ? '#3fb950' : '#f85149'};">${data.investYield >= 0 ? '+' : ''}${formatCurrency(data.investYield)}</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; font-size: 0.82rem;">
+                            <span style="color: #8b949e;">🐷 Cofrinhos (Saques):</span>
+                            <span style="font-weight: 700; color: ${data.cofrinhoYield >= 0 ? '#3fb950' : '#f85149'};">${data.cofrinhoYield >= 0 ? '+' : ''}${formatCurrency(data.cofrinhoYield)}</span>
+                        </div>
+                    `;
+                    content.appendChild(el);
+                });
+            }
+
+            document.getElementById('investmentsHistoryModal').classList.add('active');
         }
 
         function switchView(viewName) {
@@ -1788,7 +1843,7 @@
                         const [d, m, y] = db.config.startDate.split('/');
                         db.config.startDate = `${y}-${m.padStart(2,'0')}-${d.padStart(2,'0')}`;
                     }
-                    db.version = 25;
+                    db.version = 26;
                 } catch (e) {
                     console.error("Erro ao carregar banco de dados", e);
                 }
