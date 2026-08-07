@@ -407,6 +407,27 @@
             gap: 6px;
         }
         
+        /* Acordeons fechados por padrão */
+        .installment-body, .history-body, .invest-body {
+            display: none;
+            padding: 0 1rem 1rem 1rem;
+        }
+        .installment-card.expanded .installment-body,
+        .history-card.expanded .history-body,
+        .invest-card.expanded .invest-body {
+            display: block;
+        }
+        .installment-arrow, .history-arrow, .invest-arrow {
+            font-size: 0.75rem;
+            color: #8b949e;
+            transition: transform 0.2s;
+        }
+        .installment-card.expanded .installment-arrow,
+        .history-card.expanded .history-arrow,
+        .invest-card.expanded .invest-arrow {
+            transform: rotate(180deg);
+        }
+
         .history-metrics, .installment-metrics, .invest-metrics {
             display: grid;
             grid-template-columns: 1fr 1fr 1fr;
@@ -730,6 +751,7 @@
                         <div class="sub-text" id="dashInstDeduction" style="color: #f85149; font-weight: 600; margin-top: 4px;">Parcelas: -R$ 0,00/dia</div>
                     </div>
 
+                    <!-- CARD COFRE DO MÊS SIMÉTRICO NA RÉGUA -->
                     <div class="card">
                         <div class="card-title">Cofre do Mês</div>
                         <div class="card-value text-green" id="dashVaultBalance">R$ 0,00</div>
@@ -737,7 +759,7 @@
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 8px;">
                             <span class="sub-text" id="dashVaultSub1" style="font-weight: 600; color: #58a6ff;">Meta diária: R$ 0,00</span>
                         </div>
-                        <div class="sub-text" id="dashVaultSub2" style="color: #8b949e; font-weight: 600; margin-top: 4px;">Até hoje: R$ 0,00 (0 dias)</div>
+                        <div class="sub-text" id="dashVaultSub2" style="color: #8b949e; font-weight: 600; margin-top: 4px;">Até hoje: R$ 0,00</div>
                     </div>
                 </div>
 
@@ -1625,7 +1647,7 @@
             if (!hasFinished) finishedContainer.innerHTML = '<div class="empty-state">Nenhum rolê finalizado.</div>';
         }
 
-function openSplitterDetailModal(groupId) {
+        function openSplitterDetailModal(groupId) {
             const g = db.splitterGroups.find(item => item.id === groupId);
             if (!g) return;
 
@@ -1650,8 +1672,6 @@ function openSplitterDetailModal(groupId) {
             renderSplitterExpensesAndSettlement(g);
 
             const finishBtn = document.getElementById('splitterToggleFinishBtn');
-            
-            // ELEMENTOS QUE SERÃO ESCONDIDOS SE ESTIVER FINALIZADO
             const editingFields = document.querySelectorAll('.splitter-edit-field');
             const expenseBox = document.querySelector('.card-action-box');
 
@@ -1659,16 +1679,12 @@ function openSplitterDetailModal(groupId) {
                 finishBtn.innerText = '🔄 Reabrir Rolê';
                 finishBtn.style.borderColor = '#d29922';
                 finishBtn.style.color = '#d29922';
-
-                // Esconde inputs de edição e adição de gastos
                 editingFields.forEach(el => el.style.display = 'none');
                 if (expenseBox) expenseBox.style.display = 'none';
             } else {
                 finishBtn.innerText = '🏁 Dividir / Finalizar';
                 finishBtn.style.borderColor = '#3fb950';
                 finishBtn.style.color = '#3fb950';
-
-                // Mostra tudo de volta se reabrir
                 editingFields.forEach(el => el.style.display = 'block');
                 if (expenseBox) expenseBox.style.display = 'block';
             }
@@ -1821,7 +1837,6 @@ function openSplitterDetailModal(groupId) {
             settlementBox.innerHTML = htmlTxt;
         }
 
-        // Submissão do formulário de novo grupo do raxador
         document.addEventListener('DOMContentLoaded', () => {
             loadDatabase();
             setupEvents();
@@ -2003,10 +2018,6 @@ function openSplitterDetailModal(groupId) {
             startDateInput.value = db.config.startDate || getTodayIsoDateStr();
             updateMonthlyProjection();
             configModal.classList.add('active');
-        }
-
-        function openToolPlaceholder(toolName) {
-            alert(`🚧 A ferramenta "${toolName}" está em desenvolvimento e estará disponível nos próximos patches!`);
         }
 
         function switchTab(tabName) {
@@ -2510,8 +2521,11 @@ function openSplitterDetailModal(groupId) {
             }
 
             document.getElementById('dashMonthBadge').innerText = monthFormatted;
-            document.getElementById('dashVaultSub1').innerText = `Meta diária: ${formatCurrency(netDailyBudget)}`;
-            document.getElementById('dashVaultSub2').innerText = `Até hoje: ${formatCurrency(totalAccumulatedBudgetToday)} (${daysElapsedUntilToday} dias)`;
+            
+            // CORRIGIDO: Meta diária (só o valor puro) e Até hoje (só o valor acumulado em dinheiro sem os dias)
+            document.getElementById('dashVaultSub1').innerText = `Meta diária: ${formatCurrency(baseDailyBudget)}`;
+            document.getElementById('dashVaultSub2').innerText = `Até hoje: ${formatCurrency(totalAccumulatedBudgetToday)}`;
+
             document.getElementById('dashMonthlySpent').innerText = formatCurrency(totalMonthlySpent);
             document.getElementById('dashMonthlySpent').className = `card-value ${totalMonthlySpent > grossMonthlyBudget && grossMonthlyBudget > 0 ? 'text-red' : 'text-neutral'}`;
             document.getElementById('dashMonthlyMeta').innerText = `de ${formatCurrency(grossMonthlyBudget)} previstos`;
@@ -2530,7 +2544,6 @@ function openSplitterDetailModal(groupId) {
 
             document.getElementById('dashVaultBalance').innerText = formatCurrency(vaultBalance);
             document.getElementById('dashVaultBalance').className = `card-value ${vaultBalance < 0 ? 'text-red' : 'text-green'}`;
-            document.getElementById('dashVaultSub').innerHTML = `Liberado: ${formatCurrency(totalAccumulatedBudgetToday)}`;
 
             const adviceBanner = document.getElementById('adviceBanner');
             const adviceText = document.getElementById('adviceText');
