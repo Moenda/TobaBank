@@ -295,10 +295,19 @@
             white-space: nowrap;
         }
         .expense-amount {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+        }
+        .expense-amount-value {
             font-weight: 700;
             color: #f85149;
             font-size: 0.82rem;
-            white-space: nowrap;
+        }
+        .expense-amount-daily {
+            font-size: 0.68rem;
+            color: #8b949e;
+            margin-top: 2px;
         }
         .action-icon-btn {
             background: none;
@@ -1309,7 +1318,7 @@
         const STORAGE_KEY = 'TOBA_BANK_DB';
 
         let db = {
-            version: 24,
+            version: 25,
             config: {
                 startDate: new Date().toISOString().split('T')[0],
                 fixedExpenses: []
@@ -1326,17 +1335,14 @@
         let chartMode = 'brl';
         let chartVisibleAssets = new Set();
 
-        // NOVA LÓGICA DE SNAPSHOT DOS GASTOS FIXOS
         function getFixedExpensesForMonth(mKey) {
             const currentMonthKey = getCurrentMonthKey();
             if (!db.months[mKey]) db.months[mKey] = {};
             
             if (mKey === currentMonthKey) {
-                // Mês atual salva o retrato continuamente
                 db.months[mKey].fixedExpensesSnapshot = JSON.parse(JSON.stringify(db.config.fixedExpenses || []));
                 return db.config.fixedExpenses || [];
             } else {
-                // Meses antigos usam a foto tirada na época (ou o atual como fallback se for muito antigo)
                 if (db.months[mKey].fixedExpensesSnapshot) {
                     return db.months[mKey].fixedExpensesSnapshot;
                 } else {
@@ -1659,17 +1665,25 @@
                 return;
             }
 
+            const now = new Date();
+            const totalDaysInMonth = getDaysInMonth(now.getFullYear(), now.getMonth());
+
             expenses.forEach(item => {
                 let cleanCat = item.category ? (item.category.includes(' - ') ? item.category.split(' - ')[1] : item.category) : 'Outros';
+                const dailyItemRate = totalDaysInMonth > 0 ? (item.amount / totalDaysInMonth) : 0;
+
                 const el = document.createElement('div');
                 el.className = 'expense-item';
                 el.innerHTML = `
                     <div class="expense-details">
                         <span class="expense-desc">${item.name}</span>
-                        <span class="expense-meta">Fixo • ${cleanCat}</span>
+                        <span class="expense-meta">${cleanCat}</span>
                     </div>
                     <div class="expense-right">
-                        <span class="expense-amount" style="color: #ff7b72;">- ${formatCurrency(item.amount)}</span>
+                        <div class="expense-amount">
+                            <span class="expense-amount-value">- ${formatCurrency(item.amount)}</span>
+                            <span class="expense-amount-daily">-( ${formatCurrency(dailyItemRate)}/dia )</span>
+                        </div>
                         <button class="action-icon-btn delete" onclick="deleteFixedExpense('${item.id}')" title="Apagar">🗑️</button>
                     </div>
                 `;
@@ -1750,7 +1764,6 @@
                     if (!db.months) db.months = {};
                     if (!db.investmentFunds) db.investmentFunds = [];
 
-                    // Migração do total fixo antigo para o novo array se ele existir
                     if (db.config.fixedTotal && !db.config.fixedExpenses) {
                         db.config.fixedExpenses = [];
                         if (db.config.fixedTotal > 0) {
@@ -1775,7 +1788,7 @@
                         const [d, m, y] = db.config.startDate.split('/');
                         db.config.startDate = `${y}-${m.padStart(2,'0')}-${d.padStart(2,'0')}`;
                     }
-                    db.version = 24;
+                    db.version = 25;
                 } catch (e) {
                     console.error("Erro ao carregar banco de dados", e);
                 }
@@ -2158,7 +2171,7 @@
                 itemEl.className = 'expense-item';
                 itemEl.innerHTML = `
                     <div class="expense-details"><span class="expense-desc">${t.description}</span><span class="expense-meta">${cleanCat} • ${isoToBrDate(t.date)}</span></div>
-                    <div class="expense-right"><span class="expense-amount">- ${formatCurrency(t.amount)}</span>
+                    <div class="expense-right"><span class="expense-amount" style="font-weight:700; color:#f85149; font-size:0.82rem;">- ${formatCurrency(t.amount)}</span>
                     <button class="action-icon-btn" onclick="openExpenseModal('${t.id}')" title="Editar">✏️</button>
                     <button class="action-icon-btn delete" onclick="deleteExpense('${t.id}')" title="Apagar">🗑️</button></div>
                 `;
@@ -2175,7 +2188,7 @@
                         <span class="expense-meta">${cleanCat} • (parcelas)</span>
                     </div>
                     <div class="expense-right">
-                        <span class="expense-amount" style="color: #ff7b72;">- ${formatCurrency(p.amount)}</span>
+                        <span class="expense-amount" style="font-weight:700; color:#f85149; font-size:0.82rem;">- ${formatCurrency(p.amount)}</span>
                         <button class="action-icon-btn" onclick="openEditInstallmentModal('${p.installmentGroupId}')" title="Editar Parcelamento">✏️</button>
                     </div>
                 `;
@@ -2508,7 +2521,6 @@
                 const totalWithdrawn = (fund.withdrawals || []).reduce((acc, w) => acc + w.amount, 0);
                 const yieldPct = totalDeposited > 0 ? (totalWithdrawn / totalDeposited) * 100 : 0;
 
-                // Lógica Data e Média (Patch Notes)
                 let startDateStr = 'N/A';
                 let monthsElapsed = 1;
                 if(fund.deposits && fund.deposits.length > 0) {
@@ -2574,7 +2586,6 @@
                             <span style="font-size: 1rem; font-weight: 700; color: #58a6ff;">${formatCurrency(totalDeposited)}</span>
                         </div>
 
-                        <!-- 4 Colunas para os Cofrinhos (Add Data e Média) -->
                         <div class="invest-metrics" style="grid-template-columns: 1fr 1fr 1fr 1fr; text-align: center; gap: 4px; padding: 0.6rem 0.2rem;">
                             <div class="invest-metric-box" style="align-items: center;">
                                 <span class="invest-metric-label" style="font-size: 0.6rem;">Início</span>
@@ -2598,7 +2609,6 @@
                 `;
             }
 
-            // Standard Investment Long Term
             const totalDeposited = (fund.deposits || []).reduce((acc, d) => acc + d.amount, 0);
             let latestBalance = totalDeposited;
             if (fund.balanceLogs && fund.balanceLogs.length > 0) {
