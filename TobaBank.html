@@ -758,7 +758,7 @@
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 8px;">
                             <span class="sub-text" id="dashVaultSub1" style="font-weight: 600; color: #58a6ff;">Meta diária: R$ 0,00</span>
                         </div>
-                        <div class="sub-text" id="dashVaultSub2" style="color: #8b949e; font-weight: 600; margin-top: 4px;">Até hoje: R$ 0,00</div>
+                        <div class="sub-text" id="dashVaultSub2" style="color: #8b949e; font-weight: 600; margin-top: 4px;">Acumulado: R$ 0,00</div>
                     </div>
                 </div>
 
@@ -829,6 +829,7 @@
                                     <option value="Casa - Internet/TV">🌐 Internet / TV</option>
                                     <option value="Casa - Manutenção/Reparos">🛠️ Manutenção / Reparos</option>
                                     <option value="Casa - Decoração/Eletro">🛋️ Decoração / Eletro</option>
+                                    <option value="Casa - Utilidades/Utensílios">🍳 Utilidades / Utensílios</option>
                                     <option value="Mercado">🛒 Mercado / Feira</option>
                                 </optgroup>
                                 <optgroup label="🍔 Alimentação & Lazer">
@@ -841,12 +842,19 @@
                                 <optgroup label="🚗 Transporte">
                                     <option value="Transporte - Combustível">⛽ Combustível</option>
                                     <option value="Transporte - Uber/App">🚕 Uber / Táxi</option>
+                                    <option value="Transporte - Estacionamento">🅿️ Estacionamento / Zona Azul</option>
                                     <option value="Transporte - Manutenção">🔧 Manutenção / Revisão</option>
                                     <option value="Transporte - IPVA/Seguro/Pedágio">📄 IPVA / Seguro / Pedágio</option>
                                 </optgroup>
-                                <optgroup label="🩺 Saúde, Pets & Outros">
+                                <optgroup label="🩺 Saúde, Pets & Cuidados">
                                     <option value="Saúde & Bem-Estar">💊 Saúde & Farmácia</option>
                                     <option value="Pet">🐱 Pets (Ração, Vet, Mimos)</option>
+                                    <option value="Cuidados Pessoais">🧴 Cuidados Pessoais / Higiene & Beleza</option>
+                                </optgroup>
+                                <optgroup label="👕 Vestuário & Acessórios">
+                                    <option value="Vestuário">👕 Roupas, Calçados & Acessórios</option>
+                                </optgroup>
+                                <optgroup label="📈 Investimentos & Pessoal">
                                     <option value="Investimentos & Pessoal">📈 Investimentos & Cursos</option>
                                     <option value="Outros">📦 Outros</option>
                                 </optgroup>
@@ -1204,7 +1212,7 @@
             <div style="font-size: 0.85rem; color: #c9d1d9; line-height: 1.6;">
                 <p style="margin-bottom: 8px;">Os <b>Cofrinhos (Giro Rápido)</b> são a maquininha de fazer dinheiro da sua carteira! Sabe aquela grana que fica lá "trancafiada" rendendo o suco do CDI na caixinha e você só vai sugando o lucro? É exatamente pra isso aqui, pai! 🧃💸</p>
                 
-                <p style="margin-bottom: 8px;">🎯 <b>Como rola a dinâmica:</b> Você larga o <b>Saldo Base Fixo</b> lá quieto (ele é o motorzão do Opala gerando cavalaria). Depois, você só tem o trampo de registrar os <b>Saques</b> (que é o lucro líquido caindo direto no seu bolso pra pagar a gelada 🍻).</p>
+                <p style="margin-bottom: 8px;">🎯 <b>Como rola a dinâmica:</b> Você larga o <b>Saldo Base Fixo</b> lá quieto (ele é o motorzão do Opala gerando cavalaria). Depois, você só vai ter o trampo de registrar os <b>Saques</b> (que é o lucro líquido caindo direto no seu bolso pra pagar a gelada 🍻).</p>
                 
                 <p style="margin-bottom: 12px;">📈 <b>Performance Monstra:</b> O TobaBank cruza os seus saques com o tempo de forno e a grana base, te entregando a <b>% real de crescimento</b> e a sua <b>Média Mensal</b> mastigadinha. Zero achismo, só gain!</p>
                 
@@ -1392,6 +1400,7 @@
                             <option value="Casa - Internet/TV">🌐 Internet / TV</option>
                             <option value="Casa - Manutenção/Reparos">🛠️ Manutenção / Reparos</option>
                             <option value="Casa - Decoração/Eletro">🛋️ Decoração / Eletro</option>
+                            <option value="Casa - Utilidades/Utensílios">🍳 Utilidades / Utensílios</option>
                             <option value="Mercado">🛒 Mercado / Feira</option>
                         </optgroup>
                         <optgroup label="🍔 Alimentação & Lazer">
@@ -1404,12 +1413,19 @@
                         <optgroup label="🚗 Transporte">
                             <option value="Transporte - Combustível">⛽ Combustível</option>
                             <option value="Transporte - Uber/App">🚕 Uber / Táxi</option>
+                            <option value="Transporte - Estacionamento">🅿️ Estacionamento / Zona Azul</option>
                             <option value="Transporte - Manutenção">🔧 Manutenção / Revisão</option>
                             <option value="Transporte - IPVA/Seguro/Pedágio">📄 IPVA / Seguro / Pedágio</option>
                         </optgroup>
-                        <optgroup label="🩺 Saúde, Pets & Outros">
+                        <optgroup label="🩺 Saúde, Pets & Cuidados">
                             <option value="Saúde & Bem-Estar">💊 Saúde & Farmácia</option>
                             <option value="Pet">🐱 Pets (Ração, Vet, Mimos)</option>
+                            <option value="Cuidados Pessoais">🧴 Cuidados Pessoais / Higiene & Beleza</option>
+                        </optgroup>
+                        <optgroup label="👕 Vestuário & Acessórios">
+                            <option value="Vestuário">👕 Roupas, Calçados & Acessórios</option>
+                        </optgroup>
+                        <optgroup label="📈 Investimentos & Pessoal">
                             <option value="Investimentos & Pessoal">📈 Investimentos & Cursos</option>
                             <option value="Outros">📦 Outros</option>
                         </optgroup>
@@ -1473,7 +1489,7 @@
         const STORAGE_KEY = 'TOBA_BANK_DB';
 
         let db = {
-            version: 27,
+            version: 28,
             config: {
                 startDate: new Date().toISOString().split('T')[0],
                 fixedExpenses: []
@@ -1556,7 +1572,6 @@
                     });
                     
                 } else {
-                    // MÁGICA PRO-RATA: Coleta de Pontos no Tempo
                     let points = [];
                     
                     if (fund.deposits && fund.deposits.length > 0) {
@@ -1568,12 +1583,11 @@
                         if (log.date) points.push({ date: log.date, amount: log.amount, type: 'log' });
                     });
 
-                    // Ordena cronologicamente
                     points.sort((a, b) => {
                         const diff = new Date(a.date) - new Date(b.date);
                         if (diff === 0) {
                             if (a.type === 'start') return -1;
-                            if (b.type === 'start') return 1;
+                            if (a.type === 'start') return 1;
                             return 0;
                         }
                         return diff;
@@ -1596,7 +1610,7 @@
                             const startD = parseIso(lastDateIso);
                             const endD = parseIso(pt.date);
                             
-                            if (endD > startD) { // Se os dias passaram, processa o Pro-Rata
+                            if (endD > startD) {
                                 const totalDays = Math.round((endD - startD) / (1000 * 60 * 60 * 24));
                                 
                                 const depsInBetween = (fund.deposits || []).filter(d => d.date > lastDateIso && d.date <= pt.date).reduce((a,b) => a+b.amount, 0);
@@ -1606,7 +1620,6 @@
                                 const yieldAmount = pt.amount - expectedBalance;
                                 const totalDepAtEnd = (fund.deposits || []).filter(d => d.date <= pt.date).reduce((a,b) => a+b.amount, 0);
 
-                                // Distribui pelos meses
                                 let tempDate = parseIso(lastDateIso);
                                 while (tempDate < endD) {
                                     const year = tempDate.getFullYear();
@@ -1635,7 +1648,6 @@
                 }
             });
 
-            // Processa as bases dos investimentos normais para não duplicar somas
             Object.keys(monthlyData).forEach(mKey => {
                 let totalInvestBase = 0;
                 if (monthlyData[mKey].fundBases) {
@@ -1750,13 +1762,17 @@
             groups.forEach(g => {
                 const totalSpent = (g.expenses || []).reduce((acc, e) => acc + e.amount, 0);
                 const membersCount = (g.members || []).length;
+                
+                // EXTRAI SÓ O EMOJI DA CATEGORIA PARA EVITAR REDUNDÂNCIA (EX: "🥩 Churrasco" vira "🥩")
+                const catEmoji = g.category ? g.category.trim().split(' ')[0] : '🍕';
+
                 const card = document.createElement('div');
                 card.className = 'splitter-card';
                 card.onclick = () => openSplitterDetailModal(g.id);
                 card.innerHTML = `
                     <div class="splitter-header">
                         <div class="splitter-header-top">
-                            <span class="splitter-title">${g.category || '🍕'} ${g.name}</span>
+                            <span class="splitter-title">${catEmoji} ${g.name}</span>
                             <span style="font-size: 0.75rem; color: #8b949e;">${isoToBrDate(g.date)}</span>
                         </div>
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 6px; font-size: 0.85rem;">
@@ -2346,7 +2362,7 @@
                         const [d, m, y] = db.config.startDate.split('/');
                         db.config.startDate = `${y}-${m.padStart(2,'0')}-${d.padStart(2,'0')}`;
                     }
-                    db.version = 27;
+                    db.version = 28;
                 } catch (e) {
                     console.error("Erro ao carregar banco de dados", e);
                 }
@@ -2644,7 +2660,8 @@
             }
             if (daysElapsedUntilToday < 1) daysElapsedUntilToday = 1;
 
-            const totalAccumulatedBudgetToday = netDailyBudget * daysElapsedUntilToday;
+            // VALOR BRUTO DA META ACUMULADA (sem descontar parcelas e fixos)
+            const totalAccumulatedBudgetToday = baseDailyBudget * daysElapsedUntilToday;
             const vaultBalance = totalAccumulatedBudgetToday - monthlySpentVista;
 
             let todayAvailable = netDailyBudget - todaySpent;
@@ -2654,9 +2671,8 @@
 
             document.getElementById('dashMonthBadge').innerText = monthFormatted;
             
-            // CORRIGIDO: Meta diária (só o valor puro) e Até hoje (só o valor acumulado em dinheiro sem os dias)
             document.getElementById('dashVaultSub1').innerText = `Meta diária: ${formatCurrency(baseDailyBudget)}`;
-            document.getElementById('dashVaultSub2').innerText = `Até hoje: ${formatCurrency(totalAccumulatedBudgetToday)}`;
+            document.getElementById('dashVaultSub2').innerText = `Acumulado: ${formatCurrency(totalAccumulatedBudgetToday)}`;
 
             document.getElementById('dashMonthlySpent').innerText = formatCurrency(totalMonthlySpent);
             document.getElementById('dashMonthlySpent').className = `card-value ${totalMonthlySpent > grossMonthlyBudget && grossMonthlyBudget > 0 ? 'text-red' : 'text-neutral'}`;
