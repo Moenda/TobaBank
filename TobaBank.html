@@ -1499,15 +1499,27 @@
             const monthlyData = {};
 
             funds.forEach(fund => {
+                const fundMonthly = {}; // Agrupa por fundo primeiro
+
                 if (fund.isCofrinho) {
                     (fund.withdrawals || []).forEach(w => {
                         if (!w.date) return;
                         const mKey = w.date.slice(0, 7);
-                        if (!monthlyData[mKey]) monthlyData[mKey] = { investYield: 0, cofrinhoYield: 0 };
-                        monthlyData[mKey].cofrinhoYield += w.amount;
+                        if (!fundMonthly[mKey]) fundMonthly[mKey] = { yield: 0, base: 0 };
+                        
+                        fundMonthly[mKey].yield += w.amount;
+                        // Pega o total aportado até a data desse saque pra ser a base da %
+                        const depAtTime = (fund.deposits || []).filter(d => d.date <= w.date).reduce((a,b) => a + b.amount, 0);
+                        fundMonthly[mKey].base = Math.max(fundMonthly[mKey].base, depAtTime);
                     });
+                    
+                    Object.keys(fundMonthly).forEach(mKey => {
+                        if (!monthlyData[mKey]) monthlyData[mKey] = { investYield: 0, investBase: 0, cofrinhoYield: 0, cofrinhoBase: 0 };
+                        monthlyData[mKey].cofrinhoYield += fundMonthly[mKey].yield;
+                        monthlyData[mKey].cofrinhoBase += fundMonthly[mKey].base;
+                    });
+                    
                 } else if (fund.isFinished) {
-                    // Para investimentos finalizados, pega o lucro líquido real baseado na data de fechamento
                     const totalDep = (fund.deposits || []).reduce((a, b) => a + b.amount, 0);
                     const totalWithdrawn = (fund.withdrawals || []).reduce((a, w) => a + w.amount, 0);
                     const finalGross = fund.closeAmount !== undefined ? fund.closeAmount : totalDep;
@@ -1517,18 +1529,28 @@
                     const closeDate = fund.closeDate || (fund.balanceLogs && fund.balanceLogs.length > 0 ? [...fund.balanceLogs].sort((x,y) => new Date(y.date) - new Date(x.date))[0].date : null);
                     if (closeDate) {
                         const mKey = closeDate.slice(0, 7);
-                        if (!monthlyData[mKey]) monthlyData[mKey] = { investYield: 0, cofrinhoYield: 0 };
+                        if (!monthlyData[mKey]) monthlyData[mKey] = { investYield: 0, investBase: 0, cofrinhoYield: 0, cofrinhoBase: 0 };
                         monthlyData[mKey].investYield += netProfit;
+                        monthlyData[mKey].investBase += totalDep;
                     }
                 } else {
-                    // Investimentos ativos do longo prazo
                     (fund.balanceLogs || []).forEach(log => {
                         if (!log.date || log.isSystem) return;
                         const mKey = log.date.slice(0, 7);
+                        if (!fundMonthly[mKey]) fundMonthly[mKey] = { yield: 0, base: 0 };
+                        
                         const totalDep = (fund.deposits || []).filter(d => d.date <= log.date).reduce((a,b) => a + b.amount, 0);
                         const profit = log.amount - totalDep;
-                        if (!monthlyData[mKey]) monthlyData[mKey] = { investYield: 0, cofrinhoYield: 0 };
-                        monthlyData[mKey].investYield += profit;
+                        
+                        // Pega sempre a última atualização de saldo do mês pra cravar o rendimento
+                        fundMonthly[mKey].yield = profit;
+                        fundMonthly[mKey].base = totalDep;
+                    });
+                    
+                    Object.keys(fundMonthly).forEach(mKey => {
+                        if (!monthlyData[mKey]) monthlyData[mKey] = { investYield: 0, investBase: 0, cofrinhoYield: 0, cofrinhoBase: 0 };
+                        monthlyData[mKey].investYield += fundMonthly[mKey].yield;
+                        monthlyData[mKey].investBase += fundMonthly[mKey].base;
                     });
                 }
             });
@@ -1543,17 +1565,24 @@
                     const mName = formatMonthYearLabel(y, parseInt(m, 10) - 1);
                     const data = monthlyData[mKey];
 
+                    // Matemágica das Porcentagens!
+                    const invPct = data.investBase > 0 ? (data.investYield / data.investBase) * 100 : 0;
+                    const cofPct = data.cofrinhoBase > 0 ? (data.cofrinhoYield / data.cofrinhoBase) * 100 : 0;
+                    
+                    const invPctStr = data.investBase > 0 ? ` <span style="font-size: 0.75rem; opacity: 0.85;">(${data.investYield >= 0 ? '+' : ''}${invPct.toFixed(2).replace('.', ',')}%)</span>` : '';
+                    const cofPctStr = data.cofrinhoBase > 0 ? ` <span style="font-size: 0.75rem; opacity: 0.85;">(${data.cofrinhoYield >= 0 ? '+' : ''}${cofPct.toFixed(2).replace('.', ',')}%)</span>` : '';
+
                     const el = document.createElement('div');
                     el.style.cssText = "background: #0d1117; border: 1px solid #21262d; border-radius: 12px; padding: 10px; display: flex; flex-direction: column; gap: 4px;";
                     el.innerHTML = `
                         <div style="font-weight: 700; color: #58a6ff; font-size: 0.9rem; margin-bottom: 2px;">📅 ${mName}</div>
-                        <div style="display: flex; justify-content: space-between; font-size: 0.82rem;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.82rem;">
                             <span style="color: #8b949e;">📈 Investimentos:</span>
-                            <span style="font-weight: 700; color: ${data.investYield >= 0 ? '#3fb950' : '#f85149'};">${data.investYield >= 0 ? '+' : ''}${formatCurrency(data.investYield)}</span>
+                            <span style="font-weight: 700; color: ${data.investYield >= 0 ? '#3fb950' : '#f85149'};">${data.investYield >= 0 ? '+' : ''}${formatCurrency(data.investYield)}${invPctStr}</span>
                         </div>
-                        <div style="display: flex; justify-content: space-between; font-size: 0.82rem;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.82rem;">
                             <span style="color: #8b949e;">🐷 Cofrinhos (Saques):</span>
-                            <span style="font-weight: 700; color: ${data.cofrinhoYield >= 0 ? '#3fb950' : '#f85149'};">${data.cofrinhoYield >= 0 ? '+' : ''}${formatCurrency(data.cofrinhoYield)}</span>
+                            <span style="font-weight: 700; color: ${data.cofrinhoYield >= 0 ? '#3fb950' : '#f85149'};">${data.cofrinhoYield >= 0 ? '+' : ''}${formatCurrency(data.cofrinhoYield)}${cofPctStr}</span>
                         </div>
                     `;
                     content.appendChild(el);
