@@ -82,6 +82,7 @@
         .add-btn:hover { background: #2ea043; }
         .config-btn:hover, .tools-btn:hover, .back-nav-btn:hover { background: #30363d; }
 
+        /* Navigation Tabs */
         .tab-nav {
             display: flex;
             background: #0d1117;
@@ -110,6 +111,7 @@
             box-shadow: 0 2px 8px rgba(0,0,0,0.3);
         }
 
+        /* Views Display */
         .app-view {
             display: none;
         }
@@ -117,6 +119,7 @@
             display: block;
         }
 
+        /* Tab Content Display */
         .tab-content {
             display: none;
         }
@@ -124,6 +127,7 @@
             display: block;
         }
 
+        /* Badge Mês & Histórico Button */
         .month-header-row {
             display: flex;
             justify-content: space-between;
@@ -372,7 +376,7 @@
         }
 
         /* History, Installments & Investment Accordion Cards */
-        .history-card, .installment-card, .invest-card {
+        .history-card, .installment-card, .invest-card, .splitter-card {
             background: #0d1117;
             border: 1px solid #21262d;
             border-radius: 14px;
@@ -380,37 +384,27 @@
             overflow: hidden;
             transition: border-color 0.2s ease;
         }
-        .history-card:hover, .installment-card:hover, .invest-card:hover {
+        .history-card:hover, .installment-card:hover, .invest-card:hover, .splitter-card:hover {
             border-color: #30363d;
         }
-        .history-header, .installment-header, .invest-header {
+        .history-header, .installment-header, .invest-header, .splitter-header {
             padding: 1.0rem;
             cursor: pointer;
             user-select: none;
         }
-        .history-header-top, .installment-header-top, .invest-header-top {
+        .history-header-top, .installment-header-top, .invest-header-top, .splitter-header-top {
             display: flex;
             justify-content: space-between;
             align-items: center;
             margin-bottom: 0.5rem;
         }
-        .history-title, .installment-title, .invest-title {
+        .history-title, .installment-title, .invest-title, .splitter-title {
             font-size: 1rem;
             font-weight: 700;
             color: #58a6ff;
             display: flex;
             align-items: center;
             gap: 6px;
-        }
-        .history-arrow, .installment-arrow, .invest-arrow {
-            font-size: 0.8rem;
-            color: #8b949e;
-            transition: transform 0.25s ease;
-        }
-        .history-card.expanded .history-arrow, 
-        .installment-card.expanded .installment-arrow,
-        .invest-card.expanded .invest-arrow {
-            transform: rotate(180deg);
         }
         
         .history-metrics, .installment-metrics, .invest-metrics {
@@ -437,18 +431,6 @@
             font-size: 0.85rem;
             font-weight: 700;
             margin-top: 2px;
-        }
-
-        .history-body, .installment-body, .invest-body {
-            display: none;
-            padding: 1rem;
-            border-top: 1px solid #21262d;
-            background: #12161f;
-        }
-        .history-card.expanded .history-body, 
-        .installment-card.expanded .installment-body,
-        .invest-card.expanded .invest-body {
-            display: block;
         }
 
         /* Forms inside cards */
@@ -715,7 +697,7 @@
             <div class="tab-content active" id="tabCurrent">
                 <div class="month-header-row">
                     <span class="month-badge" id="dashMonthBadge">Carregando...</span>
-                    <button class="history-mini-btn" onclick="switchTab('history')">⏳ Histórico</button>
+                    <button class="history-mini-btn" onclick="switchTab('history')">📜 Histórico</button>
                 </div>
 
                 <div class="advice-banner" id="adviceBanner">
@@ -751,7 +733,11 @@
                     <div class="card">
                         <div class="card-title">Cofre do Mês</div>
                         <div class="card-value text-green" id="dashVaultBalance">R$ 0,00</div>
-                        <div class="sub-text" id="dashVaultSub" style="margin-top: 4px;">Liberado até hoje</div>
+                        
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 8px;">
+                            <span class="sub-text" id="dashVaultSub1" style="font-weight: 600; color: #58a6ff;">Meta diária: R$ 0,00</span>
+                        </div>
+                        <div class="sub-text" id="dashVaultSub2" style="color: #8b949e; font-weight: 600; margin-top: 4px;">Até hoje: R$ 0,00 (0 dias)</div>
                     </div>
                 </div>
 
@@ -794,7 +780,7 @@
 
             <div class="tab-content" id="tabFixed">
                 <div class="section-title">
-                    <span>🔁 Gastos Fixos Mensais</span>
+                    <span>🔄 Gastos Fixos Mensais</span>
                 </div>
 
                 <div class="metrics-grid" style="margin-bottom: 1.2rem;">
@@ -874,7 +860,7 @@
                     <div class="tool-card-info">
                         <div class="tool-icon">📊</div>
                         <div>
-                            <div class="tool-title">G R A F I C O S GERAIS !! 🔥</div>
+                            <div class="tool-title">G R A F I C O S ! ! 🔥</div>
                             <div class="tool-desc">Gráficos de barra, pizza e rosquinha</div>
                         </div>
                     </div>
@@ -886,26 +872,26 @@
                         <div class="tool-icon">📈</div>
                         <div>
                             <div class="tool-title">Investimentos & Rendimentos</div>
-                            <div class="tool-desc">Gerencie por cards (CDB, FIIs) com lucro % e aportes</div>
+                            <div class="tool-desc">Gerencie por cards (CDB, FIIs) com lucro %, aportes e histórico mensal</div>
                         </div>
                     </div>
                     <span class="tool-status" style="background: rgba(63, 185, 80, 0.15); color: #3fb950;">✨ Ativo</span>
                 </div>
 
-                <div class="tool-card" onclick="openToolPlaceholder('Raxador de Gastos')">
+                <div class="tool-card" onclick="switchView('splitter')">
                     <div class="tool-card-info">
                         <div class="tool-icon">🍕</div>
                         <div>
                             <div class="tool-title">Raxador de Gastos</div>
-                            <div class="tool-desc">Divisão rápida de rolês e contas</div>
+                            <div class="tool-desc">Divisão inteligente de rolês, viagens e contas</div>
                         </div>
                     </div>
-                    <span class="tool-status">🚧 Em Breve</span>
+                    <span class="tool-status" style="background: rgba(63, 185, 80, 0.15); color: #3fb950;">✨ Ativo</span>
                 </div>
             </div>
         </div>
 
-        <!-- VIEW 3: TELA CHEIA DE INVESTIMENTOS (📈) -->
+        <!-- VIEW 3: TELA DE INVESTIMENTOS (📈) -->
         <div class="app-view" id="viewInvestments">
             <div class="section-title" style="margin-top: 0.5rem; display: flex; justify-content: space-between; align-items: center;">
                 <span>Investimentos</span>
@@ -993,6 +979,26 @@
             <div id="finishedInvestmentsContainer"></div>
         </div>
 
+        <!-- VIEW 5: TELA DE RAXADOR DE GASTOS (🍕) -->
+        <div class="app-view" id="viewSplitter">
+            <div class="section-title" style="margin-top: 0.5rem; display: flex; justify-content: space-between; align-items: center;">
+                <span>🍕 Raxador de Rolês</span>
+                <button class="btn btn-primary" onclick="openNewSplitterGroupModal()" style="width: auto; padding: 0.4rem 0.8rem; font-size: 0.8rem;">+ Novo Grupo</button>
+            </div>
+
+            <!-- SEÇÃO 1: EM ANDAMENTO -->
+            <div style="font-size: 0.85rem; font-weight: 700; color: #d29922; margin: 1rem 0 0.5rem 0; display: flex; align-items: center; gap: 6px;">
+                <span>🏃 Em Andamento</span>
+            </div>
+            <div id="splitterActiveContainer"></div>
+
+            <!-- SEÇÃO 2: FINALIZADOS -->
+            <div style="font-size: 0.85rem; font-weight: 700; color: #3fb950; margin: 1.5rem 0 0.5rem 0; display: flex; align-items: center; gap: 6px;">
+                <span>🏁 Finalizados</span>
+            </div>
+            <div id="splitterFinishedContainer"></div>
+        </div>
+
         <!-- VIEW 4: TELA DEDICADA DE GRÁFICO DE EVOLUÇÃO PATRIMONIAL 📈 -->
         <div class="app-view" id="viewPatrimonyChart">
             <div class="section-title" style="margin-top: 0.5rem;">
@@ -1022,6 +1028,109 @@
 
     </div>
 
+    <!-- MODAL DO GRUPO DO RAXADOR (POPUP COMPLETO) -->
+    <div class="modal-overlay" id="splitterDetailModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 id="splitterModalTitle">🍕 Gerenciar Rolê</h3>
+                <button class="close-btn" onclick="document.getElementById('splitterDetailModal').classList.remove('active')">&times;</button>
+            </div>
+            <input type="hidden" id="splitterGroupIdInput">
+            
+            <div class="form-group splitter-edit-field">
+                <label>Nome do Grupo / Rolê</label>
+                <input type="text" id="editSplitterName" class="form-control" onchange="updateSplitterGroupMeta()">
+            </div>
+            <div class="form-group splitter-edit-field">
+                <label>Categoria</label>
+                <select id="editSplitterCategory" class="form-control" onchange="updateSplitterGroupMeta()">
+                    <option value="✈️ Viagem">✈️ Viagem</option>
+                    <option value="🥩 Churrasco">🥩 Churrasco</option>
+                    <option value="🎉 Festinha / Rolê">🎉 Festinha / Rolê</option>
+                    <option value="🛒 Compras / Outros">🛒 Compras / Outros</option>
+                </select>
+            </div>
+            <div class="form-group splitter-edit-field">
+                <label>Data</label>
+                <input type="date" id="editSplitterDate" class="form-control" onchange="updateSplitterGroupMeta()">
+            </div>
+
+            <hr style="border: 0; border-top: 1px solid #30363d; margin: 1rem 0;" class="splitter-edit-field">
+
+            <div class="form-group splitter-edit-field">
+                <label>👥 Participantes (separados por vírgula)</label>
+                <div style="display: flex; gap: 6px;">
+                    <input type="text" id="splitterMembersInput" class="form-control" placeholder="Ex: Toba, Gon, Killua, Naruto">
+                    <button class="btn btn-secondary" onclick="saveSplitterMembers()" style="width: auto;">Atualizar</button>
+                </div>
+            </div>
+
+            <div class="card-action-box" style="margin-top: 1rem;">
+                <div class="card-action-title">💸 Adicionar Gasto no Rolê</div>
+                <div class="form-group">
+                    <label>Descrição do Gasto</label>
+                    <input type="text" id="splitterExpenseDesc" class="form-control" placeholder="Ex: Cerveja, Uber, Mercado">
+                </div>
+                <div style="display: flex; gap: 8px;">
+                    <div class="form-group" style="flex: 1;">
+                        <label>Valor (R$)</label>
+                        <input type="number" id="splitterExpenseAmount" class="form-control" step="0.01" placeholder="0.00">
+                    </div>
+                    <div class="form-group" style="flex: 1;">
+                        <label>Quem Pagou?</label>
+                        <select id="splitterExpensePayer" class="form-control"></select>
+                    </div>
+                </div>
+                <button class="btn btn-primary" onclick="addSplitterExpense()">Adicionar Gasto</button>
+            </div>
+
+            <div class="section-title" style="font-size: 0.8rem; color: #58a6ff;">⚖️ Quem deve para quem (Acerto)</div>
+            <div id="splitterSettlementBox" style="background: #0d1117; padding: 10px; border-radius: 8px; border: 1px solid #21262d; font-size: 0.8rem; margin-bottom: 1rem; line-height: 1.5;"></div>
+
+            <div class="section-title" style="font-size: 0.8rem;">📜 Histórico de Gastos</div>
+            <div id="splitterExpensesList" class="log-list" style="max-height: 150px; overflow-y: auto; margin-bottom: 1rem;"></div>
+
+            <div style="display: flex; gap: 8px;">
+                <button class="btn btn-secondary" id="splitterToggleFinishBtn" onclick="toggleSplitterFinished()" style="flex: 1; border-color: #3fb950; color: #3fb950;">🏁 Dividir / Finalizar</button>
+                <button class="btn btn-danger" onclick="deleteSplitterGroup()" style="width: auto;">Excluir</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL CRIAR NOVO GRUPO DO RAXADOR -->
+    <div class="modal-overlay" id="newSplitterModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3>🍕 Novo Raxador de Gastos</h3>
+                <button class="close-btn" onclick="document.getElementById('newSplitterModal').classList.remove('active')">&times;</button>
+            </div>
+            <form id="newSplitterForm">
+                <div class="form-group">
+                    <label>Nome do Grupo / Rolê</label>
+                    <input type="text" id="newSplitterName" class="form-control" placeholder="Ex: Churrasco dos Cria, Viagem Praia" required>
+                </div>
+                <div class="form-group">
+                    <label>Categoria</label>
+                    <select id="newSplitterCategory" class="form-control">
+                        <option value="✈️ Viagem">✈️ Viagem</option>
+                        <option value="🥩 Churrasco">🥩 Churrasco</option>
+                        <option value="🎉 Festinha / Rolê">🎉 Festinha / Rolê</option>
+                        <option value="🛒 Compras / Outros">🛒 Compras / Outros</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Data</label>
+                    <input type="date" id="newSplitterDate" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label>Participantes (separados por vírgula)</label>
+                    <input type="text" id="newSplitterMembers" class="form-control" placeholder="Ex: Toba, Gon, Killua, Naruto" required>
+                </div>
+                <button type="submit" class="btn btn-primary">Criar Grupo</button>
+            </form>
+        </div>
+    </div>
+
     <!-- MODAL DE HISTÓRICO DE RENDIMENTOS DE INVESTIMENTOS -->
     <div class="modal-overlay" id="investmentsHistoryModal">
         <div class="modal">
@@ -1029,9 +1138,7 @@
                 <h3>📜 Histórico de Rendimentos</h3>
                 <button class="close-btn" onclick="document.getElementById('investmentsHistoryModal').classList.remove('active')">&times;</button>
             </div>
-            <div id="investmentsHistoryContent" style="display: flex; flex-direction: column; gap: 10px;">
-                <!-- Preenchido via JS -->
-            </div>
+            <div id="investmentsHistoryContent" style="display: flex; flex-direction: column; gap: 10px;"></div>
             <div style="margin-top: 1.2rem; text-align: right;">
                 <button class="btn btn-primary" onclick="document.getElementById('investmentsHistoryModal').classList.remove('active')">Fechar</button>
             </div>
@@ -1312,7 +1419,7 @@
         const STORAGE_KEY = 'TOBA_BANK_DB';
 
         let db = {
-            version: 26,
+            version: 27,
             config: {
                 startDate: new Date().toISOString().split('T')[0],
                 fixedExpenses: []
@@ -1320,7 +1427,8 @@
             months: {},
             transactions: [],
             installments: [],
-            investmentFunds: []
+            investmentFunds: [],
+            splitterGroups: []
         };
 
         let cofrinhosVisible = false;
@@ -1423,6 +1531,7 @@
             document.getElementById('viewTools').classList.toggle('active', viewName === 'tools');
             document.getElementById('viewInvestments').classList.toggle('active', viewName === 'investments');
             document.getElementById('viewPatrimonyChart').classList.toggle('active', viewName === 'chart');
+            document.getElementById('viewSplitter').classList.toggle('active', viewName === 'splitter');
 
             const actionsContainer = document.getElementById('headerActionsContainer');
             actionsContainer.innerHTML = '';
@@ -1441,7 +1550,7 @@
                     <button class="config-btn" id="openConfigBtn" title="Configurações">⚙️</button>
                 `;
                 document.getElementById('openConfigBtn').addEventListener('click', openConfigModalHandler);
-            } else if (viewName === 'investments') {
+            } else if (viewName === 'investments' || viewName === 'splitter') {
                 actionsContainer.innerHTML = `
                     <button class="back-nav-btn" onclick="switchView('tools')" title="Voltar pras Ferramentas">⬅️ Voltar</button>
                     <button class="config-btn" id="openConfigBtn" title="Configurações">⚙️</button>
@@ -1455,43 +1564,298 @@
 
             if (viewName === 'investments') {
                 renderInvestmentsScreen();
+            } else if (viewName === 'splitter') {
+                renderSplitterScreen();
             }
         }
 
-        function openPatrimonyChart() {
-            if(chartVisibleAssets.size === 0) {
-                (db.investmentFunds || []).filter(f => !f.isFinished).forEach(f => chartVisibleAssets.add(f.id));
-            }
-            switchView('chart');
-            renderPatrimonyChart(currentChartPeriod);
+        /* --- LÓGICA DO RAXADOR DE GASTOS --- */
+        function openNewSplitterGroupModal() {
+            document.getElementById('newSplitterDate').value = getTodayIsoDateStr();
+            document.getElementById('newSplitterName').value = '';
+            document.getElementById('newSplitterMembers').value = '';
+            document.getElementById('newSplitterModal').classList.add('active');
         }
 
-        function changeChartPeriod(period) {
-            currentChartPeriod = period;
-            document.querySelectorAll('.period-btn').forEach(btn => {
-                btn.classList.toggle('active', btn.getAttribute('data-period') === period);
+        function renderSplitterScreen() {
+            const activeContainer = document.getElementById('splitterActiveContainer');
+            const finishedContainer = document.getElementById('splitterFinishedContainer');
+            activeContainer.innerHTML = '';
+            finishedContainer.innerHTML = '';
+
+            const groups = db.splitterGroups || [];
+            if (groups.length === 0) {
+                activeContainer.innerHTML = '<div class="empty-state">Nenhum rolê cadastrado ainda. Crie um acima!</div>';
+                finishedContainer.innerHTML = '<div class="empty-state">Nenhum rolê finalizado.</div>';
+                return;
+            }
+
+            let hasActive = false;
+            let hasFinished = false;
+
+            groups.forEach(g => {
+                const totalSpent = (g.expenses || []).reduce((acc, e) => acc + e.amount, 0);
+                const membersCount = (g.members || []).length;
+                const card = document.createElement('div');
+                card.className = 'splitter-card';
+                card.onclick = () => openSplitterDetailModal(g.id);
+                card.innerHTML = `
+                    <div class="splitter-header">
+                        <div class="splitter-header-top">
+                            <span class="splitter-title">${g.category || '🍕'} ${g.name}</span>
+                            <span style="font-size: 0.75rem; color: #8b949e;">${isoToBrDate(g.date)}</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 6px; font-size: 0.85rem;">
+                            <span style="color: #8b949e;">👥 ${membersCount} participantes</span>
+                            <span style="font-weight: 700; color: #f0f6fc;">Total: ${formatCurrency(totalSpent)}</span>
+                        </div>
+                    </div>
+                `;
+
+                if (g.isFinished) {
+                    finishedContainer.appendChild(card);
+                    hasFinished = true;
+                } else {
+                    activeContainer.appendChild(card);
+                    hasActive = true;
+                }
             });
-            renderPatrimonyChart(period);
+
+            if (!hasActive) activeContainer.innerHTML = '<div class="empty-state">Nenhum rolê em andamento.</div>';
+            if (!hasFinished) finishedContainer.innerHTML = '<div class="empty-state">Nenhum rolê finalizado.</div>';
         }
 
-        function changeChartMode(mode) {
-            chartMode = mode;
-            document.getElementById('chartModeBrl').classList.toggle('active', mode === 'brl');
-            document.getElementById('chartModePct').classList.toggle('active', mode === 'pct');
-            renderPatrimonyChart(currentChartPeriod);
-        }
+function openSplitterDetailModal(groupId) {
+            const g = db.splitterGroups.find(item => item.id === groupId);
+            if (!g) return;
 
-        function toggleChartAsset(fundId) {
-            const fund = db.investmentFunds.find(f => f.id === fundId);
-            if(fund && fund.isCofrinho && chartMode === 'brl') return;
+            document.getElementById('splitterGroupIdInput').value = g.id;
+            document.getElementById('editSplitterName').value = g.name;
+            document.getElementById('editSplitterCategory').value = g.category || '✈️ Viagem';
+            document.getElementById('editSplitterDate').value = g.date;
+            document.getElementById('splitterMembersInput').value = (g.members || []).join(', ');
 
-            if(chartVisibleAssets.has(fundId)) {
-                chartVisibleAssets.delete(fundId);
+            const payerSelect = document.getElementById('splitterExpensePayer');
+            payerSelect.innerHTML = '';
+            (g.members || []).forEach(m => {
+                const opt = document.createElement('option');
+                opt.value = m;
+                opt.innerText = m;
+                payerSelect.appendChild(opt);
+            });
+
+            document.getElementById('splitterExpenseDesc').value = '';
+            document.getElementById('splitterExpenseAmount').value = '';
+
+            renderSplitterExpensesAndSettlement(g);
+
+            const finishBtn = document.getElementById('splitterToggleFinishBtn');
+            
+            // ELEMENTOS QUE SERÃO ESCONDIDOS SE ESTIVER FINALIZADO
+            const editingFields = document.querySelectorAll('.splitter-edit-field');
+            const expenseBox = document.querySelector('.card-action-box');
+
+            if (g.isFinished) {
+                finishBtn.innerText = '🔄 Reabrir Rolê';
+                finishBtn.style.borderColor = '#d29922';
+                finishBtn.style.color = '#d29922';
+
+                // Esconde inputs de edição e adição de gastos
+                editingFields.forEach(el => el.style.display = 'none');
+                if (expenseBox) expenseBox.style.display = 'none';
             } else {
-                chartVisibleAssets.add(fundId);
+                finishBtn.innerText = '🏁 Dividir / Finalizar';
+                finishBtn.style.borderColor = '#3fb950';
+                finishBtn.style.color = '#3fb950';
+
+                // Mostra tudo de volta se reabrir
+                editingFields.forEach(el => el.style.display = 'block');
+                if (expenseBox) expenseBox.style.display = 'block';
             }
-            renderPatrimonyChart(currentChartPeriod);
+
+            document.getElementById('splitterDetailModal').classList.add('active');
         }
+
+        function updateSplitterGroupMeta() {
+            const id = document.getElementById('splitterGroupIdInput').value;
+            const g = db.splitterGroups.find(item => item.id === id);
+            if (!g) return;
+            g.name = document.getElementById('editSplitterName').value;
+            g.category = document.getElementById('editSplitterCategory').value;
+            g.date = document.getElementById('editSplitterDate').value;
+            saveDatabase();
+            renderSplitterScreen();
+        }
+
+        function saveSplitterMembers() {
+            const id = document.getElementById('splitterGroupIdInput').value;
+            const g = db.splitterGroups.find(item => item.id === id);
+            if (!g) return;
+            const rawMembers = document.getElementById('splitterMembersInput').value;
+            g.members = rawMembers.split(',').map(m => m.trim()).filter(m => m.length > 0);
+            saveDatabase();
+            openSplitterDetailModal(id);
+            renderSplitterScreen();
+        }
+
+        function addSplitterExpense() {
+            const id = document.getElementById('splitterGroupIdInput').value;
+            const g = db.splitterGroups.find(item => item.id === id);
+            if (!g) return;
+            const desc = document.getElementById('splitterExpenseDesc').value;
+            const amount = parseFloat(document.getElementById('splitterExpenseAmount').value) || 0;
+            const payer = document.getElementById('splitterExpensePayer').value;
+
+            if (!desc || amount <= 0 || !payer) {
+                alert('Preencha a descrição, valor e quem pagou!');
+                return;
+            }
+
+            if (!g.expenses) g.expenses = [];
+            g.expenses.push({ id: Date.now().toString(), desc, amount, payer });
+            
+            saveDatabase();
+            document.getElementById('splitterExpenseDesc').value = '';
+            document.getElementById('splitterExpenseAmount').value = '';
+            renderSplitterExpensesAndSettlement(g);
+            renderSplitterScreen();
+        }
+
+        function deleteSplitterExpense(expenseId) {
+            const id = document.getElementById('splitterGroupIdInput').value;
+            const g = db.splitterGroups.find(item => item.id === id);
+            if (!g) return;
+            g.expenses = (g.expenses || []).filter(e => e.id !== expenseId);
+            saveDatabase();
+            renderSplitterExpensesAndSettlement(g);
+            renderSplitterScreen();
+        }
+
+        function toggleSplitterFinished() {
+            const id = document.getElementById('splitterGroupIdInput').value;
+            const g = db.splitterGroups.find(item => item.id === id);
+            if (!g) return;
+            g.isFinished = !g.isFinished;
+            saveDatabase();
+            document.getElementById('splitterDetailModal').classList.remove('active');
+            renderSplitterScreen();
+        }
+
+        function deleteSplitterGroup() {
+            if (confirm('Tem certeza que deseja apagar este grupo do raxador?')) {
+                const id = document.getElementById('splitterGroupIdInput').value;
+                db.splitterGroups = db.splitterGroups.filter(g => g.id !== id);
+                saveDatabase();
+                document.getElementById('splitterDetailModal').classList.remove('active');
+                renderSplitterScreen();
+            }
+        }
+
+        function renderSplitterExpensesAndSettlement(g) {
+            const listEl = document.getElementById('splitterExpensesList');
+            listEl.innerHTML = '';
+            const expenses = g.expenses || [];
+            const members = g.members || [];
+
+            if (expenses.length === 0) {
+                listEl.innerHTML = '<div style="font-size:0.75rem; color:#8b949e;">Nenhum gasto lançado ainda.</div>';
+            } else {
+                expenses.forEach(e => {
+                    const item = document.createElement('div');
+                    item.className = 'log-item';
+                    item.innerHTML = `
+                        <span><b>${e.desc}</b> (${formatCurrency(e.amount)}) - Pago por <i>${e.payer}</i></span>
+                        <button class="action-icon-btn delete" onclick="deleteSplitterExpense('${e.id}')" title="Apagar">🗑️</button>
+                    `;
+                    listEl.appendChild(item);
+                });
+            }
+
+            const settlementBox = document.getElementById('splitterSettlementBox');
+            if (members.length === 0) {
+                settlementBox.innerHTML = 'Adicione participantes para calcular a divisão.';
+                return;
+            }
+
+            const totalSpent = expenses.reduce((acc, e) => acc + e.amount, 0);
+            const perPersonShare = totalSpent / members.length;
+
+            const paidMap = {};
+            members.forEach(m => paidMap[m] = 0);
+            expenses.forEach(e => {
+                if (paidMap[e.payer] !== undefined) {
+                    paidMap[e.payer] += e.amount;
+                }
+            });
+
+            const balances = {};
+            members.forEach(m => {
+                balances[m] = paidMap[m] - perPersonShare;
+            });
+
+            const debtors = [];
+            const creditors = [];
+
+            Object.entries(balances).forEach(([m, bal]) => {
+                if (bal < -0.01) debtors.push({ name: m, amount: Math.abs(bal) });
+                else if (bal > 0.01) creditors.push({ name: m, amount: bal });
+            });
+
+            let htmlTxt = `<b>Total Gasto:</b> ${formatCurrency(totalSpent)} (${formatCurrency(perPersonShare)} / pessoa)<br><br>`;
+            
+            if (debtors.length === 0 && creditors.length === 0) {
+                htmlTxt += 'Tudo quitado ou sem gastos!';
+            } else {
+                htmlTxt += '<b>🤑 Faz o Pix:</b><br>';
+                debtors.forEach(d => {
+                    creditors.forEach(c => {
+                        if (d.amount > 0.01 && c.amount > 0.01) {
+                            const transfer = Math.min(d.amount, c.amount);
+                            htmlTxt += `👉 <b>${d.name}</b> paga <b>${formatCurrency(transfer)}</b> para <b>${c.name}</b><br>`;
+                            d.amount -= transfer;
+                            c.amount -= transfer;
+                        }
+                    });
+                });
+            }
+            settlementBox.innerHTML = htmlTxt;
+        }
+
+        // Submissão do formulário de novo grupo do raxador
+        document.addEventListener('DOMContentLoaded', () => {
+            loadDatabase();
+            setupEvents();
+            switchView('main');
+            renderDashboard();
+
+            const newSplitterForm = document.getElementById('newSplitterForm');
+            if (newSplitterForm) {
+                newSplitterForm.addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    const name = document.getElementById('newSplitterName').value;
+                    const category = document.getElementById('newSplitterCategory').value;
+                    const date = document.getElementById('newSplitterDate').value;
+                    const rawMembers = document.getElementById('newSplitterMembers').value;
+                    const members = rawMembers.split(',').map(m => m.trim()).filter(m => m.length > 0);
+
+                    if (!db.splitterGroups) db.splitterGroups = [];
+                    db.splitterGroups.push({
+                        id: Date.now().toString(),
+                        name,
+                        category,
+                        date,
+                        members,
+                        expenses: [],
+                        isFinished: false
+                    });
+
+                    saveDatabase();
+                    document.getElementById('newSplitterModal').classList.remove('active');
+                    switchView('splitter');
+                });
+            }
+        });
+        /* --- FIM DA LÓGICA DO RAXADOR --- */
 
         function renderPatrimonyChart(period) {
             const ctx = document.getElementById('patrimonyChartCanvas').getContext('2d');
@@ -1797,13 +2161,6 @@
             return totalDays;
         }
 
-        window.addEventListener('DOMContentLoaded', () => {
-            loadDatabase();
-            setupEvents();
-            switchView('main');
-            renderDashboard();
-        });
-
         function loadDatabase() {
             const data = localStorage.getItem(STORAGE_KEY);
             if (data) {
@@ -1814,6 +2171,7 @@
                     if (!db.config) db.config = { startDate: getTodayIsoDateStr(), fixedExpenses: [] };
                     if (!db.months) db.months = {};
                     if (!db.investmentFunds) db.investmentFunds = [];
+                    if (!db.splitterGroups) db.splitterGroups = [];
 
                     if (db.config.fixedTotal && !db.config.fixedExpenses) {
                         db.config.fixedExpenses = [];
@@ -1835,11 +2193,17 @@
                         if (f.isCofrinho === undefined) f.isCofrinho = false;
                     });
 
+                    db.splitterGroups.forEach(g => {
+                        if (g.isFinished === undefined) g.isFinished = false;
+                        if (!g.expenses) g.expenses = [];
+                        if (!g.members) g.members = [];
+                    });
+
                     if (db.config.startDate && db.config.startDate.includes('/')) {
                         const [d, m, y] = db.config.startDate.split('/');
                         db.config.startDate = `${y}-${m.padStart(2,'0')}-${d.padStart(2,'0')}`;
                     }
-                    db.version = 26;
+                    db.version = 27;
                 } catch (e) {
                     console.error("Erro ao carregar banco de dados", e);
                 }
@@ -1855,6 +2219,7 @@
             if (document.getElementById('tabInstallments').classList.contains('active')) renderInstallments();
             if (document.getElementById('tabFixed').classList.contains('active')) renderFixedExpenses();
             if (document.getElementById('viewInvestments').classList.contains('active')) renderInvestmentsScreen();
+            if (document.getElementById('viewSplitter').classList.contains('active')) renderSplitterScreen();
         }
 
         function setupEvents() {
@@ -2145,7 +2510,8 @@
             }
 
             document.getElementById('dashMonthBadge').innerText = monthFormatted;
-            
+            document.getElementById('dashVaultSub1').innerText = `Meta diária: ${formatCurrency(netDailyBudget)}`;
+            document.getElementById('dashVaultSub2').innerText = `Até hoje: ${formatCurrency(totalAccumulatedBudgetToday)} (${daysElapsedUntilToday} dias)`;
             document.getElementById('dashMonthlySpent').innerText = formatCurrency(totalMonthlySpent);
             document.getElementById('dashMonthlySpent').className = `card-value ${totalMonthlySpent > grossMonthlyBudget && grossMonthlyBudget > 0 ? 'text-red' : 'text-neutral'}`;
             document.getElementById('dashMonthlyMeta').innerText = `de ${formatCurrency(grossMonthlyBudget)} previstos`;
@@ -2164,7 +2530,7 @@
 
             document.getElementById('dashVaultBalance').innerText = formatCurrency(vaultBalance);
             document.getElementById('dashVaultBalance').className = `card-value ${vaultBalance < 0 ? 'text-red' : 'text-green'}`;
-            document.getElementById('dashVaultSub').innerHTML = `Liberado: ${formatCurrency(totalAccumulatedBudgetToday)}<br>(${daysElapsedUntilToday}d × ${formatCurrency(netDailyBudget)}/dia líq.)`;
+            document.getElementById('dashVaultSub').innerHTML = `Liberado: ${formatCurrency(totalAccumulatedBudgetToday)}`;
 
             const adviceBanner = document.getElementById('adviceBanner');
             const adviceText = document.getElementById('adviceText');
