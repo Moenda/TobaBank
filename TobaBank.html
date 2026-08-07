@@ -2006,8 +2006,7 @@
             const totalMonthlySpent = monthlySpentVista + monthInstallmentsTotal + fixedTotal;
             
             const todaySpent = db.transactions.filter(t => t.date === todayIso).reduce((acc, t) => acc + t.amount, 0);
-            const todayAvailable = netDailyBudget - todaySpent;
-
+            
             let daysElapsedUntilToday = 0;
             const startDateIso = db.config.startDate || todayIso;
             if (startDateIso) {
@@ -2024,12 +2023,19 @@
             const totalAccumulatedBudgetToday = netDailyBudget * daysElapsedUntilToday;
             const vaultBalance = totalAccumulatedBudgetToday - monthlySpentVista;
 
+            // NOVA LÓGICA DE TRAVA: Se o cofre tá negativo, o disponível hj vira R$ 0,00!
+            let todayAvailable = netDailyBudget - todaySpent;
+            if (vaultBalance < 0) {
+                todayAvailable = 0;
+            }
+
             document.getElementById('dashMonthBadge').innerText = monthFormatted;
             document.getElementById('dashMonthlySpent').innerText = formatCurrency(totalMonthlySpent);
             document.getElementById('dashMonthlySpent').className = `card-value ${totalMonthlySpent > grossMonthlyBudget && grossMonthlyBudget > 0 ? 'text-red' : 'text-neutral'}`;
             document.getElementById('dashMonthlyMeta').innerText = `de ${formatCurrency(grossMonthlyBudget)} previstos`;
+            
             document.getElementById('dashTodayAvailable').innerText = formatCurrency(todayAvailable);
-            document.getElementById('dashTodayAvailable').className = `card-value ${todayAvailable < 0 ? 'text-red' : 'text-green'}`;
+            document.getElementById('dashTodayAvailable').className = `card-value ${todayAvailable <= 0 || vaultBalance < 0 ? 'text-red' : 'text-green'}`;
             
             document.getElementById('dashFixedDeduction').innerText = `Fixo mensal: -${formatCurrency(dailyFixedDeduction)}/dia`;
             document.getElementById('dashInstDeduction').innerText = `Parcelas: -${formatCurrency(dailyInstallmentDeduction)}/dia`;
