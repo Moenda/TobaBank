@@ -82,7 +82,6 @@
         .add-btn:hover { background: #2ea043; }
         .config-btn:hover, .tools-btn:hover, .back-nav-btn:hover { background: #30363d; }
 
-        /* Navigation Tabs */
         .tab-nav {
             display: flex;
             background: #0d1117;
@@ -111,7 +110,6 @@
             box-shadow: 0 2px 8px rgba(0,0,0,0.3);
         }
 
-        /* Views Display */
         .app-view {
             display: none;
         }
@@ -119,7 +117,6 @@
             display: block;
         }
 
-        /* Tab Content Display */
         .tab-content {
             display: none;
         }
@@ -127,10 +124,9 @@
             display: block;
         }
 
-        /* Badge Mês & Histórico Button */
         .month-header-row {
             display: flex;
-            justify-content: center;
+            justify-content: space-between;
             align-items: center;
             position: relative;
             margin-bottom: 1rem;
@@ -713,13 +709,13 @@
             <div class="tab-nav">
                 <button class="tab-btn active" id="tabBtnCurrent" onclick="switchTab('current')">📅 Mês Atual</button>
                 <button class="tab-btn" id="tabBtnInstallments" onclick="switchTab('installments')">💳 Parcelas</button>
-                <button class="tab-btn" id="tabBtnFixed" onclick="switchTab('fixed')">🔁 Fixo</button>
+                <button class="tab-btn" id="tabBtnFixed" onclick="switchTab('fixed')">🔄 Fixo</button>
             </div>
 
             <div class="tab-content active" id="tabCurrent">
                 <div class="month-header-row">
                     <span class="month-badge" id="dashMonthBadge">Carregando...</span>
-                    <button class="history-mini-btn" onclick="switchTab('history')">📜 Histórico</button>
+                    <button class="history-mini-btn" onclick="switchTab('history')">⏳ Histórico</button>
                 </div>
 
                 <div class="advice-banner" id="adviceBanner">
