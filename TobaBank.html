@@ -751,7 +751,6 @@
                         <div class="sub-text" id="dashInstDeduction" style="color: #f85149; font-weight: 600; margin-top: 4px;">Parcelas: -R$ 0,00/dia</div>
                     </div>
 
-                    <!-- CARD COFRE DO MÊS SIMÉTRICO NA RÉGUA -->
                     <div class="card">
                         <div class="card-title">Cofre do Mês</div>
                         <div class="card-value text-green" id="dashVaultBalance">R$ 0,00</div>
@@ -917,7 +916,10 @@
         <div class="app-view" id="viewInvestments">
             <div class="section-title" style="margin-top: 0.5rem; display: flex; justify-content: space-between; align-items: center;">
                 <span>Investimentos</span>
-                <button class="history-mini-btn" onclick="openInvestmentsHistoryModal()">📜 Histórico</button>
+                <div style="display: flex; gap: 8px; align-items: center;">
+                    <button onclick="document.getElementById('mathHelpModal').classList.add('active')" style="background: #21262d; border: 1px solid #30363d; color: #58a6ff; width: 28px; height: 28px; border-radius: 50%; font-weight: 700; font-size: 0.9rem; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: transform 0.2s;" title="Como o cálculo funciona?" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'">?</button>
+                    <button class="history-mini-btn" onclick="openInvestmentsHistoryModal()">📜 Histórico</button>
+                </div>
             </div>
 
             <div class="invest-summary-card">
@@ -1167,21 +1169,51 @@
         </div>
     </div>
 
+    <!-- MODAL DE AJUDA DA MATEMÁTICA PRO-RATA -->
+    <div class="modal-overlay" id="mathHelpModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3>🧠 A Mágica Pro-Rata</h3>
+                <button class="close-btn" onclick="document.getElementById('mathHelpModal').classList.remove('active')">&times;</button>
+            </div>
+            <div style="font-size: 0.85rem; color: #c9d1d9; line-height: 1.6;">
+                <p style="margin-bottom: 8px;">Todos os cálculos de <b>rendimento</b> e <b>histórico</b> do Toba Bank usam um motor de <b>Média Pro-Rata Diária</b>. Zero achismo, 100% matemática!</p>
+                <p style="margin-bottom: 8px; color: #58a6ff; font-weight: 600;">Como funciona por baixo dos panos?</p>
+                <ul style="padding-left: 1rem; margin-bottom: 12px; display: flex; flex-direction: column; gap: 6px;">
+                    <li><b>Pontos no Tempo:</b> O sistema pega a data do seu último registro e a data da nova atualização de saldo.</li>
+                    <li><b>Taxa Diária:</b> Ele calcula a média exata de quanto o seu dinheiro rendeu por cada dia que passou nesse período.</li>
+                    <li><b>Fatiamento (Histórico):</b> Se o rendimento cruzou os meses (ex: do dia 15/07 a 10/08), ele distribui o lucro certinho! Julho recebe a fatia dos dias dele, e Agosto a fatia do resto. O histórico fica impecável.</li>
+                </ul>
+                <p style="background: rgba(63, 185, 80, 0.1); border-left: 3px solid #3fb950; padding: 8px; border-radius: 0 8px 8px 0; color: #7ee787;">
+                    Você só precisa lançar seu saldo atualizado e deixar que o Toba Bank faz a conta de bancão por você! 🚀
+                </p>
+            </div>
+            <div style="margin-top: 1.2rem; text-align: right;">
+                <button class="btn btn-primary" onclick="document.getElementById('mathHelpModal').classList.remove('active')">Pica demais! 😎</button>
+            </div>
+        </div>
+    </div>
+
     <!-- MODAL DE AJUDA DOS COFRINHOS ATUALIZADO -->
     <div class="modal-overlay" id="cofrinhoHelpModal">
         <div class="modal">
             <div class="modal-header">
-                <h3>🐷 Como funcionam os Cofrinhos?</h3>
+                <h3>🐷 A Malandragem dos Cofrinhos!</h3>
                 <button class="close-btn" onclick="document.getElementById('cofrinhoHelpModal').classList.remove('active')">&times;</button>
             </div>
             <div style="font-size: 0.85rem; color: #c9d1d9; line-height: 1.6;">
-                <p style="margin-bottom: 8px;">Os <b>Cofrinhos (Giro Rápido)</b> são o motor de liquidez da sua carteira. Ideais para ativos onde o saldo fica "travado" (como caixinhas e contas rendendo 100% do CDI) e você só colhe os frutos.</p>
-                <p style="margin-bottom: 8px;">🎯 <b>A Dinâmica:</b> O seu <b>Saldo Base Fixo</b> é o combustível estático. Ele gera o rendimento contínuo. Você só precisa registrar os <b>Saques</b> (que são os lucros que você bota direto no bolso).</p>
-                <p style="margin-bottom: 8px;">📈 <b>Performance Real:</b> O TobaBank cruza os seus saques com o tempo e o saldo base, te entregando a <b>% real de crescimento</b> e a sua <b>Média Mensal</b>.</p>
-                <p>Bora botar essa grana pra girar, chefia! 🚀</p>
+                <p style="margin-bottom: 8px;">Os <b>Cofrinhos (Giro Rápido)</b> são a maquininha de fazer dinheiro da sua carteira! Sabe aquela grana que fica lá "trancafiada" rendendo o suco do CDI na caixinha e você só vai sugando o lucro? É exatamente pra isso aqui, pai! 🧃💸</p>
+                
+                <p style="margin-bottom: 8px;">🎯 <b>Como rola a dinâmica:</b> Você larga o <b>Saldo Base Fixo</b> lá quieto (ele é o motorzão do Opala gerando cavalaria). Depois, você só tem o trampo de registrar os <b>Saques</b> (que é o lucro líquido caindo direto no seu bolso pra pagar a gelada 🍻).</p>
+                
+                <p style="margin-bottom: 12px;">📈 <b>Performance Monstra:</b> O TobaBank cruza os seus saques com o tempo de forno e a grana base, te entregando a <b>% real de crescimento</b> e a sua <b>Média Mensal</b> mastigadinha. Zero achismo, só gain!</p>
+                
+                <p style="background: rgba(88, 166, 255, 0.1); border-left: 3px solid #58a6ff; padding: 8px; border-radius: 0 8px 8px 0; color: #79c0ff; font-weight: 600;">
+                    Bora botar essa grana pra suar e girar a economia, chefia! 🚀🔥
+                </p>
             </div>
             <div style="margin-top: 1.2rem; text-align: right;">
-                <button class="btn btn-primary" onclick="document.getElementById('cofrinhoHelpModal').classList.remove('active')">Entendi, valeu!</button>
+                <button class="btn btn-primary" onclick="document.getElementById('cofrinhoHelpModal').classList.remove('active')">Saquei a parada! 😎</button>
             </div>
         </div>
     </div>
@@ -1491,6 +1523,7 @@
             document.getElementById('cofrinhoHelpModal').classList.add('active');
         }
 
+        /* === MÁGICA PRO-RATA IMPLEMENTADA NO HISTÓRICO === */
         function openInvestmentsHistoryModal() {
             const content = document.getElementById('investmentsHistoryContent');
             content.innerHTML = '';
@@ -1498,61 +1531,117 @@
             const funds = db.investmentFunds || [];
             const monthlyData = {};
 
-            funds.forEach(fund => {
-                const fundMonthly = {}; // Agrupa por fundo primeiro
+            const parseIso = (iso) => {
+                const [y, m, d] = iso.split('-').map(Number);
+                return new Date(y, m - 1, d);
+            };
 
+            funds.forEach(fund => {
                 if (fund.isCofrinho) {
+                    const fundMonthly = {};
                     (fund.withdrawals || []).forEach(w => {
                         if (!w.date) return;
                         const mKey = w.date.slice(0, 7);
                         if (!fundMonthly[mKey]) fundMonthly[mKey] = { yield: 0, base: 0 };
                         
                         fundMonthly[mKey].yield += w.amount;
-                        // Pega o total aportado até a data desse saque pra ser a base da %
                         const depAtTime = (fund.deposits || []).filter(d => d.date <= w.date).reduce((a,b) => a + b.amount, 0);
                         fundMonthly[mKey].base = Math.max(fundMonthly[mKey].base, depAtTime);
                     });
                     
                     Object.keys(fundMonthly).forEach(mKey => {
-                        if (!monthlyData[mKey]) monthlyData[mKey] = { investYield: 0, investBase: 0, cofrinhoYield: 0, cofrinhoBase: 0 };
+                        if (!monthlyData[mKey]) monthlyData[mKey] = { investYield: 0, investBase: 0, cofrinhoYield: 0, cofrinhoBase: 0, fundBases: {} };
                         monthlyData[mKey].cofrinhoYield += fundMonthly[mKey].yield;
                         monthlyData[mKey].cofrinhoBase += fundMonthly[mKey].base;
                     });
                     
-                } else if (fund.isFinished) {
-                    const totalDep = (fund.deposits || []).reduce((a, b) => a + b.amount, 0);
-                    const totalWithdrawn = (fund.withdrawals || []).reduce((a, w) => a + w.amount, 0);
-                    const finalGross = fund.closeAmount !== undefined ? fund.closeAmount : totalDep;
-                    const totalOut = finalGross + totalWithdrawn;
-                    const netProfit = totalOut - totalDep;
-
-                    const closeDate = fund.closeDate || (fund.balanceLogs && fund.balanceLogs.length > 0 ? [...fund.balanceLogs].sort((x,y) => new Date(y.date) - new Date(x.date))[0].date : null);
-                    if (closeDate) {
-                        const mKey = closeDate.slice(0, 7);
-                        if (!monthlyData[mKey]) monthlyData[mKey] = { investYield: 0, investBase: 0, cofrinhoYield: 0, cofrinhoBase: 0 };
-                        monthlyData[mKey].investYield += netProfit;
-                        monthlyData[mKey].investBase += totalDep;
-                    }
                 } else {
-                    (fund.balanceLogs || []).forEach(log => {
-                        if (!log.date || log.isSystem) return;
-                        const mKey = log.date.slice(0, 7);
-                        if (!fundMonthly[mKey]) fundMonthly[mKey] = { yield: 0, base: 0 };
-                        
-                        const totalDep = (fund.deposits || []).filter(d => d.date <= log.date).reduce((a,b) => a + b.amount, 0);
-                        const profit = log.amount - totalDep;
-                        
-                        // Pega sempre a última atualização de saldo do mês pra cravar o rendimento
-                        fundMonthly[mKey].yield = profit;
-                        fundMonthly[mKey].base = totalDep;
-                    });
+                    // MÁGICA PRO-RATA: Coleta de Pontos no Tempo
+                    let points = [];
                     
-                    Object.keys(fundMonthly).forEach(mKey => {
-                        if (!monthlyData[mKey]) monthlyData[mKey] = { investYield: 0, investBase: 0, cofrinhoYield: 0, cofrinhoBase: 0 };
-                        monthlyData[mKey].investYield += fundMonthly[mKey].yield;
-                        monthlyData[mKey].investBase += fundMonthly[mKey].base;
+                    if (fund.deposits && fund.deposits.length > 0) {
+                        const firstDep = [...fund.deposits].sort((a,b) => new Date(a.date) - new Date(b.date))[0];
+                        points.push({ date: firstDep.date, amount: firstDep.amount, type: 'start' });
+                    }
+                    
+                    (fund.balanceLogs || []).forEach(log => {
+                        if (log.date) points.push({ date: log.date, amount: log.amount, type: 'log' });
+                    });
+
+                    // Ordena cronologicamente
+                    points.sort((a, b) => {
+                        const diff = new Date(a.date) - new Date(b.date);
+                        if (diff === 0) {
+                            if (a.type === 'start') return -1;
+                            if (b.type === 'start') return 1;
+                            return 0;
+                        }
+                        return diff;
+                    });
+
+                    let lastDateIso = null;
+                    let lastBalance = 0;
+
+                    points.forEach(pt => {
+                        if (pt.type === 'start' && !lastDateIso) {
+                            lastDateIso = pt.date;
+                            lastBalance = pt.amount; 
+                        } else if (pt.type === 'log') {
+                            if (!lastDateIso) {
+                                lastDateIso = pt.date;
+                                lastBalance = pt.amount;
+                                return;
+                            }
+                            
+                            const startD = parseIso(lastDateIso);
+                            const endD = parseIso(pt.date);
+                            
+                            if (endD > startD) { // Se os dias passaram, processa o Pro-Rata
+                                const totalDays = Math.round((endD - startD) / (1000 * 60 * 60 * 24));
+                                
+                                const depsInBetween = (fund.deposits || []).filter(d => d.date > lastDateIso && d.date <= pt.date).reduce((a,b) => a+b.amount, 0);
+                                const withsInBetween = (fund.withdrawals || []).filter(w => w.date > lastDateIso && w.date <= pt.date).reduce((a,b) => a+b.amount, 0);
+
+                                const expectedBalance = lastBalance + depsInBetween - withsInBetween;
+                                const yieldAmount = pt.amount - expectedBalance;
+                                const totalDepAtEnd = (fund.deposits || []).filter(d => d.date <= pt.date).reduce((a,b) => a+b.amount, 0);
+
+                                // Distribui pelos meses
+                                let tempDate = parseIso(lastDateIso);
+                                while (tempDate < endD) {
+                                    const year = tempDate.getFullYear();
+                                    const month = tempDate.getMonth();
+                                    const mKey = `${year}-${String(month + 1).padStart(2, '0')}`;
+                                    
+                                    const nextMonthStart = new Date(year, month + 1, 1);
+                                    const segmentEnd = endD < nextMonthStart ? endD : nextMonthStart;
+                                    
+                                    const daysInMonth = Math.round((segmentEnd - tempDate) / (1000 * 60 * 60 * 24));
+                                    const ratio = daysInMonth / totalDays;
+                                    
+                                    if (!monthlyData[mKey]) monthlyData[mKey] = { investYield: 0, investBase: 0, cofrinhoYield: 0, cofrinhoBase: 0, fundBases: {} };
+                                    if (!monthlyData[mKey].fundBases) monthlyData[mKey].fundBases = {};
+                                    
+                                    monthlyData[mKey].investYield += (yieldAmount * ratio);
+                                    monthlyData[mKey].fundBases[fund.id] = Math.max(monthlyData[mKey].fundBases[fund.id] || 0, totalDepAtEnd);
+                                    
+                                    tempDate = nextMonthStart;
+                                }
+                            }
+                            lastDateIso = pt.date;
+                            lastBalance = pt.amount;
+                        }
                     });
                 }
+            });
+
+            // Processa as bases dos investimentos normais para não duplicar somas
+            Object.keys(monthlyData).forEach(mKey => {
+                let totalInvestBase = 0;
+                if (monthlyData[mKey].fundBases) {
+                    Object.values(monthlyData[mKey].fundBases).forEach(b => totalInvestBase += b);
+                }
+                monthlyData[mKey].investBase = totalInvestBase;
             });
 
             const sortedKeys = Object.keys(monthlyData).sort((a,b) => b.localeCompare(a));
@@ -1565,7 +1654,6 @@
                     const mName = formatMonthYearLabel(y, parseInt(m, 10) - 1);
                     const data = monthlyData[mKey];
 
-                    // Matemágica das Porcentagens!
                     const invPct = data.investBase > 0 ? (data.investYield / data.investBase) * 100 : 0;
                     const cofPct = data.cofrinhoBase > 0 ? (data.cofrinhoYield / data.cofrinhoBase) * 100 : 0;
                     
