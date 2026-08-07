@@ -206,24 +206,6 @@
             color: #8b949e;
             line-height: 1.35;
         }
-        .help-tooltip-btn {
-            background: #21262d;
-            color: #8b949e;
-            border: 1px solid #30363d;
-            border-radius: 50%;
-            width: 18px;
-            height: 18px;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.7rem;
-            font-weight: bold;
-            cursor: pointer;
-        }
-        .help-tooltip-btn:hover {
-            color: #58a6ff;
-            border-color: #58a6ff;
-        }
 
         /* Advice Alert Banner */
         .advice-banner {
@@ -743,9 +725,15 @@
                 <div class="metrics-grid">
                     <div class="card card-full">
                         <div class="card-title">Gastos do Mês vs Orçamento</div>
-                        <div class="card-inline-group">
-                            <span class="card-value text-neutral" id="dashMonthlySpent">R$ 0,00</span>
-                            <span class="sub-text" id="dashMonthlyMeta">de R$ 0,00 previstos</span>
+                        <div class="card-inline-group" style="flex-direction: column; gap: 4px;">
+                            <div style="display: flex; align-items: baseline; gap: 8px;">
+                                <span class="card-value text-neutral" id="dashMonthlySpent">R$ 0,00</span>
+                                <span class="sub-text" id="dashMonthlyMeta">de R$ 0,00 previstos</span>
+                            </div>
+                            <div style="font-size: 0.8rem; color: #8b949e; display: flex; gap: 12px; margin-top: 4px;">
+                                <span>Gastos: <b id="dashVarSpent" style="color: #f0f6fc;">R$ 0,00</b></span>
+                                <span>Fixo: <b id="dashFixSpent" style="color: #f0f6fc;">R$ 0,00</b></span>
+                            </div>
                         </div>
                     </div>
 
@@ -755,8 +743,7 @@
                         <div class="card-value" id="dashTodayAvailable">R$ 0,00</div>
                         
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 8px;">
-                            <span class="sub-text" id="dashFixedDeduction" style="color: #f85149; font-weight: 600;">Fixo mensal: -R$ 0,00/dia</span>
-                            <span class="help-tooltip-btn" onclick="alert('Rateio Diário: Os valores dos seus Gastos Fixos e Parcelas são divididos por todos os dias do mês. Isso garante que o peso deles seja descontado gradativamente, revelando o seu saldo diário REAL para não comer o orçamento todo no dia do pagamento! 🧠💸')">?</span>
+                            <span class="sub-text" id="dashFixedDeduction" style="color: #f85149; font-weight: 600;">Fixo: -R$ 0,00/dia</span>
                         </div>
                         <div class="sub-text" id="dashInstDeduction" style="color: #f85149; font-weight: 600; margin-top: 4px;">Parcelas: -R$ 0,00/dia</div>
                     </div>
@@ -824,11 +811,44 @@
 
                 <!-- Formulário Adicionar -->
                 <div class="card" style="margin-bottom: 1.2rem; padding: 1rem;">
-                    <div class="card-title" style="margin-bottom: 10px; color: #3fb950;">➕ Novo Gasto Fixo</div>
-                    <div style="display: flex; gap: 8px;">
-                        <input type="text" id="fixedNameInput" class="form-control" placeholder="Ex: Muay Thai, Netflix, Ração..." style="flex: 2;">
-                        <input type="number" id="fixedAmountInput" class="form-control" placeholder="R$" step="0.01" min="0" style="flex: 1;">
-                        <button class="btn btn-primary" onclick="addFixedExpense()" style="width: auto; padding: 0 1rem;">Add</button>
+                    <div class="card-title" style="margin-bottom: 10px; color: #3fb950;">➕ Adicionar gasto fixo</div>
+                    <div style="display: flex; flex-direction: column; gap: 8px;">
+                        <div style="display: flex; gap: 8px;">
+                            <input type="text" id="fixedNameInput" class="form-control" placeholder="Ex: Muay Thai, Netflix..." style="flex: 2;">
+                            <input type="number" id="fixedAmountInput" class="form-control" placeholder="R$" step="0.01" min="0" style="flex: 1;">
+                        </div>
+                        <div style="display: flex; gap: 8px;">
+                            <select id="fixedCategorySelect" class="form-control" style="flex: 3;" required>
+                                <optgroup label="🏠 Casa & Habitação">
+                                    <option value="Casa - Aluguel/Condomínio">🏢 Aluguel / Condomínio</option>
+                                    <option value="Casa - Contas (Luz/Água/Gás)">💡 Contas (Luz, Água, Gás)</option>
+                                    <option value="Casa - Internet/TV">🌐 Internet / TV</option>
+                                    <option value="Casa - Manutenção/Reparos">🛠️ Manutenção / Reparos</option>
+                                    <option value="Casa - Decoração/Eletro">🛋️ Decoração / Eletro</option>
+                                    <option value="Mercado">🛒 Mercado / Feira</option>
+                                </optgroup>
+                                <optgroup label="🍔 Alimentação & Lazer">
+                                    <option value="Alimentação">🍔 Rest. / Lanches / Delivery</option>
+                                    <option value="Lazer">🎉 Lazer & Rolês</option>
+                                    <option value="Viagens">✈️ Viagens & Passeios</option>
+                                    <option value="Lembrancinhas / Presentes">🎁 Lembrancinhas / Presentes</option>
+                                    <option value="Assinaturas" selected>📺 Assinaturas & Streaming</option>
+                                </optgroup>
+                                <optgroup label="🚗 Transporte">
+                                    <option value="Transporte - Combustível">⛽ Combustível</option>
+                                    <option value="Transporte - Uber/App">🚕 Uber / Táxi</option>
+                                    <option value="Transporte - Manutenção">🔧 Manutenção / Revisão</option>
+                                    <option value="Transporte - IPVA/Seguro/Pedágio">📄 IPVA / Seguro / Pedágio</option>
+                                </optgroup>
+                                <optgroup label="🩺 Saúde, Pets & Outros">
+                                    <option value="Saúde & Bem-Estar">💊 Saúde & Farmácia</option>
+                                    <option value="Pet">🐱 Pets (Ração, Vet, Mimos)</option>
+                                    <option value="Investimentos & Pessoal">📈 Investimentos & Cursos</option>
+                                    <option value="Outros">📦 Outros</option>
+                                </optgroup>
+                            </select>
+                            <button class="btn btn-primary" onclick="addFixedExpense()" style="flex: 1;">Add</button>
+                        </div>
                     </div>
                 </div>
 
@@ -1289,7 +1309,7 @@
         const STORAGE_KEY = 'TOBA_BANK_DB';
 
         let db = {
-            version: 23,
+            version: 24,
             config: {
                 startDate: new Date().toISOString().split('T')[0],
                 fixedExpenses: []
@@ -1306,8 +1326,29 @@
         let chartMode = 'brl';
         let chartVisibleAssets = new Set();
 
-        function getFixedTotal() {
-            return (db.config.fixedExpenses || []).reduce((acc, item) => acc + item.amount, 0);
+        // NOVA LÓGICA DE SNAPSHOT DOS GASTOS FIXOS
+        function getFixedExpensesForMonth(mKey) {
+            const currentMonthKey = getCurrentMonthKey();
+            if (!db.months[mKey]) db.months[mKey] = {};
+            
+            if (mKey === currentMonthKey) {
+                // Mês atual salva o retrato continuamente
+                db.months[mKey].fixedExpensesSnapshot = JSON.parse(JSON.stringify(db.config.fixedExpenses || []));
+                return db.config.fixedExpenses || [];
+            } else {
+                // Meses antigos usam a foto tirada na época (ou o atual como fallback se for muito antigo)
+                if (db.months[mKey].fixedExpensesSnapshot) {
+                    return db.months[mKey].fixedExpensesSnapshot;
+                } else {
+                    const fallback = JSON.parse(JSON.stringify(db.config.fixedExpenses || []));
+                    db.months[mKey].fixedExpensesSnapshot = fallback;
+                    return fallback;
+                }
+            }
+        }
+
+        function getFixedTotalForMonth(mKey) {
+            return getFixedExpensesForMonth(mKey).reduce((acc, item) => acc + item.amount, 0);
         }
 
         function toggleCofrinhosView() {
@@ -1576,13 +1617,19 @@
             }
         }
 
-        // Lógica de Gastos Fixos por Itens
         function addFixedExpense() {
             const name = document.getElementById('fixedNameInput').value;
             const amount = parseFloat(document.getElementById('fixedAmountInput').value) || 0;
+            const category = document.getElementById('fixedCategorySelect').value;
+            
             if (name && amount > 0) {
                 if (!db.config.fixedExpenses) db.config.fixedExpenses = [];
-                db.config.fixedExpenses.push({ id: Date.now().toString(), name, amount });
+                db.config.fixedExpenses.push({ 
+                    id: Date.now().toString(), 
+                    name, 
+                    amount,
+                    category: category || 'Outros' 
+                });
                 saveDatabase();
                 document.getElementById('fixedNameInput').value = '';
                 document.getElementById('fixedAmountInput').value = '';
@@ -1604,7 +1651,7 @@
             listContainer.innerHTML = '';
             
             const expenses = db.config.fixedExpenses || [];
-            const total = getFixedTotal();
+            const total = expenses.reduce((acc, item) => acc + item.amount, 0);
             totalDisplay.innerText = formatCurrency(total);
 
             if (expenses.length === 0) {
@@ -1613,12 +1660,13 @@
             }
 
             expenses.forEach(item => {
+                let cleanCat = item.category ? (item.category.includes(' - ') ? item.category.split(' - ')[1] : item.category) : 'Outros';
                 const el = document.createElement('div');
                 el.className = 'expense-item';
                 el.innerHTML = `
                     <div class="expense-details">
                         <span class="expense-desc">${item.name}</span>
-                        <span class="expense-meta">Gasto Mensal Fixo</span>
+                        <span class="expense-meta">Fixo • ${cleanCat}</span>
                     </div>
                     <div class="expense-right">
                         <span class="expense-amount" style="color: #ff7b72;">- ${formatCurrency(item.amount)}</span>
@@ -1709,7 +1757,8 @@
                             db.config.fixedExpenses.push({
                                 id: Date.now().toString(),
                                 name: 'Gastos Legado (Atualize)',
-                                amount: db.config.fixedTotal
+                                amount: db.config.fixedTotal,
+                                category: 'Outros'
                             });
                         }
                     }
@@ -1726,7 +1775,7 @@
                         const [d, m, y] = db.config.startDate.split('/');
                         db.config.startDate = `${y}-${m.padStart(2,'0')}-${d.padStart(2,'0')}`;
                     }
-                    db.version = 23;
+                    db.version = 24;
                 } catch (e) {
                     console.error("Erro ao carregar banco de dados", e);
                 }
@@ -1995,7 +2044,8 @@
             const activeInstallmentsMonth = getActiveInstallmentsForMonth(currentMonthKey);
             const monthInstallmentsTotal = activeInstallmentsMonth.reduce((acc, p) => acc + p.amount, 0);
             
-            const fixedTotal = getFixedTotal();
+            const currentMonthFixed = getFixedExpensesForMonth(currentMonthKey);
+            const fixedTotal = getFixedTotalForMonth(currentMonthKey);
             const dailyFixedDeduction = totalDaysInMonth > 0 ? (fixedTotal / totalDaysInMonth) : 0;
             const dailyInstallmentDeduction = totalDaysInMonth > 0 ? (monthInstallmentsTotal / totalDaysInMonth) : 0;
             
@@ -2003,7 +2053,9 @@
 
             const currentMonthTransactions = db.transactions.filter(t => t.date && t.date.startsWith(currentMonthKey));
             const monthlySpentVista = currentMonthTransactions.reduce((acc, t) => acc + t.amount, 0);
-            const totalMonthlySpent = monthlySpentVista + monthInstallmentsTotal + fixedTotal;
+            
+            const varSpent = monthlySpentVista + monthInstallmentsTotal;
+            const totalMonthlySpent = varSpent + fixedTotal;
             
             const todaySpent = db.transactions.filter(t => t.date === todayIso).reduce((acc, t) => acc + t.amount, 0);
             
@@ -2023,21 +2075,27 @@
             const totalAccumulatedBudgetToday = netDailyBudget * daysElapsedUntilToday;
             const vaultBalance = totalAccumulatedBudgetToday - monthlySpentVista;
 
-            // NOVA LÓGICA DE TRAVA: Se o cofre tá negativo, o disponível hj vira R$ 0,00!
             let todayAvailable = netDailyBudget - todaySpent;
             if (vaultBalance < 0) {
                 todayAvailable = 0;
             }
 
             document.getElementById('dashMonthBadge').innerText = monthFormatted;
+            
             document.getElementById('dashMonthlySpent').innerText = formatCurrency(totalMonthlySpent);
             document.getElementById('dashMonthlySpent').className = `card-value ${totalMonthlySpent > grossMonthlyBudget && grossMonthlyBudget > 0 ? 'text-red' : 'text-neutral'}`;
             document.getElementById('dashMonthlyMeta').innerText = `de ${formatCurrency(grossMonthlyBudget)} previstos`;
+            document.getElementById('dashVarSpent').innerText = formatCurrency(varSpent);
+            document.getElementById('dashFixSpent').innerText = formatCurrency(fixedTotal);
             
             document.getElementById('dashTodayAvailable').innerText = formatCurrency(todayAvailable);
-            document.getElementById('dashTodayAvailable').className = `card-value ${todayAvailable <= 0 || vaultBalance < 0 ? 'text-red' : 'text-green'}`;
+            if (todayAvailable === 0) {
+                document.getElementById('dashTodayAvailable').className = 'card-value text-neutral';
+            } else {
+                document.getElementById('dashTodayAvailable').className = `card-value ${todayAvailable < 0 || vaultBalance < 0 ? 'text-red' : 'text-green'}`;
+            }
             
-            document.getElementById('dashFixedDeduction').innerText = `Fixo mensal: -${formatCurrency(dailyFixedDeduction)}/dia`;
+            document.getElementById('dashFixedDeduction').innerText = `Fixo: -${formatCurrency(dailyFixedDeduction)}/dia`;
             document.getElementById('dashInstDeduction').innerText = `Parcelas: -${formatCurrency(dailyInstallmentDeduction)}/dia`;
 
             document.getElementById('dashVaultBalance').innerText = formatCurrency(vaultBalance);
@@ -2057,6 +2115,7 @@
 
             const combinedForBars = [...currentMonthTransactions];
             activeInstallmentsMonth.forEach(p => combinedForBars.push({ category: p.category, amount: p.amount }));
+            currentMonthFixed.forEach(f => combinedForBars.push({ category: f.category || 'Outros', amount: f.amount }));
             renderCategoryBars(combinedForBars, totalMonthlySpent);
             renderExpenseListWithInstallments(currentMonthTransactions, activeInstallmentsMonth);
         }
@@ -2238,7 +2297,9 @@
                 const monthFormatted = formatMonthYearLabel(yearNum, monthIndex);
                 const mTransactions = db.transactions.filter(t => t.date && t.date.startsWith(mKey));
                 const mActiveInstallments = getActiveInstallmentsForMonth(mKey);
-                const totalSpent = mTransactions.reduce((acc, t) => acc + t.amount, 0) + mActiveInstallments.reduce((acc, p) => acc + p.amount, 0);
+                const mFixedTotal = getFixedTotalForMonth(mKey);
+                
+                const totalSpent = mTransactions.reduce((acc, t) => acc + t.amount, 0) + mActiveInstallments.reduce((acc, p) => acc + p.amount, 0) + mFixedTotal;
 
                 const monthConfig = db.months[mKey] || {};
                 const dailyBudget = monthConfig.dailyBudget || (db.months[currentMonthKey] || {}).dailyBudget || 0;
