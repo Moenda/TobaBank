@@ -1495,7 +1495,7 @@
             const content = document.getElementById('investmentsHistoryContent');
             content.innerHTML = '';
 
-            const funds = db.investmentFunds || [];
+            const funds = db.investmentFunds || []; // Puxa TODOS os fundos (ativos e finalizados!)
             const monthlyData = {};
 
             funds.forEach(fund => {
