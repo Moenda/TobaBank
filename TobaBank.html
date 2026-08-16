@@ -819,44 +819,41 @@
                     <div style="display: flex; flex-direction: column; gap: 8px;">
                         <div style="display: flex; gap: 8px;">
                             <input type="text" id="fixedNameInput" class="form-control" placeholder="Ex: Spotify, Netflix, Academia..." style="flex: 2;">
-                            <input type="number" id="fixedAmountInput" class="form-control" placeholder="R$" step="0.01" min="0" style="flex: 1;">
+                            <input type="text" inputmode="numeric" id="fixedAmountInput" class="form-control smart-money" placeholder="R$ 0,00" style="flex: 1;">
                         </div>
                         <div style="display: flex; gap: 8px;">
                             <select id="fixedCategorySelect" class="form-control" style="flex: 3;" required>
-                                <optgroup label="🏠 Casa & Habitação">
-                                    <option value="Casa - Aluguel/Condomínio">🏢 Aluguel / Condomínio</option>
-                                    <option value="Casa - Contas (Luz/Água/Gás)">💡 Contas (Luz, Água, Gás)</option>
-                                    <option value="Casa - Internet/TV">🌐 Internet / TV</option>
-                                    <option value="Casa - Manutenção/Reparos">🛠️ Manutenção / Reparos</option>
-                                    <option value="Casa - Decoração/Eletro">🛋️ Decoração / Eletro</option>
-                                    <option value="Casa - Utilidades/Utensílios">🍳 Utilidades / Utensílios</option>
-                                    <option value="Mercado">🛒 Mercado / Feira</option>
+                                <optgroup label="🏠 Casa & Moradia">
+                                    <option value="Moradia - Aluguel/Condomínio">🏢 Aluguel / Condomínio</option>
+                                    <option value="Moradia - Contas Básicas (Luz/Água/Internet)">💡 Contas Básicas (Luz, Água, Internet)</option>
+                                    <option value="Moradia - Manutenção/Eletro">🛠️ Manutenção / Eletro / Decoração</option>
+                                    <option value="Mercado">🛒 Mercado / Feira / Limpeza</option>
                                 </optgroup>
-                                <optgroup label="🍔 Alimentação & Lazer">
-                                    <option value="Alimentação">🍔 Rest. / Lanches / Delivery</option>
-                                    <option value="Lazer">🎉 Lazer & Rolês</option>
+                                <optgroup label="🍔 Alimentação & Rolês">
+                                    <option value="Alimentação">🍔 Rest. / Lanches / Ifood</option>
+                                    <option value="Lazer">🎉 Festas / Rolês / Bares</option>
                                     <option value="Viagens">✈️ Viagens & Passeios</option>
-                                    <option value="Lembrancinhas / Presentes">🎁 Lembrancinhas / Presentes</option>
-                                    <option value="Assinaturas" selected>📺 Assinaturas & Streaming</option>
+                                    <option value="Presentes">🎁 Presentes</option>
+                                </optgroup>
+                                <optgroup label="🎮 Digital & Assinaturas">
+                                    <option value="Assinaturas" selected>📺 Assinaturas & Streaming (Netflix, Spotify)</option>
+                                    <option value="Games">🎮 Games (Passes, Jogos, Itens)</option>
                                 </optgroup>
                                 <optgroup label="🚗 Transporte">
                                     <option value="Transporte - Combustível">⛽ Combustível</option>
                                     <option value="Transporte - Uber/App">🚕 Uber / Táxi</option>
-                                    <option value="Transporte - Estacionamento">🅿️ Estacionamento / Zona Azul</option>
-                                    <option value="Transporte - Manutenção">🔧 Manutenção / Revisão</option>
-                                    <option value="Transporte - IPVA/Seguro/Pedágio">📄 IPVA / Seguro / Pedágio</option>
+                                    <option value="Transporte - Manutenção/IPVA">📄 Manutenção / IPVA / Seguro</option>
                                 </optgroup>
-                                <optgroup label="🩺 Saúde, Pets & Cuidados">
-                                    <option value="Saúde & Bem-Estar">💊 Saúde & Farmácia</option>
+                                <optgroup label="🩺 Saúde, Pets & Pessoal">
+                                    <option value="Saúde & Bem-Estar">💊 Saúde / Terapia / Farmácia</option>
                                     <option value="Pet">🐱 Pets (Ração, Vet, Mimos)</option>
-                                    <option value="Cuidados Pessoais">🧴 Cuidados Pessoais / Higiene & Beleza</option>
+                                    <option value="Cuidados Pessoais">🧴 Cuidados Pessoais / Cosméticos</option>
+                                    <option value="Vestuário">👕 Roupas & Acessórios</option>
+                                    <option value="Educação">📚 Educação (Cursos, Livros, Materiais)</option>
                                 </optgroup>
-                                <optgroup label="👕 Vestuário & Acessórios">
-                                    <option value="Vestuário">👕 Roupas, Calçados & Acessórios</option>
-                                </optgroup>
-                                <optgroup label="📈 Investimentos & Pessoal">
-                                    <option value="Investimentos & Pessoal">📈 Investimentos & Cursos</option>
-                                    <option value="Outros">📦 Outros</option>
+                                <optgroup label="📈 Outros">
+                                    <option value="Investimentos & Pessoal">📈 Investimentos</option>
+                                    <option value="Outros">📦 Outros Gastos</option>
                                 </optgroup>
                             </select>
                             <button class="btn btn-primary" onclick="addFixedExpense()" style="flex: 1;">Add</button>
@@ -940,12 +937,23 @@
                 
                 <div class="invest-grid">
                     <div class="invest-item-box">
-                        <div class="card-title">Total Aportado</div>
+                        <div class="card-title">Total Aportado (Ativos)</div>
                         <div class="history-metric-val text-neutral" id="invTotalDeposited">R$ 0,00</div>
                     </div>
                     <div class="invest-item-box">
-                        <div class="card-title">Rendimento Real</div>
+                        <div class="card-title">Rendimento Ativo (Ao Vivo)</div>
                         <div class="history-metric-val" id="invRealProfit">R$ 0,00</div>
+                    </div>
+                </div>
+                
+                <div class="invest-grid" style="grid-template-columns: 1fr 1fr; margin-top: 10px;">
+                    <div class="invest-item-box">
+                        <div class="card-title">Lucro Histórico (Fechados)</div>
+                        <div class="history-metric-val text-green" id="invHistoryProfit">R$ 0,00</div>
+                    </div>
+                    <div class="invest-item-box" style="border-color: #58a6ff;">
+                        <div class="card-title" style="color:#58a6ff;">Ganho Total da Vida</div>
+                        <div class="history-metric-val text-blue" id="invTotalLifeProfit">R$ 0,00</div>
                     </div>
                 </div>
 
@@ -1004,7 +1012,7 @@
             <input type="text" id="finishedSearchInput" class="form-control" placeholder="🔍 Buscar por ativo ou data (ex: 07-26)..." style="margin-bottom: 1rem;" onkeyup="renderInvestmentsScreen()">
 
             <div id="finishedSummaryBox" style="background: rgba(63, 185, 80, 0.08); border: 1px solid rgba(63, 185, 80, 0.2); border-radius: 12px; padding: 1rem; margin-bottom: 1rem; text-align: center;">
-                <div style="font-size: 0.8rem; color: #8b949e; text-transform: uppercase;">Lucro Líquido Acumulado</div>
+                <div style="font-size: 0.8rem; color: #8b949e; text-transform: uppercase;">Lucro Líquido Acumulado Histórico</div>
                 <div id="finishedTotalProfitVal" style="font-size: 1.4rem; font-weight: 700; color: #3fb950;">R$ 0,00</div>
             </div>
 
@@ -1135,7 +1143,7 @@
                 <div style="display: flex; gap: 8px;">
                     <div class="form-group" style="flex: 1;">
                         <label>Valor (R$)</label>
-                        <input type="number" id="splitterExpenseAmount" class="form-control" step="0.01" placeholder="0.00">
+                        <input type="text" inputmode="numeric" id="splitterExpenseAmount" class="form-control smart-money" placeholder="0,00">
                     </div>
                     <div class="form-group" style="flex: 1;">
                         <label>Quem Pagou?</label>
@@ -1284,18 +1292,18 @@
                     </div>
                     <div class="form-group">
                         <label>Valor a Retirar (R$)</label>
-                        <input type="number" id="rescueAmountInput" class="form-control" step="0.01" min="0.01" placeholder="Ex: 30.50">
+                        <input type="text" inputmode="numeric" id="rescueAmountInput" class="form-control smart-money" placeholder="0,00">
                     </div>
                 </div>
 
                 <div id="totalRescueSection" style="display:none;">
                     <div class="form-group">
                         <label>Valor Bruto do Resgate (R$)</label>
-                        <input type="number" id="finishGrossAmount" class="form-control" step="0.01">
+                        <input type="text" inputmode="numeric" id="finishGrossAmount" class="form-control smart-money" placeholder="0,00">
                     </div>
                     <div class="form-group">
                         <label>Imposto de Renda Retido (IR em R$)</label>
-                        <input type="number" id="finishIrAmount" class="form-control" step="0.01" min="0" placeholder="Ex: 15.50">
+                        <input type="text" inputmode="numeric" id="finishIrAmount" class="form-control smart-money" placeholder="0,00">
                     </div>
                     <div style="font-size: 0.8rem; color: #3fb950; margin-bottom: 1rem;" id="finishNetPreview">
                         Valor Líquido no Bolso: R$ 0,00
@@ -1342,7 +1350,7 @@
 
                 <div class="form-group">
                     <label>Aporte Inicial (R$)</label>
-                    <input type="number" id="fundInitialAmountInput" class="form-control" step="0.01" min="0" placeholder="0.00" required>
+                    <input type="text" inputmode="numeric" id="fundInitialAmountInput" class="form-control smart-money" placeholder="0,00" required>
                 </div>
                 <div class="form-group">
                     <label>Data do Aporte Inicial</label>
@@ -1368,7 +1376,7 @@
                 </div>
                 <div class="form-group">
                     <label>Valor TOTAL da Compra (R$)</label>
-                    <input type="number" id="editInstTotalAmount" class="form-control" step="0.01" min="0.01" required>
+                    <input type="text" inputmode="numeric" id="editInstTotalAmount" class="form-control smart-money" required>
                 </div>
                 <div class="form-group">
                     <label>Número de Parcelas</label>
@@ -1407,7 +1415,7 @@
 
                 <div class="form-group">
                     <label for="expenseAmountInput" id="amountLabel">Valor do Gasto (R$)</label>
-                    <input type="number" id="expenseAmountInput" class="form-control" step="0.01" min="0.01" placeholder="0.00" required>
+                    <input type="text" inputmode="numeric" id="expenseAmountInput" class="form-control smart-money" placeholder="0,00" required>
                 </div>
 
                 <div id="installmentFieldsContainer" style="display: none; background: #0d1117; padding: 0.8rem; border-radius: 10px; border: 1px solid #21262d; margin-bottom: 0.9rem;">
@@ -1423,40 +1431,37 @@
                 <div class="form-group">
                     <label for="expenseCategorySelect">Categoria</label>
                     <select id="expenseCategorySelect" class="form-control" required>
-                        <optgroup label="🏠 Casa & Habitação">
-                            <option value="Casa - Aluguel/Condomínio">🏢 Aluguel / Condomínio</option>
-                            <option value="Casa - Contas (Luz/Água/Gás)">💡 Contas (Luz, Água, Gás)</option>
-                            <option value="Casa - Internet/TV">🌐 Internet / TV</option>
-                            <option value="Casa - Manutenção/Reparos">🛠️ Manutenção / Reparos</option>
-                            <option value="Casa - Decoração/Eletro">🛋️ Decoração / Eletro</option>
-                            <option value="Casa - Utilidades/Utensílios">🍳 Utilidades / Utensílios</option>
-                            <option value="Mercado">🛒 Mercado / Feira</option>
+                        <optgroup label="🏠 Casa & Moradia">
+                            <option value="Moradia - Aluguel/Condomínio">🏢 Aluguel / Condomínio</option>
+                            <option value="Moradia - Contas Básicas (Luz/Água/Internet)">💡 Contas Básicas (Luz, Água, Internet)</option>
+                            <option value="Moradia - Manutenção/Eletro">🛠️ Manutenção / Eletro / Decoração</option>
+                            <option value="Mercado">🛒 Mercado / Feira / Limpeza</option>
                         </optgroup>
-                        <optgroup label="🍔 Alimentação & Lazer">
-                            <option value="Alimentação" selected>🍔 Rest. / Lanches / Delivery</option>
-                            <option value="Lazer">🎉 Lazer & Rolês</option>
+                        <optgroup label="🍔 Alimentação & Rolês">
+                            <option value="Alimentação" selected>🍔 Rest. / Lanches / Ifood</option>
+                            <option value="Lazer">🎉 Festas / Rolês / Bares</option>
                             <option value="Viagens">✈️ Viagens & Passeios</option>
-                            <option value="Lembrancinhas / Presentes">🎁 Lembrancinhas / Presentes</option>
-                            <option value="Assinaturas">📺 Assinaturas & Streaming</option>
+                            <option value="Presentes">🎁 Presentes</option>
+                        </optgroup>
+                        <optgroup label="🎮 Digital & Assinaturas">
+                            <option value="Assinaturas">📺 Assinaturas & Streaming (Netflix, Spotify)</option>
+                            <option value="Games">🎮 Games (Passes, Jogos, Itens)</option>
                         </optgroup>
                         <optgroup label="🚗 Transporte">
                             <option value="Transporte - Combustível">⛽ Combustível</option>
                             <option value="Transporte - Uber/App">🚕 Uber / Táxi</option>
-                            <option value="Transporte - Estacionamento">🅿️ Estacionamento / Zona Azul</option>
-                            <option value="Transporte - Manutenção">🔧 Manutenção / Revisão</option>
-                            <option value="Transporte - IPVA/Seguro/Pedágio">📄 IPVA / Seguro / Pedágio</option>
+                            <option value="Transporte - Manutenção/IPVA">📄 Manutenção / IPVA / Seguro</option>
                         </optgroup>
-                        <optgroup label="🩺 Saúde, Pets & Cuidados">
-                            <option value="Saúde & Bem-Estar">💊 Saúde & Farmácia</option>
+                        <optgroup label="🩺 Saúde, Pets & Pessoal">
+                            <option value="Saúde & Bem-Estar">💊 Saúde / Terapia / Farmácia</option>
                             <option value="Pet">🐱 Pets (Ração, Vet, Mimos)</option>
-                            <option value="Cuidados Pessoais">🧴 Cuidados Pessoais / Higiene & Beleza</option>
+                            <option value="Cuidados Pessoais">🧴 Cuidados Pessoais / Cosméticos</option>
+                            <option value="Vestuário">👕 Roupas & Acessórios</option>
+                            <option value="Educação">📚 Educação (Cursos, Livros, Materiais)</option>
                         </optgroup>
-                        <optgroup label="👕 Vestuário & Acessórios">
-                            <option value="Vestuário">👕 Roupas, Calçados & Acessórios</option>
-                        </optgroup>
-                        <optgroup label="📈 Investimentos & Pessoal">
-                            <option value="Investimentos & Pessoal">📈 Investimentos & Cursos</option>
-                            <option value="Outros">📦 Outros</option>
+                        <optgroup label="📈 Outros">
+                            <option value="Investimentos & Pessoal">📈 Investimentos</option>
+                            <option value="Outros">📦 Outros Gastos</option>
                         </optgroup>
                     </select>
                 </div>
@@ -1481,7 +1486,7 @@
 
             <div class="form-group">
                 <label for="dailyBudgetInput">1. Orçamento Diário (R$)</label>
-                <input type="number" id="dailyBudgetInput" class="form-control" placeholder="Ex: 100" step="0.01" min="0">
+                <input type="text" inputmode="numeric" id="dailyBudgetInput" class="form-control smart-money" placeholder="Ex: 100,00">
                 <div style="background: rgba(88, 166, 255, 0.1); border-left: 3px solid #58a6ff; padding: 0.6rem; font-size: 0.8rem; color: #79c0ff; margin-top: 0.4rem; border-radius: 0 6px 6px 0;" id="monthlyProjection">
                     Informe um valor para calcular.
                 </div>
@@ -1518,7 +1523,7 @@
         const STORAGE_KEY = 'TOBA_BANK_DB';
 
         let db = {
-            version: 28,
+            version: 29,
             config: {
                 startDate: new Date().toISOString().split('T')[0],
                 fixedExpenses: []
@@ -1539,6 +1544,37 @@
         let currentProjPeriod = '6m';
         let chartMode = 'brl';
         let chartVisibleAssets = new Set();
+
+        /* === MÁGICA DA DIGITAÇÃO DO DINHEIRO === */
+        function getMoney(id) {
+            const el = document.getElementById(id);
+            if (!el) return 0;
+            let val = el.value;
+            if(!val) return 0;
+            val = val.replace(/\./g, '').replace(',', '.');
+            return parseFloat(val) || 0;
+        }
+
+        function formatMoneyInput(value) {
+            if (value === null || value === undefined || isNaN(value)) return '';
+            return parseFloat(value).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // Escuta global para aplicar a máscara financeira de trás pra frente
+            document.addEventListener('input', function(e) {
+                if (e.target.classList.contains('smart-money')) {
+                    let val = e.target.value.replace(/\D/g, '');
+                    if (val === '') {
+                        e.target.value = '';
+                        return;
+                    }
+                    let num = parseInt(val, 10) / 100;
+                    e.target.value = num.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                }
+            });
+        });
+        /* ======================================= */
 
         function getFixedExpensesForMonth(mKey) {
             const currentMonthKey = getCurrentMonthKey();
@@ -1795,7 +1831,6 @@
                 const totalSpent = (g.expenses || []).reduce((acc, e) => acc + e.amount, 0);
                 const membersCount = (g.members || []).length;
                 
-                // EXTRAI SÓ O EMOJI DA CATEGORIA PARA EVITAR REDUNDÂNCIA (EX: "🥩 Churrasco" vira "🥩")
                 const catEmoji = g.category ? g.category.trim().split(' ')[0] : '🍕';
 
                 const card = document.createElement('div');
@@ -1899,7 +1934,7 @@
             const g = db.splitterGroups.find(item => item.id === id);
             if (!g) return;
             const desc = document.getElementById('splitterExpenseDesc').value;
-            const amount = parseFloat(document.getElementById('splitterExpenseAmount').value) || 0;
+            const amount = getMoney('splitterExpenseAmount');
             const payer = document.getElementById('splitterExpensePayer').value;
 
             if (!desc || amount <= 0 || !payer) {
@@ -2016,40 +2051,6 @@
             }
             settlementBox.innerHTML = htmlTxt;
         }
-
-        document.addEventListener('DOMContentLoaded', () => {
-            loadDatabase();
-            setupEvents();
-            switchView('main');
-            renderDashboard();
-
-            const newSplitterForm = document.getElementById('newSplitterForm');
-            if (newSplitterForm) {
-                newSplitterForm.addEventListener('submit', (e) => {
-                    e.preventDefault();
-                    const name = document.getElementById('newSplitterName').value;
-                    const category = document.getElementById('newSplitterCategory').value;
-                    const date = document.getElementById('newSplitterDate').value;
-                    const rawMembers = document.getElementById('newSplitterMembers').value;
-                    const members = rawMembers.split(',').map(m => m.trim()).filter(m => m.length > 0);
-
-                    if (!db.splitterGroups) db.splitterGroups = [];
-                    db.splitterGroups.push({
-                        id: Date.now().toString(),
-                        name,
-                        category,
-                        date,
-                        members,
-                        expenses: [],
-                        isFinished: false
-                    });
-
-                    saveDatabase();
-                    document.getElementById('newSplitterModal').classList.remove('active');
-                    switchView('splitter');
-                });
-            }
-        });
         /* --- FIM DA LÓGICA DO RAXADOR --- */
 
         /* === SISTEMA DE GRÁFICOS (PASSADO E PROJEÇÃO) === */
@@ -2192,7 +2193,8 @@
                     backgroundColor: color,
                     borderWidth: 2,
                     tension: 0.3,
-                    pointRadius: 2
+                    pointRadius: 0,
+                    hitRadius: 10
                 });
             });
 
@@ -2304,7 +2306,8 @@
                         fill: true,
                         borderWidth: 3,
                         tension: 0.3,
-                        pointRadius: 3
+                        pointRadius: 0,
+                        hitRadius: 10
                     }]
                 },
                 options: {
@@ -2345,7 +2348,9 @@
             const startDateInput = document.getElementById('startDateInput');
             const currentMonthKey = getCurrentMonthKey();
             
-            dailyInput.value = (db.months[currentMonthKey] || {}).dailyBudget || '';
+            const dailyB = (db.months[currentMonthKey] || {}).dailyBudget || 0;
+            dailyInput.value = dailyB > 0 ? formatMoneyInput(dailyB) : '';
+            
             startDateInput.value = db.config.startDate || getTodayIsoDateStr();
             updateMonthlyProjection();
             configModal.classList.add('active');
@@ -2382,7 +2387,7 @@
 
         function addFixedExpense() {
             const name = document.getElementById('fixedNameInput').value;
-            const amount = parseFloat(document.getElementById('fixedAmountInput').value) || 0;
+            const amount = getMoney('fixedAmountInput');
             const category = document.getElementById('fixedCategorySelect').value;
             
             if (name && amount > 0) {
@@ -2545,7 +2550,7 @@
                         const [d, m, y] = db.config.startDate.split('/');
                         db.config.startDate = `${y}-${m.padStart(2,'0')}-${d.padStart(2,'0')}`;
                     }
-                    db.version = 28;
+                    db.version = 29;
                 } catch (e) {
                     console.error("Erro ao carregar banco de dados", e);
                 }
@@ -2577,7 +2582,7 @@
 
             dailyInput.addEventListener('input', () => {
                 updateMonthlyProjection();
-                const val = parseFloat(dailyInput.value) || 0;
+                const val = getMoney('dailyBudgetInput');
                 const currentMonthKey = getCurrentMonthKey();
                 if (!db.months[currentMonthKey]) db.months[currentMonthKey] = {};
                 db.months[currentMonthKey].dailyBudget = val;
@@ -2610,7 +2615,7 @@
             document.getElementById('newFundForm').addEventListener('submit', (e) => {
                 e.preventDefault();
                 const name = document.getElementById('fundNameInput').value;
-                const initialAmount = parseFloat(document.getElementById('fundInitialAmountInput').value) || 0;
+                const initialAmount = getMoney('fundInitialAmountInput');
                 const initialDate = document.getElementById('fundInitialDateInput').value;
                 const isCofrinho = document.getElementById('fundIsCofrinhoValue').value === 'true';
 
@@ -2643,6 +2648,34 @@
                 e.preventDefault();
                 saveFundName();
             });
+            
+            // Eventos do Raxador
+            const newSplitterForm = document.getElementById('newSplitterForm');
+            if (newSplitterForm) {
+                newSplitterForm.addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    const name = document.getElementById('newSplitterName').value;
+                    const category = document.getElementById('newSplitterCategory').value;
+                    const date = document.getElementById('newSplitterDate').value;
+                    const rawMembers = document.getElementById('newSplitterMembers').value;
+                    const members = rawMembers.split(',').map(m => m.trim()).filter(m => m.length > 0);
+
+                    if (!db.splitterGroups) db.splitterGroups = [];
+                    db.splitterGroups.push({
+                        id: Date.now().toString(),
+                        name,
+                        category,
+                        date,
+                        members,
+                        expenses: [],
+                        isFinished: false
+                    });
+
+                    saveDatabase();
+                    document.getElementById('newSplitterModal').classList.remove('active');
+                    switchView('splitter');
+                });
+            }
         }
 
         function toggleInstallmentFields() {
@@ -2663,14 +2696,14 @@
         function updateInstallmentPreview() {
             const isChecked = document.getElementById('isInstallmentCheckbox').checked;
             if (!isChecked) return;
-            const totalAmount = parseFloat(document.getElementById('expenseAmountInput').value) || 0;
+            const totalAmount = getMoney('expenseAmountInput');
             const count = parseInt(document.getElementById('installmentCountInput').value, 10) || 1;
             const parcelVal = totalAmount > 0 && count > 0 ? (totalAmount / count) : 0;
             document.getElementById('installmentCalcPreview').innerText = `Valor de cada parcela: ${count}x de ${formatCurrency(parcelVal)}`;
         }
 
         function updateMonthlyProjection() {
-            const dailyVal = parseFloat(document.getElementById('dailyBudgetInput').value) || 0;
+            const dailyVal = getMoney('dailyBudgetInput');
             const now = new Date();
             const effectiveDays = getEffectiveDaysInMonth(now.getFullYear(), now.getMonth());
             const monthlyTotal = dailyVal * effectiveDays;
@@ -2695,7 +2728,7 @@
                     title.innerText = "✏️ Editar Gasto";
                     idInput.value = item.id;
                     descInput.value = item.description;
-                    amountInput.value = item.amount;
+                    amountInput.value = item.amount ? formatMoneyInput(item.amount) : '';
                     catSelect.value = item.category;
                     dateInput.value = item.date;
                     isInstCheckbox.checked = false;
@@ -2718,7 +2751,7 @@
         function saveExpense() {
             const id = document.getElementById('expenseIdInput').value;
             const desc = document.getElementById('expenseDescInput').value;
-            const rawAmount = parseFloat(document.getElementById('expenseAmountInput').value) || 0;
+            const rawAmount = getMoney('expenseAmountInput');
             const category = document.getElementById('expenseCategorySelect').value;
             const startDate = document.getElementById('expenseDateInput').value;
             const isInstallment = document.getElementById('isInstallmentCheckbox').checked;
@@ -2747,7 +2780,7 @@
             if (!inst) return;
             document.getElementById('editInstId').value = inst.id;
             document.getElementById('editInstDesc').value = inst.description;
-            document.getElementById('editInstTotalAmount').value = inst.totalAmount;
+            document.getElementById('editInstTotalAmount').value = inst.totalAmount ? formatMoneyInput(inst.totalAmount) : '';
             document.getElementById('editInstCount').value = inst.totalInstallments;
             document.getElementById('editInstStartDate').value = inst.startDate;
             document.getElementById('editInstallmentModal').classList.add('active');
@@ -2757,7 +2790,7 @@
             const id = document.getElementById('editInstId').value;
             const inst = db.installments.find(i => i.id === id);
             if (inst) {
-                const totalAmount = parseFloat(document.getElementById('editInstTotalAmount').value) || 0;
+                const totalAmount = getMoney('editInstTotalAmount');
                 const totalCount = parseInt(document.getElementById('editInstCount').value, 10) || 1;
                 inst.description = document.getElementById('editInstDesc').value;
                 inst.totalAmount = totalAmount;
@@ -2843,7 +2876,6 @@
             }
             if (daysElapsedUntilToday < 1) daysElapsedUntilToday = 1;
 
-            // VALOR BRUTO DA META ACUMULADA (sem descontar parcelas e fixos)
             const totalAccumulatedBudgetToday = baseDailyBudget * daysElapsedUntilToday;
             const vaultBalance = totalAccumulatedBudgetToday - monthlySpentVista;
 
@@ -3170,6 +3202,8 @@
         function openNewFundModal(isCofrinho = false) {
             document.getElementById('fundInitialDateInput').value = getTodayIsoDateStr();
             document.getElementById('fundIsCofrinhoValue').value = isCofrinho ? 'true' : 'false';
+            document.getElementById('fundInitialAmountInput').value = '';
+            document.getElementById('fundNameInput').value = '';
             document.getElementById('newFundModalTitle').innerText = isCofrinho ? '🐷 Novo Cofrinho' : '📈 Novo Card de Investimento';
             document.getElementById('newFundModal').classList.add('active');
         }
@@ -3192,7 +3226,7 @@
             document.getElementById('rescueAmountInput').value = '';
             document.getElementById('finishDateInput').value = getTodayIsoDateStr();
             
-            document.getElementById('finishGrossAmount').value = latestBalance.toFixed(2);
+            document.getElementById('finishGrossAmount').value = latestBalance ? formatMoneyInput(latestBalance) : '';
             document.getElementById('finishIrAmount').value = "";
             
             toggleRescueType();
@@ -3201,8 +3235,8 @@
         }
 
         function updateFinishNetPreview() {
-            const gross = parseFloat(document.getElementById('finishGrossAmount').value) || 0;
-            const ir = parseFloat(document.getElementById('finishIrAmount').value) || 0;
+            const gross = getMoney('finishGrossAmount');
+            const ir = getMoney('finishIrAmount');
             const net = Math.max(gross - ir, 0);
             document.getElementById('finishNetPreview').innerText = `Valor Líquido no Bolso: ${formatCurrency(net)}`;
         }
@@ -3215,7 +3249,7 @@
             if (!fund) return;
 
             if (rescueType === 'partial') {
-                const withdrawAmount = parseFloat(document.getElementById('rescueAmountInput').value) || 0;
+                const withdrawAmount = getMoney('rescueAmountInput');
                 if (withdrawAmount <= 0) return alert("Insira um valor válido para retirar.");
                 
                 let latestBalance = (fund.deposits || []).reduce((acc, d) => acc + d.amount, 0);
@@ -3232,8 +3266,8 @@
                 fund.balanceLogs.push({ id: (Date.now() + 1).toString(), date: rescueDate, amount: newBalance, isSystem: true });
                 
             } else {
-                const finalGrossAmount = parseFloat(document.getElementById('finishGrossAmount').value) || 0;
-                const irAmount = parseFloat(document.getElementById('finishIrAmount').value) || 0;
+                const finalGrossAmount = getMoney('finishGrossAmount');
+                const irAmount = getMoney('finishIrAmount');
                 
                 if (!fund.balanceLogs) fund.balanceLogs = [];
                 fund.balanceLogs.push({ id: Date.now().toString(), date: rescueDate, amount: finalGrossAmount, isSystem: true });
@@ -3254,7 +3288,7 @@
             const fund = db.investmentFunds.find(f => f.id === fundId);
             if (!fund) return;
             const date = document.getElementById(`saqueDate-${fundId}`).value;
-            const amount = parseFloat(document.getElementById(`saqueAmount-${fundId}`).value) || 0;
+            const amount = getMoney(`saqueAmount-${fundId}`);
             if (amount > 0) {
                 if (!fund.withdrawals) fund.withdrawals = [];
                 fund.withdrawals.push({ id: Date.now().toString(), date, amount });
@@ -3316,7 +3350,7 @@
                             <div class="card-action-title" style="color: #3fb950;">🪙 Novo Saque</div>
                             <div style="display:flex; gap:6px;">
                                 <input type="date" id="saqueDate-${fund.id}" class="form-control" value="${getTodayIsoDateStr()}" style="padding:0.4rem; font-size:0.8rem;">
-                                <input type="number" id="saqueAmount-${fund.id}" class="form-control" placeholder="R$" step="0.01" style="padding:0.4rem; font-size:0.8rem;">
+                                <input type="text" inputmode="numeric" id="saqueAmount-${fund.id}" class="form-control smart-money" placeholder="R$ 0,00" style="padding:0.4rem; font-size:0.8rem;">
                                 <button class="btn btn-primary" onclick="addCofrinhoWithdrawal('${fund.id}')" style="width:auto; padding:0.4rem 0.8rem; font-size:0.78rem; background: #238636;">Sacar</button>
                             </div>
                         </div>
@@ -3411,7 +3445,7 @@
                         <div class="card-action-title">➕ Novo Aporte</div>
                         <div style="display:flex; gap:6px;">
                             <input type="date" id="depDate-${fund.id}" class="form-control" value="${getTodayIsoDateStr()}" style="padding:0.4rem; font-size:0.8rem;">
-                            <input type="number" id="depAmount-${fund.id}" class="form-control" placeholder="R$" step="0.01" style="padding:0.4rem; font-size:0.8rem;">
+                            <input type="text" inputmode="numeric" id="depAmount-${fund.id}" class="form-control smart-money" placeholder="R$ 0,00" style="padding:0.4rem; font-size:0.8rem;">
                             <button class="btn btn-primary" onclick="addFundDeposit('${fund.id}')" style="width:auto; padding:0.4rem 0.8rem; font-size:0.78rem;">Aportar</button>
                         </div>
                     </div>
@@ -3420,7 +3454,7 @@
                         <div class="card-action-title">🔄 Atualizar Saldo</div>
                         <div style="display:flex; gap:6px;">
                             <input type="date" id="balDate-${fund.id}" class="form-control" value="${getTodayIsoDateStr()}" style="padding:0.4rem; font-size:0.8rem;">
-                            <input type="number" id="balAmount-${fund.id}" class="form-control" placeholder="R$ Atual" step="0.01" style="padding:0.4rem; font-size:0.8rem;">
+                            <input type="text" inputmode="numeric" id="balAmount-${fund.id}" class="form-control smart-money" placeholder="R$ Atual" style="padding:0.4rem; font-size:0.8rem;">
                             <button class="btn btn-secondary" onclick="addFundBalanceLog('${fund.id}')" style="width:auto; padding:0.4rem 0.8rem; font-size:0.78rem; border-color:#58a6ff; color:#58a6ff;">Atualizar</button>
                         </div>
                     </div>
@@ -3681,6 +3715,15 @@
             profitEl.innerText = `${formatCurrency(globalRealProfit)} (${globalRealProfit >= 0 ? '+' : ''}${globalProfitPct.toFixed(2)}%)`;
             profitEl.className = `history-metric-val ${globalRealProfit >= 0 ? 'text-green' : 'text-red'}`;
 
+            const histProfitEl = document.getElementById('invHistoryProfit');
+            histProfitEl.innerText = formatCurrency(totalLiquidProfit);
+            histProfitEl.className = `history-metric-val ${totalLiquidProfit >= 0 ? 'text-green' : 'text-red'}`;
+
+            const totalLifeProfit = globalRealProfit + totalLiquidProfit;
+            const totalLifeEl = document.getElementById('invTotalLifeProfit');
+            totalLifeEl.innerText = formatCurrency(totalLifeProfit);
+            totalLifeEl.className = `history-metric-val ${totalLifeProfit >= 0 ? 'text-blue' : 'text-red'}`;
+
             const globalProjSign = globalProjectedProfitSum >= 0 ? '+' : '';
             const projEl = document.getElementById('invGlobalProjection');
             projEl.innerText = `${globalProjSign}${formatCurrency(globalProjectedProfitSum)} (${globalProjSign}${globalProjPct.toFixed(2)}%)`;
@@ -3697,7 +3740,7 @@
             const fund = db.investmentFunds.find(f => f.id === fundId);
             if (!fund) return;
             const date = document.getElementById(`depDate-${fundId}`).value;
-            const amount = parseFloat(document.getElementById(`depAmount-${fundId}`).value) || 0;
+            const amount = getMoney(`depAmount-${fundId}`);
             if (amount > 0) {
                 if (!fund.deposits) fund.deposits = [];
                 fund.deposits.push({ id: Date.now().toString(), date, amount });
@@ -3712,7 +3755,7 @@
             const fund = db.investmentFunds.find(f => f.id === fundId);
             if (!fund) return;
             const date = document.getElementById(`balDate-${fundId}`).value;
-            const amount = parseFloat(document.getElementById(`balAmount-${fundId}`).value) || 0;
+            const amount = getMoney(`balAmount-${fundId}`);
             if (amount >= 0) {
                 if (!fund.balanceLogs) fund.balanceLogs = [];
                 fund.balanceLogs.push({ id: Date.now().toString(), date, amount });
