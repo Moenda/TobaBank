@@ -383,13 +383,13 @@
             margin-bottom: 1rem;
             overflow: hidden;
             transition: border-color 0.2s ease;
+            cursor: pointer;
         }
         .history-card:hover, .installment-card:hover, .invest-card:hover, .splitter-card:hover {
             border-color: #30363d;
         }
         .history-header, .installment-header, .invest-header, .splitter-header {
             padding: 1.0rem;
-            cursor: pointer;
             user-select: none;
         }
         .history-header-top, .installment-header-top, .invest-header-top, .splitter-header-top {
@@ -1039,6 +1039,61 @@
             <div id="splitterFinishedContainer"></div>
         </div>
 
+        <!-- VIEW 6: DETALHES DO RAXADOR (🍕) -->
+        <div class="app-view" id="viewSplitterDetail">
+            <div class="section-title" style="margin-top: 0.5rem; display: flex; justify-content: space-between; align-items: center;">
+                <span id="detailSplitterTitle" style="font-size: 1.1rem;">🍕 Detalhes do Rolê</span>
+                <div style="display: flex; gap: 8px;">
+                    <button class="btn btn-secondary" id="splitterToggleFinishBtnView" onclick="toggleSplitterFinished()" style="width: auto; padding: 0.4rem 0.8rem; font-size: 0.8rem; border-color: #3fb950; color: #3fb950;">🏁 Finalizar</button>
+                    <button class="btn btn-danger" onclick="deleteSplitterGroup()" style="width: auto; padding: 0.4rem 0.8rem; font-size: 0.8rem;">Excluir</button>
+                </div>
+            </div>
+
+            <input type="hidden" id="splitterGroupIdInput">
+
+            <!-- Meta info edit -->
+            <div class="card" style="margin-bottom: 1.5rem; padding: 1rem;" id="splitterMetaCard">
+                <div style="display: flex; gap: 8px; margin-bottom: 0.8rem;">
+                    <div class="form-group splitter-edit-field" style="flex: 2; margin-bottom: 0;">
+                        <label>Nome do Rolê</label>
+                        <input type="text" id="editSplitterName" class="form-control" onchange="updateSplitterGroupMeta()">
+                    </div>
+                    <div class="form-group splitter-edit-field" style="flex: 1; margin-bottom: 0;">
+                        <label>Categoria</label>
+                        <select id="editSplitterCategory" class="form-control" onchange="updateSplitterGroupMeta()">
+                            <option value="✈️ Viagem">✈️ Viagem</option>
+                            <option value="🥩 Churrasco">🥩 Churrasco</option>
+                            <option value="🎉 Festinha / Rolê">🎉 Festinha / Rolê</option>
+                            <option value="🛒 Compras / Outros">🛒 Compras / Outros</option>
+                        </select>
+                    </div>
+                </div>
+                <div style="display: flex; gap: 8px;">
+                    <div class="form-group splitter-edit-field" style="flex: 1; margin-bottom: 0;">
+                        <label>Data</label>
+                        <input type="date" id="editSplitterDate" class="form-control" onchange="updateSplitterGroupMeta()">
+                    </div>
+                    <div class="form-group splitter-edit-field" style="flex: 2; margin-bottom: 0;">
+                        <label>👥 Participantes (separados por vírgula)</label>
+                        <div style="display: flex; gap: 6px;">
+                            <input type="text" id="splitterMembersInput" class="form-control" placeholder="Ex: Toba, Gon...">
+                            <button class="btn btn-secondary" onclick="saveSplitterMembers()" style="width: auto;">Add</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.8rem;">
+                <div class="section-title" style="margin: 0; font-size: 0.9rem; color: #58a6ff;">⚖️ Quem deve para quem (Acerto)</div>
+                <button class="btn btn-primary" id="openAddSplitterExpenseBtn" onclick="openNewSplitterExpenseModal()" style="width: auto; padding: 0.4rem 0.8rem; font-size: 0.8rem;">💸 Add Gasto</button>
+            </div>
+
+            <div id="splitterSettlementBox" style="background: #0d1117; padding: 12px; border-radius: 12px; border: 1px solid #21262d; font-size: 0.85rem; margin-bottom: 1.5rem; line-height: 1.6;"></div>
+
+            <div class="section-title" style="font-size: 0.85rem; margin-top: 0; margin-bottom: 0.5rem; color: #f0f6fc;">📜 Histórico de Gastos do Rolê</div>
+            <div id="splitterExpensesList" class="log-list" style="margin-bottom: 1rem;"></div>
+        </div>
+
         <!-- VIEW 4: TELA DEDICADA DE GRÁFICO DE EVOLUÇÃO PATRIMONIAL 📈 -->
         <div class="app-view" id="viewPatrimonyChart">
             <div class="section-title" style="margin-top: 0.5rem; justify-content: center;">
@@ -1097,72 +1152,28 @@
 
     </div>
 
-    <!-- MODAL DO GRUPO DO RAXADOR (POPUP COMPLETO) -->
-    <div class="modal-overlay" id="splitterDetailModal">
+    <!-- MODAL ADICIONAR GASTO RAXADOR (POPUP NOVO E ENXUTO) -->
+    <div class="modal-overlay" id="newSplitterExpenseModal">
         <div class="modal">
             <div class="modal-header">
-                <h3 id="splitterModalTitle">🍕 Gerenciar Rolê</h3>
-                <button class="close-btn" onclick="document.getElementById('splitterDetailModal').classList.remove('active')">&times;</button>
+                <h3>💸 Adicionar Gasto no Rolê</h3>
+                <button class="close-btn" onclick="document.getElementById('newSplitterExpenseModal').classList.remove('active')">&times;</button>
             </div>
-            <input type="hidden" id="splitterGroupIdInput">
-            
-            <div class="form-group splitter-edit-field">
-                <label>Nome do Grupo / Rolê</label>
-                <input type="text" id="editSplitterName" class="form-control" onchange="updateSplitterGroupMeta()">
+            <div class="form-group">
+                <label>Descrição do Gasto</label>
+                <input type="text" id="splitterExpenseDesc" class="form-control" placeholder="Ex: Cerveja, Uber, Mercado">
             </div>
-            <div class="form-group splitter-edit-field">
-                <label>Categoria</label>
-                <select id="editSplitterCategory" class="form-control" onchange="updateSplitterGroupMeta()">
-                    <option value="✈️ Viagem">✈️ Viagem</option>
-                    <option value="🥩 Churrasco">🥩 Churrasco</option>
-                    <option value="🎉 Festinha / Rolê">🎉 Festinha / Rolê</option>
-                    <option value="🛒 Compras / Outros">🛒 Compras / Outros</option>
-                </select>
-            </div>
-            <div class="form-group splitter-edit-field">
-                <label>Data</label>
-                <input type="date" id="editSplitterDate" class="form-control" onchange="updateSplitterGroupMeta()">
-            </div>
-
-            <hr style="border: 0; border-top: 1px solid #30363d; margin: 1rem 0;" class="splitter-edit-field">
-
-            <div class="form-group splitter-edit-field">
-                <label>👥 Participantes (separados por vírgula)</label>
-                <div style="display: flex; gap: 6px;">
-                    <input type="text" id="splitterMembersInput" class="form-control" placeholder="Ex: Toba, Gon, Killua, Naruto">
-                    <button class="btn btn-secondary" onclick="saveSplitterMembers()" style="width: auto;">Atualizar</button>
-                </div>
-            </div>
-
-            <div class="card-action-box" style="margin-top: 1rem;">
-                <div class="card-action-title">💸 Adicionar Gasto no Rolê</div>
-                <div class="form-group">
-                    <label>Descrição do Gasto</label>
-                    <input type="text" id="splitterExpenseDesc" class="form-control" placeholder="Ex: Cerveja, Uber, Mercado">
-                </div>
-                <div style="display: flex; gap: 8px;">
-                    <div class="form-group" style="flex: 1;">
-                        <label>Valor (R$)</label>
-                        <input type="text" inputmode="numeric" id="splitterExpenseAmount" class="form-control smart-money" placeholder="0,00">
-                    </div>
-                    <div class="form-group" style="flex: 1;">
-                        <label>Quem Pagou?</label>
-                        <select id="splitterExpensePayer" class="form-control"></select>
-                    </div>
-                </div>
-                <button class="btn btn-primary" onclick="addSplitterExpense()">Adicionar Gasto</button>
-            </div>
-
-            <div class="section-title" style="font-size: 0.8rem; color: #58a6ff;">⚖️ Quem deve para quem (Acerto)</div>
-            <div id="splitterSettlementBox" style="background: #0d1117; padding: 10px; border-radius: 8px; border: 1px solid #21262d; font-size: 0.8rem; margin-bottom: 1rem; line-height: 1.5;"></div>
-
-            <div class="section-title" style="font-size: 0.8rem;">📜 Histórico de Gastos</div>
-            <div id="splitterExpensesList" class="log-list" style="max-height: 150px; overflow-y: auto; margin-bottom: 1rem;"></div>
-
             <div style="display: flex; gap: 8px;">
-                <button class="btn btn-secondary" id="splitterToggleFinishBtn" onclick="toggleSplitterFinished()" style="flex: 1; border-color: #3fb950; color: #3fb950;">🏁 Dividir / Finalizar</button>
-                <button class="btn btn-danger" onclick="deleteSplitterGroup()" style="width: auto;">Excluir</button>
+                <div class="form-group" style="flex: 1;">
+                    <label>Valor (R$)</label>
+                    <input type="text" inputmode="numeric" id="splitterExpenseAmount" class="form-control smart-money" placeholder="0,00">
+                </div>
+                <div class="form-group" style="flex: 1;">
+                    <label>Quem Pagou?</label>
+                    <select id="splitterExpensePayer" class="form-control"></select>
+                </div>
             </div>
+            <button class="btn btn-primary" onclick="addSplitterExpense()">Salvar Gasto</button>
         </div>
     </div>
 
@@ -1766,6 +1777,7 @@
             document.getElementById('viewInvestments').classList.toggle('active', viewName === 'investments');
             document.getElementById('viewPatrimonyChart').classList.toggle('active', viewName === 'chart');
             document.getElementById('viewSplitter').classList.toggle('active', viewName === 'splitter');
+            document.getElementById('viewSplitterDetail').classList.toggle('active', viewName === 'splitterDetail');
 
             const actionsContainer = document.getElementById('headerActionsContainer');
             actionsContainer.innerHTML = '';
@@ -1794,6 +1806,12 @@
                 actionsContainer.innerHTML = `
                     <button class="back-nav-btn" onclick="switchView('investments')" title="Voltar para Investimentos">⬅️ Voltar</button>
                 `;
+            } else if (viewName === 'splitterDetail') {
+                actionsContainer.innerHTML = `
+                    <button class="back-nav-btn" onclick="switchView('splitter')" title="Voltar pros Rolês">⬅️ Voltar</button>
+                    <button class="config-btn" id="openConfigBtn" title="Configurações">⚙️</button>
+                `;
+                document.getElementById('openConfigBtn').addEventListener('click', openConfigModalHandler);
             }
 
             if (viewName === 'investments') {
@@ -1835,7 +1853,7 @@
 
                 const card = document.createElement('div');
                 card.className = 'splitter-card';
-                card.onclick = () => openSplitterDetailModal(g.id);
+                card.onclick = () => openSplitterGroupView(g.id);
                 card.innerHTML = `
                     <div class="splitter-header">
                         <div class="splitter-header-top">
@@ -1862,16 +1880,72 @@
             if (!hasFinished) finishedContainer.innerHTML = '<div class="empty-state">Nenhum rolê finalizado.</div>';
         }
 
-        function openSplitterDetailModal(groupId) {
+        function openSplitterGroupView(groupId) {
             const g = db.splitterGroups.find(item => item.id === groupId);
             if (!g) return;
 
             document.getElementById('splitterGroupIdInput').value = g.id;
+            document.getElementById('detailSplitterTitle').innerText = `${g.category ? g.category.split(' ')[0] : '🍕'} ${g.name}`;
             document.getElementById('editSplitterName').value = g.name;
             document.getElementById('editSplitterCategory').value = g.category || '✈️ Viagem';
             document.getElementById('editSplitterDate').value = g.date;
             document.getElementById('splitterMembersInput').value = (g.members || []).join(', ');
 
+            renderSplitterExpensesAndSettlement(g);
+
+            const finishBtn = document.getElementById('splitterToggleFinishBtnView');
+            const editingFields = document.querySelectorAll('.splitter-edit-field');
+            const openExpenseBtn = document.getElementById('openAddSplitterExpenseBtn');
+
+            if (g.isFinished) {
+                finishBtn.innerText = '🔄 Reabrir Rolê';
+                finishBtn.style.borderColor = '#d29922';
+                finishBtn.style.color = '#d29922';
+                editingFields.forEach(el => {
+                    el.style.pointerEvents = 'none';
+                    el.style.opacity = '0.5';
+                });
+                if (openExpenseBtn) openExpenseBtn.style.display = 'none';
+            } else {
+                finishBtn.innerText = '🏁 Dividir / Finalizar';
+                finishBtn.style.borderColor = '#3fb950';
+                finishBtn.style.color = '#3fb950';
+                editingFields.forEach(el => {
+                    el.style.pointerEvents = 'auto';
+                    el.style.opacity = '1';
+                });
+                if (openExpenseBtn) openExpenseBtn.style.display = 'block';
+            }
+
+            switchView('splitterDetail');
+        }
+
+        function updateSplitterGroupMeta() {
+            const id = document.getElementById('splitterGroupIdInput').value;
+            const g = db.splitterGroups.find(item => item.id === id);
+            if (!g) return;
+            g.name = document.getElementById('editSplitterName').value;
+            g.category = document.getElementById('editSplitterCategory').value;
+            g.date = document.getElementById('editSplitterDate').value;
+            document.getElementById('detailSplitterTitle').innerText = `${g.category.split(' ')[0]} ${g.name}`;
+            saveDatabase();
+        }
+
+        function saveSplitterMembers() {
+            const id = document.getElementById('splitterGroupIdInput').value;
+            const g = db.splitterGroups.find(item => item.id === id);
+            if (!g) return;
+            const rawMembers = document.getElementById('splitterMembersInput').value;
+            g.members = rawMembers.split(',').map(m => m.trim()).filter(m => m.length > 0);
+            saveDatabase();
+            renderSplitterExpensesAndSettlement(g);
+        }
+
+        function openNewSplitterExpenseModal() {
+            const id = document.getElementById('splitterGroupIdInput').value;
+            const g = db.splitterGroups.find(item => item.id === id);
+            if (!g) return;
+            
             const payerSelect = document.getElementById('splitterExpensePayer');
             payerSelect.innerHTML = '';
             (g.members || []).forEach(m => {
@@ -1883,50 +1957,8 @@
 
             document.getElementById('splitterExpenseDesc').value = '';
             document.getElementById('splitterExpenseAmount').value = '';
-
-            renderSplitterExpensesAndSettlement(g);
-
-            const finishBtn = document.getElementById('splitterToggleFinishBtn');
-            const editingFields = document.querySelectorAll('.splitter-edit-field');
-            const expenseBox = document.querySelector('.card-action-box');
-
-            if (g.isFinished) {
-                finishBtn.innerText = '🔄 Reabrir Rolê';
-                finishBtn.style.borderColor = '#d29922';
-                finishBtn.style.color = '#d29922';
-                editingFields.forEach(el => el.style.display = 'none');
-                if (expenseBox) expenseBox.style.display = 'none';
-            } else {
-                finishBtn.innerText = '🏁 Dividir / Finalizar';
-                finishBtn.style.borderColor = '#3fb950';
-                finishBtn.style.color = '#3fb950';
-                editingFields.forEach(el => el.style.display = 'block');
-                if (expenseBox) expenseBox.style.display = 'block';
-            }
-
-            document.getElementById('splitterDetailModal').classList.add('active');
-        }
-
-        function updateSplitterGroupMeta() {
-            const id = document.getElementById('splitterGroupIdInput').value;
-            const g = db.splitterGroups.find(item => item.id === id);
-            if (!g) return;
-            g.name = document.getElementById('editSplitterName').value;
-            g.category = document.getElementById('editSplitterCategory').value;
-            g.date = document.getElementById('editSplitterDate').value;
-            saveDatabase();
-            renderSplitterScreen();
-        }
-
-        function saveSplitterMembers() {
-            const id = document.getElementById('splitterGroupIdInput').value;
-            const g = db.splitterGroups.find(item => item.id === id);
-            if (!g) return;
-            const rawMembers = document.getElementById('splitterMembersInput').value;
-            g.members = rawMembers.split(',').map(m => m.trim()).filter(m => m.length > 0);
-            saveDatabase();
-            openSplitterDetailModal(id);
-            renderSplitterScreen();
+            
+            document.getElementById('newSplitterExpenseModal').classList.add('active');
         }
 
         function addSplitterExpense() {
@@ -1946,20 +1978,19 @@
             g.expenses.push({ id: Date.now().toString(), desc, amount, payer });
             
             saveDatabase();
-            document.getElementById('splitterExpenseDesc').value = '';
-            document.getElementById('splitterExpenseAmount').value = '';
+            document.getElementById('newSplitterExpenseModal').classList.remove('active');
             renderSplitterExpensesAndSettlement(g);
-            renderSplitterScreen();
         }
 
         function deleteSplitterExpense(expenseId) {
             const id = document.getElementById('splitterGroupIdInput').value;
             const g = db.splitterGroups.find(item => item.id === id);
             if (!g) return;
-            g.expenses = (g.expenses || []).filter(e => e.id !== expenseId);
-            saveDatabase();
-            renderSplitterExpensesAndSettlement(g);
-            renderSplitterScreen();
+            if (confirm('Deseja apagar esse gasto do rolê?')) {
+                g.expenses = (g.expenses || []).filter(e => e.id !== expenseId);
+                saveDatabase();
+                renderSplitterExpensesAndSettlement(g);
+            }
         }
 
         function toggleSplitterFinished() {
@@ -1968,17 +1999,15 @@
             if (!g) return;
             g.isFinished = !g.isFinished;
             saveDatabase();
-            document.getElementById('splitterDetailModal').classList.remove('active');
-            renderSplitterScreen();
+            openSplitterGroupView(id);
         }
 
         function deleteSplitterGroup() {
-            if (confirm('Tem certeza que deseja apagar este grupo do raxador?')) {
+            if (confirm('Tem certeza que deseja apagar este grupo inteiro do raxador?')) {
                 const id = document.getElementById('splitterGroupIdInput').value;
                 db.splitterGroups = db.splitterGroups.filter(g => g.id !== id);
                 saveDatabase();
-                document.getElementById('splitterDetailModal').classList.remove('active');
-                renderSplitterScreen();
+                switchView('splitter');
             }
         }
 
@@ -1991,11 +2020,11 @@
             if (expenses.length === 0) {
                 listEl.innerHTML = '<div style="font-size:0.75rem; color:#8b949e;">Nenhum gasto lançado ainda.</div>';
             } else {
-                expenses.forEach(e => {
+                [...expenses].reverse().forEach(e => {
                     const item = document.createElement('div');
                     item.className = 'log-item';
                     item.innerHTML = `
-                        <span><b>${e.desc}</b> (${formatCurrency(e.amount)}) - Pago por <i>${e.payer}</i></span>
+                        <span><b>${e.desc}</b> <span style="color:#f85149; font-weight:700;">(${formatCurrency(e.amount)})</span><br><span style="color:#8b949e; font-size:0.7rem;">Pago por: <i>${e.payer}</i></span></span>
                         <button class="action-icon-btn delete" onclick="deleteSplitterExpense('${e.id}')" title="Apagar">🗑️</button>
                     `;
                     listEl.appendChild(item);
@@ -2032,17 +2061,17 @@
                 else if (bal > 0.01) creditors.push({ name: m, amount: bal });
             });
 
-            let htmlTxt = `<b>Total Gasto:</b> ${formatCurrency(totalSpent)} (${formatCurrency(perPersonShare)} / pessoa)<br><br>`;
+            let htmlTxt = `<b>Total do Rolê:</b> <span style="color:#58a6ff;">${formatCurrency(totalSpent)}</span> <span style="color:#8b949e; font-size:0.75rem;">(${formatCurrency(perPersonShare)} / pessoa)</span><br><br>`;
             
             if (debtors.length === 0 && creditors.length === 0) {
-                htmlTxt += 'Tudo quitado ou sem gastos!';
+                htmlTxt += '<span style="color:#3fb950; font-weight:600;">Tudo quitado ou sem gastos! 🍻</span>';
             } else {
                 htmlTxt += '<b>🤑 Faz o Pix:</b><br>';
                 debtors.forEach(d => {
                     creditors.forEach(c => {
                         if (d.amount > 0.01 && c.amount > 0.01) {
                             const transfer = Math.min(d.amount, c.amount);
-                            htmlTxt += `👉 <b>${d.name}</b> paga <b>${formatCurrency(transfer)}</b> para <b>${c.name}</b><br>`;
+                            htmlTxt += `<div style="margin-top: 4px; padding: 6px; background: rgba(88, 166, 255, 0.1); border-radius: 6px;">👉 <b>${d.name}</b> paga <span style="color:#58a6ff; font-weight:700;">${formatCurrency(transfer)}</span> para <b>${c.name}</b></div>`;
                             d.amount -= transfer;
                             c.amount -= transfer;
                         }
@@ -2660,8 +2689,7 @@
                     const rawMembers = document.getElementById('newSplitterMembers').value;
                     const members = rawMembers.split(',').map(m => m.trim()).filter(m => m.length > 0);
 
-                    if (!db.splitterGroups) db.splitterGroups = [];
-                    db.splitterGroups.push({
+                    const newGroup = {
                         id: Date.now().toString(),
                         name,
                         category,
@@ -2669,11 +2697,14 @@
                         members,
                         expenses: [],
                         isFinished: false
-                    });
+                    };
+
+                    if (!db.splitterGroups) db.splitterGroups = [];
+                    db.splitterGroups.push(newGroup);
 
                     saveDatabase();
                     document.getElementById('newSplitterModal').classList.remove('active');
-                    switchView('splitter');
+                    openSplitterGroupView(newGroup.id); // Já joga o cara direto pra dentro do rolê!
                 });
             }
         }
