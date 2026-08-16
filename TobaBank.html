@@ -1054,32 +1054,31 @@
 
             <!-- Meta info edit -->
             <div class="card" style="margin-bottom: 1.5rem; padding: 1rem;" id="splitterMetaCard">
-                <div style="display: flex; gap: 8px; margin-bottom: 0.8rem;">
-                    <div class="form-group splitter-edit-field" style="flex: 2; margin-bottom: 0;">
-                        <label>Nome do Rolê</label>
-                        <input type="text" id="editSplitterName" class="form-control" onchange="updateSplitterGroupMeta()">
-                    </div>
-                    <div class="form-group splitter-edit-field" style="flex: 1; margin-bottom: 0;">
-                        <label>Categoria</label>
-                        <select id="editSplitterCategory" class="form-control" onchange="updateSplitterGroupMeta()">
-                            <option value="✈️ Viagem">✈️ Viagem</option>
-                            <option value="🥩 Churrasco">🥩 Churrasco</option>
-                            <option value="🎉 Festinha / Rolê">🎉 Festinha / Rolê</option>
-                            <option value="🛒 Compras / Outros">🛒 Compras / Outros</option>
-                        </select>
-                    </div>
+                <div class="form-group splitter-edit-field">
+                    <label>Nome do Rolê</label>
+                    <input type="text" id="editSplitterName" class="form-control" onchange="updateSplitterGroupMeta()">
                 </div>
-                <div style="display: flex; gap: 8px;">
-                    <div class="form-group splitter-edit-field" style="flex: 1; margin-bottom: 0;">
-                        <label>Data</label>
-                        <input type="date" id="editSplitterDate" class="form-control" onchange="updateSplitterGroupMeta()">
-                    </div>
-                    <div class="form-group splitter-edit-field" style="flex: 2; margin-bottom: 0;">
-                        <label>👥 Participantes (separados por vírgula)</label>
-                        <div style="display: flex; gap: 6px;">
-                            <input type="text" id="splitterMembersInput" class="form-control" placeholder="Ex: Toba, Gon...">
-                            <button class="btn btn-secondary" onclick="saveSplitterMembers()" style="width: auto;">Add</button>
-                        </div>
+                
+                <div class="form-group splitter-edit-field">
+                    <label>Categoria</label>
+                    <select id="editSplitterCategory" class="form-control" onchange="updateSplitterGroupMeta()">
+                        <option value="✈️ Viagem">✈️ Viagem</option>
+                        <option value="🥩 Churrasco">🥩 Churrasco</option>
+                        <option value="🎉 Festinha / Rolê">🎉 Festinha / Rolê</option>
+                        <option value="🛒 Compras / Outros">🛒 Compras / Outros</option>
+                    </select>
+                </div>
+                
+                <div class="form-group splitter-edit-field">
+                    <label>Data</label>
+                    <input type="date" id="editSplitterDate" class="form-control" onchange="updateSplitterGroupMeta()">
+                </div>
+                
+                <div class="form-group splitter-edit-field" style="margin-bottom: 0;">
+                    <label>👥 Participantes (separados por vírgula)</label>
+                    <div style="display: flex; gap: 6px;">
+                        <input type="text" id="splitterMembersInput" class="form-control" placeholder="Ex: Toba, Gon...">
+                        <button class="btn btn-secondary" onclick="saveSplitterMembers()" style="width: auto;">Add</button>
                     </div>
                 </div>
             </div>
