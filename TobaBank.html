@@ -1043,7 +1043,11 @@
 <!-- VIEW 6: DETALHES DO RAXADOR (🍕) -->
         <div class="app-view" id="viewSplitterDetail">
             <div class="section-title" style="margin-top: 0.5rem; display: flex; flex-direction: column; align-items: flex-start; gap: 12px;">
-                <span id="detailSplitterTitle" style="font-size: 1.3rem; font-weight: 700; line-height: 1.2;">🍕 Detalhes do Rolê</span>
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; width: 100%;">
+                    <span id="detailSplitterTitle" style="font-size: 1.3rem; font-weight: 700; line-height: 1.2;">🍕 Detalhes do Rolê</span>
+                    <!-- O Lápis Mágico do Toba Bank aqui 👇 -->
+                    <button class="action-icon-btn" onclick="toggleSplitterMetaCard()" style="font-size: 1rem; padding: 6px; background: #21262d; border-radius: 8px; border: 1px solid #30363d; transition: all 0.2s;" title="Editar Configurações">✏️</button>
+                </div>
                 <div style="display: flex; gap: 8px; width: 100%;">
                     <button class="btn btn-secondary" id="splitterToggleFinishBtnView" onclick="toggleSplitterFinished()" style="flex: 1; padding: 0.5rem 0.8rem; font-size: 0.85rem; border-color: #3fb950; color: #3fb950;">🏁 Finalizar</button>
                     <button class="btn btn-danger" onclick="deleteSplitterGroup()" style="flex: 1; padding: 0.5rem 0.8rem; font-size: 0.85rem;">🗑️ Excluir</button>
@@ -1052,13 +1056,12 @@
 
             <input type="hidden" id="splitterGroupIdInput">
 
-            <!-- Meta info edit -->
-            <div class="card" style="margin-bottom: 1.5rem; padding: 1rem;" id="splitterMetaCard">
+            <!-- Meta info edit (Oculto com display: none por padrão) -->
+            <div class="card" style="margin-bottom: 1.5rem; padding: 1rem; display: none;" id="splitterMetaCard">
                 <div class="form-group splitter-edit-field">
                     <label>Nome do Rolê</label>
                     <input type="text" id="editSplitterName" class="form-control" onchange="updateSplitterGroupMeta()">
                 </div>
-                
                 <div class="form-group splitter-edit-field">
                     <label>Categoria</label>
                     <select id="editSplitterCategory" class="form-control" onchange="updateSplitterGroupMeta()">
@@ -1068,12 +1071,10 @@
                         <option value="🛒 Compras / Outros">🛒 Compras / Outros</option>
                     </select>
                 </div>
-                
                 <div class="form-group splitter-edit-field">
                     <label>Data</label>
                     <input type="date" id="editSplitterDate" class="form-control" onchange="updateSplitterGroupMeta()">
                 </div>
-                
                 <div class="form-group splitter-edit-field" style="margin-bottom: 0;">
                     <label>👥 Participantes (separados por vírgula)</label>
                     <div style="display: flex; gap: 6px;">
@@ -1082,18 +1083,6 @@
                     </div>
                 </div>
             </div>
-
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.8rem;">
-                <div class="section-title" style="margin: 0; font-size: 0.9rem; color: #58a6ff;">⚖️ Quem deve para quem</div>
-                <button class="btn btn-primary" id="openAddSplitterExpenseBtn" onclick="openNewSplitterExpenseModal()" style="width: auto; padding: 0.4rem 0.8rem; font-size: 0.8rem;">💸 Add Gasto</button>
-            </div>
-
-            <div id="splitterSettlementBox" style="background: #0d1117; padding: 12px; border-radius: 12px; border: 1px solid #21262d; font-size: 0.85rem; margin-bottom: 1.5rem; line-height: 1.6;"></div>
-
-            <div class="section-title" style="font-size: 0.85rem; margin-top: 0; margin-bottom: 0.5rem; color: #f0f6fc;">📜 Histórico de Gastos do Rolê</div>
-            <!-- O pulo do gato na UI: alterado de log-list para expense-list -->
-            <div id="splitterExpensesList" class="expense-list" style="margin-bottom: 1rem;"></div>
-        </div>
 
         <!-- VIEW 4: TELA DEDICADA DE GRÁFICO DE EVOLUÇÃO PATRIMONIAL 📈 -->
         <div class="app-view" id="viewPatrimonyChart">
@@ -1891,7 +1880,8 @@
             document.getElementById('editSplitterCategory').value = g.category || '✈️ Viagem';
             document.getElementById('editSplitterDate').value = g.date;
             document.getElementById('splitterMembersInput').value = (g.members || []).join(', ');
-
+            document.getElementById('splitterMetaCard').style.display = 'none';
+            
             renderSplitterExpensesAndSettlement(g);
 
             const finishBtn = document.getElementById('splitterToggleFinishBtnView');
@@ -1919,6 +1909,16 @@
             }
 
             switchView('splitterDetail');
+        }
+
+        // Função para mostrar/esconder o form de configurações do rolê
+        function toggleSplitterMetaCard() {
+            const card = document.getElementById('splitterMetaCard');
+            if (card.style.display === 'none' || card.style.display === '') {
+                card.style.display = 'block';
+            } else {
+                card.style.display = 'none';
+            }
         }
 
         function updateSplitterGroupMeta() {
