@@ -1083,10 +1083,9 @@
                 </div>
             </div>
 
-            <!-- FALTAVA TUDO ISSO AQUI PRA BAIXO 👇 ONDE CÊ ENFIOU ISSO? 😂 -->
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.8rem;">
                 <div class="section-title" style="margin: 0; font-size: 0.9rem; color: #58a6ff;">⚖️ Quem deve para quem</div>
-                <button class="btn btn-primary" id="openAddSplitterExpenseBtn" onclick="openNewSplitterExpenseModal()" style="width: auto; padding: 0.4rem 0.8rem; font-size: 0.8rem;">💸 Add Gasto</button>
+                <button class="btn btn-primary" id="openAddSplitterExpenseBtn" onclick="openSplitterExpenseModal()" style="width: auto; padding: 0.4rem 0.8rem; font-size: 0.8rem;">💸 Add Gasto</button>
             </div>
 
             <div id="splitterSettlementBox" style="background: #0d1117; padding: 12px; border-radius: 12px; border: 1px solid #21262d; font-size: 0.85rem; margin-bottom: 1.5rem; line-height: 1.6;"></div>
@@ -1094,7 +1093,6 @@
             <div class="section-title" style="font-size: 0.85rem; margin-top: 0; margin-bottom: 0.5rem; color: #f0f6fc;">📜 Histórico de Gastos do Rolê</div>
             <div id="splitterExpensesList" class="expense-list" style="margin-bottom: 1rem;"></div>
         </div>
-        <!-- E FALTAVA FECHAR A DIV DA VIEW 6 AQUI EM CIMA TAMBÉM! -->
 
         <!-- VIEW 4: TELA DEDICADA DE GRÁFICO DE EVOLUÇÃO PATRIMONIAL 📈 -->
         <div class="app-view" id="viewPatrimonyChart">
@@ -1154,17 +1152,20 @@
 
     </div>
 
-    <!-- MODAL ADICIONAR GASTO RAXADOR (POPUP NOVO E ENXUTO) -->
+    <!-- MODAL ADICIONAR/EDITAR GASTO RAXADOR -->
     <div class="modal-overlay" id="newSplitterExpenseModal">
         <div class="modal">
             <div class="modal-header">
-                <h3>💸 Adicionar Gasto no Rolê</h3>
+                <h3 id="splitterExpenseModalTitle">💸 Adicionar Gasto no Rolê</h3>
                 <button class="close-btn" onclick="document.getElementById('newSplitterExpenseModal').classList.remove('active')">&times;</button>
             </div>
+            <input type="hidden" id="splitterExpenseIdInput">
+            
             <div class="form-group">
                 <label>Descrição do Gasto</label>
                 <input type="text" id="splitterExpenseDesc" class="form-control" placeholder="Ex: Cerveja, Uber, Mercado">
             </div>
+            
             <div style="display: flex; gap: 8px;">
                 <div class="form-group" style="flex: 1;">
                     <label>Valor (R$)</label>
@@ -1175,7 +1176,18 @@
                     <select id="splitterExpensePayer" class="form-control"></select>
                 </div>
             </div>
-            <button class="btn btn-primary" onclick="addSplitterExpense()">Salvar Gasto</button>
+            
+            <div class="form-group">
+                <label>Quem consumiu? (Verde = Vai dividir a conta)</label>
+                <div id="splitterExpenseInvolvedContainer" style="display: flex; gap: 6px; flex-wrap: wrap; margin-top: 6px;">
+                    <!-- Preenchido via JS mágico -->
+                </div>
+            </div>
+            
+            <div style="display: flex; gap: 8px; margin-top: 1rem;">
+                <button class="btn btn-primary" id="saveSplitterExpenseBtn" onclick="saveSplitterExpense()" style="flex: 2;">Salvar Gasto</button>
+                <button class="btn btn-danger" id="deleteSplitterExpenseBtn" onclick="deleteSplitterExpenseFromModal()" style="flex: 1; display: none;">🗑️ Apagar</button>
+            </div>
         </div>
     </div>
 
@@ -1954,7 +1966,9 @@
             renderSplitterExpensesAndSettlement(g);
         }
 
-        function openNewSplitterExpenseModal() {
+let currentInvolvedMembers = [];
+
+        function openSplitterExpenseModal(expenseId = null) {
             const id = document.getElementById('splitterGroupIdInput').value;
             const g = db.splitterGroups.find(item => item.id === id);
             if (!g) return;
@@ -1968,40 +1982,99 @@
                 payerSelect.appendChild(opt);
             });
 
-            document.getElementById('splitterExpenseDesc').value = '';
-            document.getElementById('splitterExpenseAmount').value = '';
-            
+            const title = document.getElementById('splitterExpenseModalTitle');
+            const idInput = document.getElementById('splitterExpenseIdInput');
+            const descInput = document.getElementById('splitterExpenseDesc');
+            const amountInput = document.getElementById('splitterExpenseAmount');
+            const deleteBtn = document.getElementById('deleteSplitterExpenseBtn');
+
+            if (expenseId) {
+                const exp = g.expenses.find(e => e.id === expenseId);
+                if (!exp) return;
+                title.innerText = '✏️ Editar Gasto';
+                idInput.value = exp.id;
+                descInput.value = exp.desc;
+                amountInput.value = formatMoneyInput(exp.amount);
+                payerSelect.value = exp.payer;
+                currentInvolvedMembers = exp.involved && exp.involved.length > 0 ? [...exp.involved] : [...g.members];
+                deleteBtn.style.display = 'block';
+            } else {
+                title.innerText = '💸 Adicionar Gasto';
+                idInput.value = '';
+                descInput.value = '';
+                amountInput.value = '';
+                currentInvolvedMembers = [...g.members];
+                deleteBtn.style.display = 'none';
+            }
+
+            renderInvolvedBadges(g.members);
             document.getElementById('newSplitterExpenseModal').classList.add('active');
         }
 
-        function addSplitterExpense() {
+        function renderInvolvedBadges(allMembers) {
+            const container = document.getElementById('splitterExpenseInvolvedContainer');
+            container.innerHTML = '';
+            allMembers.forEach(m => {
+                const isActive = currentInvolvedMembers.includes(m);
+                const badge = document.createElement('div');
+                badge.innerText = m;
+                badge.style.cssText = `
+                    padding: 4px 10px; border-radius: 12px; font-size: 0.8rem; font-weight: 600; cursor: pointer; user-select: none; transition: all 0.2s;
+                    ${isActive ? 'background: rgba(63, 185, 80, 0.2); color: #3fb950; border: 1px solid #3fb950;' : 'background: #161b22; color: #8b949e; border: 1px solid #30363d;'}
+                `;
+                badge.onclick = () => {
+                    if (currentInvolvedMembers.includes(m)) {
+                        currentInvolvedMembers = currentInvolvedMembers.filter(x => x !== m);
+                    } else {
+                        currentInvolvedMembers.push(m);
+                    }
+                    renderInvolvedBadges(allMembers);
+                };
+                container.appendChild(badge);
+            });
+        }
+
+        function saveSplitterExpense() {
             const id = document.getElementById('splitterGroupIdInput').value;
             const g = db.splitterGroups.find(item => item.id === id);
             if (!g) return;
+            
+            const expenseId = document.getElementById('splitterExpenseIdInput').value;
             const desc = document.getElementById('splitterExpenseDesc').value;
             const amount = getMoney('splitterExpenseAmount');
             const payer = document.getElementById('splitterExpensePayer').value;
 
-            if (!desc || amount <= 0 || !payer) {
-                alert('Preencha a descrição, valor e quem pagou!');
+            if (!desc || amount <= 0 || !payer || currentInvolvedMembers.length === 0) {
+                alert('Preencha a descrição, valor, quem pagou e selecione pelo menos 1 pessoa pra dividir, mestre!');
                 return;
             }
 
             if (!g.expenses) g.expenses = [];
-            g.expenses.push({ id: Date.now().toString(), desc, amount, payer });
+            
+            if (expenseId) {
+                const index = g.expenses.findIndex(e => e.id === expenseId);
+                if (index !== -1) {
+                    g.expenses[index] = { ...g.expenses[index], desc, amount, payer, involved: [...currentInvolvedMembers] };
+                }
+            } else {
+                g.expenses.push({ id: Date.now().toString(), desc, amount, payer, involved: [...currentInvolvedMembers] });
+            }
             
             saveDatabase();
             document.getElementById('newSplitterExpenseModal').classList.remove('active');
             renderSplitterExpensesAndSettlement(g);
         }
 
-        function deleteSplitterExpense(expenseId) {
-            const id = document.getElementById('splitterGroupIdInput').value;
-            const g = db.splitterGroups.find(item => item.id === id);
+        function deleteSplitterExpenseFromModal() {
+            const groupId = document.getElementById('splitterGroupIdInput').value;
+            const expenseId = document.getElementById('splitterExpenseIdInput').value;
+            const g = db.splitterGroups.find(item => item.id === groupId);
             if (!g) return;
-            if (confirm('Deseja apagar esse gasto do rolê?')) {
+
+            if (confirm('Deseja mesmo apagar esse gasto do rolê?')) {
                 g.expenses = (g.expenses || []).filter(e => e.id !== expenseId);
                 saveDatabase();
+                document.getElementById('newSplitterExpenseModal').classList.remove('active');
                 renderSplitterExpensesAndSettlement(g);
             }
         }
@@ -2034,16 +2107,19 @@
                 listEl.innerHTML = '<div class="empty-state" style="font-size:0.75rem;">Nenhum gasto lançado ainda.</div>';
             } else {
                 [...expenses].reverse().forEach(e => {
+                    const involvedCount = e.involved ? e.involved.length : members.length;
                     const item = document.createElement('div');
                     item.className = 'expense-item';
+                    item.style.cursor = 'pointer';
+                    item.onclick = () => openSplitterExpenseModal(e.id);
                     item.innerHTML = `
                         <div class="expense-details">
                             <span class="expense-desc">${e.desc}</span>
-                            <span class="expense-meta">Pago por: <i>${e.payer}</i></span>
+                            <span class="expense-meta">Pago por: <i>${e.payer}</i> (Dividido por ${involvedCount})</span>
                         </div>
                         <div class="expense-right">
                             <span class="expense-amount-value" style="font-size: 0.85rem;">${formatCurrency(e.amount)}</span>
-                            <button class="action-icon-btn delete" onclick="deleteSplitterExpense('${e.id}')" title="Apagar">🗑️</button>
+                            <button class="action-icon-btn" title="Editar">✏️</button>
                         </div>
                     `;
                     listEl.appendChild(item);
@@ -2057,20 +2133,22 @@
             }
 
             const totalSpent = expenses.reduce((acc, e) => acc + e.amount, 0);
-            const perPersonShare = totalSpent / members.length;
-
+            
             const paidMap = {};
-            members.forEach(m => paidMap[m] = 0);
+            const consumedMap = {};
+            members.forEach(m => { paidMap[m] = 0; consumedMap[m] = 0; });
+
             expenses.forEach(e => {
-                if (paidMap[e.payer] !== undefined) {
-                    paidMap[e.payer] += e.amount;
-                }
+                if (paidMap[e.payer] !== undefined) paidMap[e.payer] += e.amount;
+                const involved = (e.involved && e.involved.length > 0) ? e.involved : members;
+                const splitAmount = e.amount / involved.length;
+                involved.forEach(m => {
+                    if (consumedMap[m] !== undefined) consumedMap[m] += splitAmount;
+                });
             });
 
             const balances = {};
-            members.forEach(m => {
-                balances[m] = paidMap[m] - perPersonShare;
-            });
+            members.forEach(m => balances[m] = paidMap[m] - consumedMap[m]);
 
             const debtors = [];
             const creditors = [];
@@ -2080,8 +2158,24 @@
                 else if (bal > 0.01) creditors.push({ name: m, amount: bal });
             });
 
-            let htmlTxt = `<b>Total do Rolê:</b> <span style="color:#58a6ff;">${formatCurrency(totalSpent)}</span> <span style="color:#8b949e; font-size:0.75rem;">(${formatCurrency(perPersonShare)} / pessoa)</span><br><br>`;
+            let htmlTxt = `
+                <div style="margin-bottom: 12px; padding-bottom: 12px; border-bottom: 1px solid #30363d;">
+                    <div style="font-size: 0.9rem; color: #58a6ff; font-weight: 700; margin-bottom: 8px;">📊 Resumo Individual</div>`;
             
+            members.forEach(m => {
+                if(paidMap[m] > 0 || consumedMap[m] > 0) {
+                    htmlTxt += `
+                    <div style="display:flex; justify-content:space-between; font-size:0.8rem; margin-top:4px;">
+                        <span><b>${m}</b> pagou ${formatCurrency(paidMap[m])}</span>
+                        <span style="color:#8b949e;">Gastou: ${formatCurrency(consumedMap[m])}</span>
+                    </div>`;
+                }
+            });
+            
+            htmlTxt += `
+                    <div style="margin-top: 10px; font-size: 0.9rem;"><b>Total do Rolê:</b> <span style="color:#58a6ff;">${formatCurrency(totalSpent)}</span></div>
+                </div>`;
+
             if (debtors.length === 0 && creditors.length === 0) {
                 htmlTxt += '<span style="color:#3fb950; font-weight:600;">Tudo quitado ou sem gastos! 🍻</span>';
             } else {
