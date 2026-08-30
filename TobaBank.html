@@ -2056,10 +2056,15 @@ let currentShares = {};
             
             allMembers.forEach(m => {
                 const pct = currentShares[m] !== undefined ? currentShares[m] : 0;
+                const isChecked = pct > 0;
+
                 const row = document.createElement('div');
                 row.style.cssText = "display: flex; align-items: center; justify-content: space-between; background: #161b22; padding: 6px 10px; border-radius: 8px; border: 1px solid #30363d;";
                 row.innerHTML = `
-                    <span style="font-size: 0.85rem; font-weight: 600; color: ${pct > 0 ? '#3fb950' : '#8b949e'};">${m}</span>
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <input type="checkbox" id="chk-member-${m}" ${isChecked ? 'checked' : ''} style="width: 16px; height: 16px; accent-color: #238636; cursor: pointer;" onclick="toggleMemberShare('${m}')">
+                        <label for="chk-member-${m}" style="font-size: 0.85rem; font-weight: 600; color: ${isChecked ? '#3fb950' : '#8b949e'}; cursor: pointer;">${m}</label>
+                    </div>
                     <div style="display: flex; align-items: center; gap: 6px;">
                         <input type="number" step="0.1" min="0" max="100" value="${pct.toFixed(1)}" 
                             onchange="updateShareValue('${m}', this.value)" 
@@ -2069,6 +2074,28 @@ let currentShares = {};
                 `;
                 container.appendChild(row);
             });
+        }
+
+        function toggleMemberShare(member) {
+            const allMembers = Object.keys(currentShares);
+            let activeMembers = allMembers.filter(m => m === member ? !document.getElementById(`chk-member-${m}`).checked : (currentShares[m] > 0));
+            
+            // Se acabou de marcar este membro, adiciona ele na lista ativa
+            if (document.getElementById(`chk-member-${member}`).checked && !activeMembers.includes(member)) {
+                activeMembers.push(member);
+            }
+
+            const equalShare = activeMembers.length > 0 ? (100 / activeMembers.length) : 0;
+
+            allMembers.forEach(m => {
+                currentShares[m] = activeMembers.includes(m) ? equalShare : 0;
+            });
+
+            renderShareRows(allMembers);
+        }
+
+        function updateShareValue(member, val) {
+            currentShares[member] = parseFloat(val) || 0;
         }
 
         function updateShareValue(member, val) {
@@ -2266,20 +2293,20 @@ let currentShares = {};
             if (expenses.length === 0) {
                 listEl.innerHTML = '<div class="empty-state" style="font-size:0.75rem;">Nenhum gasto lançado ainda.</div>';
             } else {
-                [...expenses].reverse().forEach(e => {
-                    const involvedCount = e.involved ? e.involved.length : members.length;
+                [...expenses].sort((a,b) => new Date(b.date || '') - new Date(a.date || '')).forEach(e => {
                     const item = document.createElement('div');
                     item.className = 'expense-item';
                     item.style.cursor = 'pointer';
                     item.onclick = () => openSplitterExpenseModal(e.id);
+                    
+                    // CARD LIMPO: Clicou em qualquer lugar abre o modal, sem lápis poluindo!
                     item.innerHTML = `
                         <div class="expense-details">
                             <span class="expense-desc">${e.desc}</span>
-                            <span class="expense-meta">Pago por: <i>${e.payer}</i> (Dividido por ${involvedCount})</span>
+                            <span class="expense-meta">Pago por: <i>${e.payer}</i> • ${isoToBrDate(e.date || g.date)}</span>
                         </div>
                         <div class="expense-right">
                             <span class="expense-amount-value" style="font-size: 0.85rem;">${formatCurrency(e.amount)}</span>
-                            <button class="action-icon-btn" title="Editar">✏️</button>
                         </div>
                     `;
                     listEl.appendChild(item);
@@ -2300,11 +2327,20 @@ let currentShares = {};
 
             expenses.forEach(e => {
                 if (paidMap[e.payer] !== undefined) paidMap[e.payer] += e.amount;
-                const involved = (e.involved && e.involved.length > 0) ? e.involved : members;
-                const splitAmount = e.amount / involved.length;
-                involved.forEach(m => {
-                    if (consumedMap[m] !== undefined) consumedMap[m] += splitAmount;
-                });
+                
+                if (e.shares) {
+                    Object.entries(e.shares).forEach(([m, pct]) => {
+                        if (consumedMap[m] !== undefined) {
+                            consumedMap[m] += e.amount * (pct / 100);
+                        }
+                    });
+                } else if (e.involved) {
+                    const splitAmount = e.amount / e.involved.length;
+                    e.involved.forEach(m => { if (consumedMap[m] !== undefined) consumedMap[m] += splitAmount; });
+                } else {
+                    const splitAmount = e.amount / members.length;
+                    members.forEach(m => { if (consumedMap[m] !== undefined) consumedMap[m] += splitAmount; });
+                }
             });
 
             const balances = {};
@@ -2327,7 +2363,7 @@ let currentShares = {};
                     htmlTxt += `
                     <div style="display:flex; justify-content:space-between; font-size:0.8rem; margin-top:4px;">
                         <span><b>${m}</b> pagou ${formatCurrency(paidMap[m])}</span>
-                        <span style="color:#8b949e;">Gastou: ${formatCurrency(consumedMap[m])}</span>
+                        <span style="color:#8b949e;">Consumiu: ${formatCurrency(consumedMap[m])}</span>
                     </div>`;
                 }
             });
