@@ -1575,8 +1575,25 @@
             const el = document.getElementById(id);
             if (!el) return 0;
             let val = el.value;
-            if(!val) return 0;
-            val = val.replace(/\./g, '').replace(',', '.');
+            if (!val) return 0;
+            
+            // Se o input veio formatado pela máscara smart-money (ex: 100,00 ou 1.000,00)
+            if (el.classList.contains('smart-money')) {
+                val = val.replace(/\./g, '').replace(',', '.');
+                return parseFloat(val) || 0;
+            }
+            
+            // Tratamento geral para inputs numéricos comuns ou teclados que mandam ponto/vírgula
+            val = val.toString().trim();
+            if (val.includes(',') && val.includes('.')) {
+                if (val.indexOf(',') > val.indexOf('.')) {
+                    val = val.replace(/\./g, '').replace(',', '.');
+                } else {
+                    val = val.replace(/,/g, '');
+                }
+            } else {
+                val = val.replace(',', '.');
+            }
             return parseFloat(val) || 0;
         }
 
