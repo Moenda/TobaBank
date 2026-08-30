@@ -2172,7 +2172,16 @@ let currentShares = {};
             if (expenses.length === 0) {
                 listEl.innerHTML = '<div class="empty-state" style="font-size:0.75rem;">Nenhum gasto lançado ainda.</div>';
             } else {
-                [...expenses].sort((a,b) => new Date(b.date || '') - new Date(a.date || '')).forEach(e => {
+                // Ordenação cronológica decrescente rigorosa: da data mais recente para a mais antiga
+                [...expenses].sort((a, b) => {
+                    const dateA = new Date(a.date || g.date || '1970-01-01');
+                    const dateB = new Date(b.date || g.date || '1970-01-01');
+                    if (dateB - dateA !== 0) {
+                        return dateB - dateA; // Compara a data da compra escolhida
+                    }
+                    // Se a data for exatamente igual, o mais recentemente criado aparece no topo
+                    return parseInt(b.id || 0) - parseInt(a.id || 0);
+                }).forEach(e => {
                     const item = document.createElement('div');
                     item.className = 'expense-item';
                     item.style.cursor = 'pointer';
