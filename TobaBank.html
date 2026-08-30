@@ -1183,7 +1183,7 @@
             </div>
             
             <div class="form-group">
-                <label>⚖️ Divisão por Participante (%)</label>
+                    <label id="splitterSharesTitleLabel">⚖️ Divisão por Participante (%)</label>
                 <div id="splitterExpenseSharesContainer" style="display: flex; flex-direction: column; gap: 6px; margin-top: 6px;">
                     <!-- Preenchido via JS com linhas de percentual dinâmicas -->
                 </div>
@@ -2054,6 +2054,18 @@ let currentShares = {};
             const container = document.getElementById('splitterExpenseSharesContainer');
             container.innerHTML = '';
             
+            let totalPct = 0;
+            allMembers.forEach(m => {
+                totalPct += (currentShares[m] !== undefined ? currentShares[m] : 0);
+            });
+
+            // Atualiza o título dinamicamente com o total da soma
+            const titleEl = document.getElementById('splitterSharesTitleLabel');
+            if (titleEl) {
+                const isExact = Math.abs(totalPct - 100) < 0.1;
+                titleEl.innerHTML = `⚖️ Divisão por Participante (%) <span style="float: right; color: ${isExact ? '#3fb950' : '#f85149'};">Total: ${totalPct.toFixed(1)}%</span>`;
+            }
+
             allMembers.forEach(m => {
                 const pct = currentShares[m] !== undefined ? currentShares[m] : 0;
                 const isChecked = pct > 0;
@@ -2062,7 +2074,7 @@ let currentShares = {};
                 row.style.cssText = "display: flex; align-items: center; justify-content: space-between; background: #161b22; padding: 6px 10px; border-radius: 8px; border: 1px solid #30363d;";
                 row.innerHTML = `
                     <div style="display: flex; align-items: center; gap: 8px;">
-                        <input type="checkbox" id="chk-member-${m}" ${isChecked ? 'checked' : ''} style="width: 16px; height: 16px; accent-color: #238636; cursor: pointer;" onchange="toggleMemberShare('${m}')">
+                        <input type="checkbox" id="chk-member-${m}" ${isChecked ? 'checked' : ''} style="width: 16px; height: 16px; accent-color: #238636; cursor: pointer;" onclick="toggleMemberShare('${m}')">
                         <label for="chk-member-${m}" style="font-size: 0.85rem; font-weight: 600; color: ${isChecked ? '#3fb950' : '#8b949e'}; cursor: pointer;">${m}</label>
                     </div>
                     <div style="display: flex; align-items: center; gap: 6px;">
@@ -2076,26 +2088,12 @@ let currentShares = {};
             });
         }
 
-        function toggleMemberShare(member) {
-            const allMembers = Object.keys(currentShares);
-            const isCheckedNow = document.getElementById(`chk-member-${member}`).checked;
-
-            // Mantém os que já tinham porcentagem maior que zero, adicionando ou removendo o atual
-            let activeMembers = allMembers.filter(m => m === member ? isCheckedNow : (currentShares[m] > 0));
-            
-            const equalShare = activeMembers.length > 0 ? (100 / activeMembers.length) : 0;
-
-            allMembers.forEach(m => {
-                currentShares[m] = activeMembers.includes(m) ? equalShare : 0;
-            });
-
-            renderShareRows(allMembers);
-        }
-
         function updateShareValue(member, val) {
             currentShares[member] = parseFloat(val) || 0;
+            const allMembers = Object.keys(currentShares);
+            renderShareRows(allMembers); // Re-renderiza para atualizar o total ao vivo na tela
         }
-    
+
         function saveSplitterExpense() {
             const id = document.getElementById('splitterGroupIdInput').value;
             const g = db.splitterGroups.find(item => item.id === id);
@@ -2109,6 +2107,13 @@ let currentShares = {};
 
             if (!desc || amount <= 0 || !payer) {
                 alert('Preencha a descrição, valor e quem pagou, chefia!');
+                return;
+            }
+
+            // FAIL SAFE: Valida se a soma dos percentuais dá exatamente 100%
+            const totalPct = Object.values(currentShares).reduce((a, b) => a + b, 0);
+            if (Math.abs(totalPct - 100) > 0.1) {
+                alert(`⚠️ Calma, Steve Jobs! A soma das porcentagens precisa fechar em exatamente 100%. (Atual: ${totalPct.toFixed(1)}%)`);
                 return;
             }
 
@@ -2126,6 +2131,22 @@ let currentShares = {};
             saveDatabase();
             document.getElementById('newSplitterExpenseModal').classList.remove('active');
             renderSplitterExpensesAndSettlement(g);
+        }
+
+        function toggleMemberShare(member) {
+            const allMembers = Object.keys(currentShares);
+            const isCheckedNow = document.getElementById(`chk-member-${member}`).checked;
+
+            // Mantém os que já tinham porcentagem maior que zero, adicionando ou removendo o atual
+            let activeMembers = allMembers.filter(m => m === member ? isCheckedNow : (currentShares[m] > 0));
+            
+            const equalShare = activeMembers.length > 0 ? (100 / activeMembers.length) : 0;
+
+            allMembers.forEach(m => {
+                currentShares[m] = activeMembers.includes(m) ? equalShare : 0;
+            });
+
+            renderShareRows(allMembers);
         }
 
         function deleteSplitterExpenseFromModal() {
