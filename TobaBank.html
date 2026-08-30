@@ -1511,7 +1511,7 @@
 
             <div class="form-group">
                 <label for="dailyBudgetInput">1. Orçamento Diário (R$)</label>
-                <input type="text" inputmode="numeric" id="dailyBudgetInput" class="form-control smart-money" placeholder="Ex: 100,00">
+                <input type="text" inputmode="decimal" id="dailyBudgetInput" class="form-control" placeholder="Ex: 100,00">
                 <div style="background: rgba(88, 166, 255, 0.1); border-left: 3px solid #58a6ff; padding: 0.6rem; font-size: 0.8rem; color: #79c0ff; margin-top: 0.4rem; border-radius: 0 6px 6px 0;" id="monthlyProjection">
                     Informe um valor para calcular.
                 </div>
@@ -2508,7 +2508,8 @@ let currentInvolvedMembers = [];
             const currentMonthKey = getCurrentMonthKey();
             
             const dailyB = (db.months[currentMonthKey] || {}).dailyBudget || 0;
-            dailyInput.value = dailyB > 0 ? formatMoneyInput(dailyB) : '';
+            // Formata direto com vírgula padrão BR para exibir bonito na config
+            dailyInput.value = dailyB > 0 ? dailyB.toFixed(2).replace('.', ',') : '';
             
             startDateInput.value = db.config.startDate || getTodayIsoDateStr();
             updateMonthlyProjection();
@@ -2741,7 +2742,9 @@ let currentInvolvedMembers = [];
 
             dailyInput.addEventListener('input', () => {
                 updateMonthlyProjection();
-                const val = getMoney('dailyBudgetInput');
+                let rawVal = dailyInput.value.replace(/\./g, '').replace(',', '.');
+                const val = parseFloat(rawVal) || 0;
+                
                 const currentMonthKey = getCurrentMonthKey();
                 if (!db.months[currentMonthKey]) db.months[currentMonthKey] = {};
                 db.months[currentMonthKey].dailyBudget = val;
