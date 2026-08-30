@@ -2062,7 +2062,7 @@ let currentShares = {};
                 row.style.cssText = "display: flex; align-items: center; justify-content: space-between; background: #161b22; padding: 6px 10px; border-radius: 8px; border: 1px solid #30363d;";
                 row.innerHTML = `
                     <div style="display: flex; align-items: center; gap: 8px;">
-                        <input type="checkbox" id="chk-member-${m}" ${isChecked ? 'checked' : ''} style="width: 16px; height: 16px; accent-color: #238636; cursor: pointer;" onclick="toggleMemberShare('${m}')">
+                        <input type="checkbox" id="chk-member-${m}" ${isChecked ? 'checked' : ''} style="width: 16px; height: 16px; accent-color: #238636; cursor: pointer;" onchange="toggleMemberShare('${m}')">
                         <label for="chk-member-${m}" style="font-size: 0.85rem; font-weight: 600; color: ${isChecked ? '#3fb950' : '#8b949e'}; cursor: pointer;">${m}</label>
                     </div>
                     <div style="display: flex; align-items: center; gap: 6px;">
@@ -2078,13 +2078,11 @@ let currentShares = {};
 
         function toggleMemberShare(member) {
             const allMembers = Object.keys(currentShares);
-            let activeMembers = allMembers.filter(m => m === member ? !document.getElementById(`chk-member-${m}`).checked : (currentShares[m] > 0));
-            
-            // Se acabou de marcar este membro, adiciona ele na lista ativa
-            if (document.getElementById(`chk-member-${member}`).checked && !activeMembers.includes(member)) {
-                activeMembers.push(member);
-            }
+            const isCheckedNow = document.getElementById(`chk-member-${member}`).checked;
 
+            // Mantém os que já tinham porcentagem maior que zero, adicionando ou removendo o atual
+            let activeMembers = allMembers.filter(m => m === member ? isCheckedNow : (currentShares[m] > 0));
+            
             const equalShare = activeMembers.length > 0 ? (100 / activeMembers.length) : 0;
 
             allMembers.forEach(m => {
@@ -2097,11 +2095,7 @@ let currentShares = {};
         function updateShareValue(member, val) {
             currentShares[member] = parseFloat(val) || 0;
         }
-
-        function updateShareValue(member, val) {
-            currentShares[member] = parseFloat(val) || 0;
-        }
-
+    
         function saveSplitterExpense() {
             const id = document.getElementById('splitterGroupIdInput').value;
             const g = db.splitterGroups.find(item => item.id === id);
