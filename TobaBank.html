@@ -1510,7 +1510,10 @@
                     <input type="date" id="expenseDateInput" class="form-control" required>
                 </div>
 
-                <button type="submit" class="btn btn-primary" style="margin-top: 1rem;">Salvar Gasto</button>
+                <div style="display: flex; gap: 8px; margin-top: 1rem;">
+                    <button type="submit" class="btn btn-primary" style="flex: 2;">Salvar Gasto</button>
+                    <button type="button" class="btn btn-danger" id="deleteExpenseModalBtn" onclick="deleteExpenseFromModal()" style="flex: 1; display: none;">🗑️ Apagar</button>
+                </div>
             </form>
         </div>
     </div>
@@ -2389,7 +2392,7 @@
             const deleteBtn = document.getElementById('deleteExpenseModalBtn');
 
             if (id) {
-                const item = db.transactions.find(t => t.id === id);
+                const item = db.transactions.find(t => String(t.id) === String(id));
                 if (!item) return;
                 title.innerText = '✏️ Editar Gasto';
                 idInput.value = item.id;
@@ -2399,7 +2402,7 @@
                 dateInput.value = item.date;
                 instGroupEl.style.display = 'none';
                 isInstCheckbox.checked = false;
-                deleteBtn.style.display = 'block';
+                if (deleteBtn) deleteBtn.style.display = 'block';
             } else {
                 title.innerText = '➕ Novo Gasto';
                 idInput.value = '';
@@ -2409,7 +2412,7 @@
                 dateInput.value = presetDateIso || getTodayIsoDateStr();
                 instGroupEl.style.display = 'block';
                 isInstCheckbox.checked = false;
-                deleteBtn.style.display = 'none';
+                if (deleteBtn) deleteBtn.style.display = 'none';
             }
 
             toggleInstallmentFields();
@@ -2421,7 +2424,7 @@
         function deleteExpenseFromModal() {
             const id = document.getElementById('expenseIdInput').value;
             if (id && confirm('Deseja realmente apagar esta despesa?')) {
-                db.transactions = db.transactions.filter(t => t.id !== id);
+                db.transactions = db.transactions.filter(t => String(t.id) !== String(id));
                 saveDatabase();
                 document.getElementById('expenseModal').classList.remove('active');
             }
@@ -2450,7 +2453,7 @@
                 });
             } else {
                 if (id) {
-                    const index = db.transactions.findIndex(t => t.id === id);
+                    const index = db.transactions.findIndex(t => String(t.id) === String(id));
                     if (index !== -1) {
                         db.transactions[index] = { id, description: desc, amount: rawAmount, category, date: startDate };
                     }
@@ -2466,14 +2469,14 @@
         // Remove uma despesa à vista individual da lista de transações
         function deleteExpense(id) {
             if (confirm('Deseja realmente apagar este gasto?')) {
-                db.transactions = db.transactions.filter(t => t.id !== id);
+                db.transactions = db.transactions.filter(t => String(t.id) !== String(id));
                 saveDatabase();
             }
         }
 
         // Abre o modal para editar o valor, parcelas ou descrição de uma compra parcelada
         function openEditInstallmentModal(instId) {
-            const inst = db.installments.find(i => i.id === instId);
+            const inst = db.installments.find(i => String(i.id) === String(instId));
             if (!inst) return;
             document.getElementById('editInstId').value = inst.id;
             document.getElementById('editInstDesc').value = inst.description;
@@ -2486,7 +2489,7 @@
         // Salva as alterações feitas em uma compra parcelada e recalcula suas parcelas
         function saveEditedInstallment() {
             const id = document.getElementById('editInstId').value;
-            const inst = db.installments.find(i => i.id === id);
+            const inst = db.installments.find(i => String(i.id) === String(id));
             if (inst) {
                 const totalAmount = getMoney('editInstTotalAmount');
                 const totalCount = parseInt(document.getElementById('editInstCount').value, 10) || 1;
@@ -2502,7 +2505,7 @@
         // Exclui completamente uma compra parcelada e todas as suas parcelas associadas
         function deleteInstallmentGroup(instId) {
             if (confirm('Deseja realmente apagar esta compra parcelada inteira?')) {
-                db.installments = db.installments.filter(i => i.id !== instId);
+                db.installments = db.installments.filter(i => String(i.id) !== String(instId));
                 saveDatabase();
             }
         }
@@ -2511,7 +2514,7 @@
         function deleteInstallmentFromEditModal() {
             const id = document.getElementById('editInstId').value;
             if (id && confirm('Deseja realmente apagar esta compra parcelada inteira?')) {
-                db.installments = db.installments.filter(i => i.id !== id);
+                db.installments = db.installments.filter(i => String(i.id) !== String(id));
                 saveDatabase();
                 document.getElementById('editInstallmentModal').classList.remove('active');
             }
@@ -3419,7 +3422,7 @@
 
         // Abre o modal para realizar o resgate total ou parcial de um fundo com cálculo de IR
         function openFinishFundModal(fundId) {
-            const fund = db.investmentFunds.find(f => f.id === fundId);
+            const fund = db.investmentFunds.find(f => String(f.id) === String(fundId));
             if (!fund) return;
 
             const totalDeposited = (fund.deposits || []).reduce((acc, d) => acc + d.amount, 0);
@@ -3433,8 +3436,12 @@
             const estimatedIr = realProfit * 0.15; // Alíquota padrão estimada de 15%
 
             document.getElementById('finishFundIdInput').value = fund.id;
-            document.getElementById('finishFundNameDisplay').innerText = fund.name;
-            document.getElementById('rescueTypeSelect').value = 'total';
+            const nameDisplay = document.getElementById('finishFundNameDisplay');
+            if (nameDisplay) nameDisplay.innerText = fund.name;
+            const profitAlert = document.getElementById('availableProfitAlert');
+            if (profitAlert) profitAlert.innerText = `Lucro disponível: ${formatCurrency(realProfit)}`;
+            
+            document.getElementById('rescueTypeSelect').value = 'partial';
             toggleRescueType();
 
             document.getElementById('finishGrossAmount').value = formatMoneyInput(latestBalance);
@@ -3449,14 +3456,16 @@
         // Alterna os campos do modal de resgate entre resgate total e resgate parcial
         function toggleRescueType() {
             const type = document.getElementById('rescueTypeSelect').value;
-            const partialBox = document.getElementById('rescuePartialBox');
-            const totalBox = document.getElementById('rescueTotalBox');
-            if (type === 'partial') {
-                partialBox.style.display = 'block';
-                totalBox.style.display = 'none';
-            } else {
-                partialBox.style.display = 'none';
-                totalBox.style.display = 'block';
+            const partialBox = document.getElementById('partialRescueSection') || document.getElementById('rescuePartialBox');
+            const totalBox = document.getElementById('totalRescueSection') || document.getElementById('rescueTotalBox');
+            if (partialBox && totalBox) {
+                if (type === 'partial') {
+                    partialBox.style.display = 'block';
+                    totalBox.style.display = 'none';
+                } else {
+                    partialBox.style.display = 'none';
+                    totalBox.style.display = 'block';
+                }
             }
             updateFinishNetPreview();
         }
