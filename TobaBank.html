@@ -33,6 +33,69 @@
             margin-bottom: 2rem;
         }
         
+        /* Invest Popup Overlay */
+        .invest-popup-overlay {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100vw; height: 100vh;
+            background: rgba(0,0,0,0.75);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+            z-index: 150;
+        }
+        .invest-popup-overlay.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+        .invest-popup {
+            background: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 18px;
+            padding: 1.4rem;
+            width: 90%;
+            max-width: 400px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.8);
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        .invest-action-accordion {
+            background: #0d1117;
+            border: 1px solid #21262d;
+            border-radius: 12px;
+            margin-bottom: 0.8rem;
+            overflow: hidden;
+        }
+        .invest-action-header {
+            padding: 0.8rem 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #58a6ff;
+            user-select: none;
+        }
+        .invest-action-body {
+            display: none;
+            padding: 0 1rem 1rem 1rem;
+        }
+        .invest-action-accordion.expanded .invest-action-body {
+            display: block;
+        }
+        .invest-action-arrow {
+            font-size: 0.7rem;
+            color: #8b949e;
+            transition: transform 0.2s;
+        }
+        .invest-action-accordion.expanded .invest-action-arrow {
+            transform: rotate(180deg);
+        }
+
         /* Header */
         .top-header {
             display: flex;
@@ -883,7 +946,7 @@
                         <div class="expense-list" id="expenseListContainer"></div>
                     </div>
                 </div>
-            </div>
+            </div>   
 
             <div class="tab-content" id="tabInstallments">
                 <div class="section-title">
@@ -1132,6 +1195,81 @@
 
             <div id="finishedInvestmentsContainer"></div>
         </div>
+
+        <!-- MODAL POPUP DE GERENCIAMENTO DO INVESTIMENTO -->
+        <div class="invest-popup-overlay" id="investActionPopup">
+            <div class="invest-popup">
+                <div class="modal-header">
+                    <h3 id="popupFundTitle" style="font-size: 1.1rem; color: #58a6ff;">Gerenciar Ativo</h3>
+                    <button class="close-btn" onclick="document.getElementById('investActionPopup').classList.remove('active')">&times;</button>
+                </div>
+                <input type="hidden" id="popupFundIdInput">
+
+                <!-- ACORDEON 1: ATUALIZAR SALDO -->
+                <div class="invest-action-accordion" id="accUpdateBal">
+                    <div class="invest-action-header" onclick="toggleInvestActionAcc('accUpdateBal')">
+                        <span>🔄 Atualizar Saldo</span>
+                        <span class="invest-action-arrow">▼</span>
+                    </div>
+                    <div class="invest-action-body">
+                        <div style="display: flex; flex-direction: column; gap: 8px;">
+                            <input type="date" id="popupBalDate" class="form-control" style="padding:0.5rem; font-size:0.8rem;">
+                            <input type="text" inputmode="numeric" id="popupBalAmount" class="form-control smart-money" placeholder="R$ Saldo Atual" style="padding:0.5rem; font-size:0.8rem;">
+                            <button class="btn btn-secondary" onclick="submitPopupBalance()" style="border-color:#58a6ff; color:#58a6ff; font-size:0.8rem;">Atualizar Saldo</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ACORDEON 2: NOVO APORTE -->
+                <div class="invest-action-accordion" id="accNewDep">
+                    <div class="invest-action-header" onclick="toggleInvestActionAcc('accNewDep')">
+                        <span>➕ Novo Aporte</span>
+                        <span class="invest-action-arrow">▼</span>
+                    </div>
+                    <div class="invest-action-body">
+                        <div style="display: flex; flex-direction: column; gap: 8px;">
+                            <input type="date" id="popupDepDate" class="form-control" style="padding:0.5rem; font-size:0.8rem;">
+                            <input type="text" inputmode="numeric" id="popupDepAmount" class="form-control smart-money" placeholder="R$ 0,00" style="padding:0.5rem; font-size:0.8rem;">
+                            <button class="btn btn-primary" onclick="submitPopupDeposit()" style="font-size:0.8rem; background: #238636;">Confirmar Aporte</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ACORDEON 3: RETIRAR SALDO -->
+                <div class="invest-action-accordion" id="accWithdraw">
+                    <div class="invest-action-header" onclick="toggleInvestActionAcc('accWithdraw')">
+                        <span>🪙 Retirar Saldo / Resgate</span>
+                        <span class="invest-action-arrow">▼</span>
+                    </div>
+                    <div class="invest-action-body">
+                        <div style="display: flex; flex-direction: column; gap: 8px;">
+                            <input type="date" id="popupWithdrawDate" class="form-control" style="padding:0.5rem; font-size:0.8rem;">
+                            <input type="text" inputmode="numeric" id="popupWithdrawAmount" class="form-control smart-money" placeholder="R$ 0,00" style="padding:0.5rem; font-size:0.8rem;">
+                            <button class="btn btn-secondary" onclick="submitPopupWithdraw()" style="border-color:#d29922; color:#d29922; font-size:0.8rem;">Efetuar Retirada</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ACORDEON 4: HISTÓRICO DE LANÇAMENTOS -->
+                <div class="invest-action-accordion" id="accHistory">
+                    <div class="invest-action-header" onclick="toggleInvestActionAcc('accHistory')">
+                        <span>📜 Histórico de Lançamentos</span>
+                        <span class="invest-action-arrow">▼</span>
+                    </div>
+                    <div class="invest-action-body">
+                        <div class="log-list" id="popupHistoryLogsList" style="max-height: 180px; overflow-y: auto;">
+                            <!-- Preenchido via JS -->
+                        </div>
+                    </div>
+                </div>
+
+                <div style="display: flex; gap: 8px; margin-top: 1.2rem; border-top: 1px solid #30363d; padding-top: 1rem;">
+                    <button class="btn btn-secondary" style="font-size: 0.8rem; border-color:#d29922; color:#d29922;" onclick="openFinishFundModalFromPopup()">🏁 Finalizar / Resgatar</button>
+                    <button class="btn btn-danger" style="font-size: 0.8rem;" onclick="deleteFundFromPopup()">🗑️ Excluir</button>
+                </div>
+            </div>
+        </div>
+
 
         <!-- VIEW 5: TELA DE RAXADOR DE GASTOS (🍕) -->
         <div class="app-view" id="viewSplitter">
@@ -3000,59 +3138,20 @@
                 let monthsElapsed = 1;
                 if (fund.deposits && fund.deposits.length > 0) {
                     const sortedDeps = [...fund.deposits].sort((a,b) => new Date(a.date) - new Date(b.date));
-                    const firstDate = new Date(sortedDeps[0].date);
                     startDateStr = isoToBrDate(sortedDeps[0].date);
-                    
-                    const diffTime = new Date() - firstDate;
+                    const diffTime = new Date() - new Date(sortedDeps[0].date);
                     const days = Math.max(Math.ceil(diffTime / (1000 * 60 * 60 * 24)), 1);
                     monthsElapsed = Math.max(days / 30.416, 1);
                 }
                 const avgYieldMonthly = yieldPct / monthsElapsed;
 
-                let withdrawalsListHtml = '';
-                const sortedWithdrawals = [...(fund.withdrawals || [])].sort((a, b) => new Date(b.date) - new Date(a.date));
-                sortedWithdrawals.forEach(w => {
-                    withdrawalsListHtml += `
-                        <div class="log-item">
-                            <span>🪙 Saque • ${isoToBrDate(w.date)}</span>
-                            <div style="display:flex; align-items:center; gap:6px;">
-                                <span style="font-weight:700; color: #3fb950;">+${formatCurrency(w.amount)}</span>
-                                <button class="action-icon-btn delete" onclick="deleteCofrinhoWithdrawal('${fund.id}', '${w.id}'); event.stopPropagation();" title="Apagar">🗑️</button>
-                            </div>
-                        </div>
-                    `;
-                });
-
-                const bodyActionsHtml = `
-                    <div class="invest-body">
-                        <div class="card-action-box">
-                            <div class="card-action-title" style="color: #3fb950;">🪙 Novo Saque (Lucro)</div>
-                            <div style="display:flex; gap:6px;">
-                                <input type="date" id="saqueDate-${fund.id}" class="form-control" value="${getTodayIsoDateStr()}" style="padding:0.4rem; font-size:0.8rem;">
-                                <input type="text" inputmode="numeric" id="saqueAmount-${fund.id}" class="form-control smart-money" placeholder="R$ 0,00" style="padding:0.4rem; font-size:0.8rem;">
-                                <button class="btn btn-primary" onclick="addCofrinhoWithdrawal('${fund.id}')" style="width:auto; padding:0.4rem 0.8rem; font-size:0.78rem; background: #238636;">Sacar</button>
-                            </div>
-                        </div>
-
-                        <div style="font-size:0.78rem; font-weight:700; color:#8b949e; margin: 0.8rem 0 0.4rem 0;">📜 Histórico de Saques</div>
-                        <div class="log-list">
-                            ${withdrawalsListHtml || '<div style="font-size:0.73rem; color:#8b949e;">Nenhum saque registrado ainda.</div>'}
-                        </div>
-
-                        <div style="display:flex; justify-content:flex-end; align-items:center; margin-top:1rem; border-top:1px solid #21262d; padding-top:0.6rem;">
-                            <button class="btn btn-danger" style="width:auto; padding:0.3rem 0.7rem; font-size:0.75rem;" onclick="deleteFund('${fund.id}')">🗑️ Excluir Cofrinho</button>
-                        </div>
-                    </div>
-                `;
-
                 return `
-                    <div class="invest-header" onclick="toggleInvestCard('${fund.id}')">
+                    <div class="invest-header" onclick="openInvestActionPopup('${fund.id}')" style="cursor: pointer;">
                         <div class="invest-header-top">
-                            <span class="invest-title">
-                                🐷 ${fund.name} 
-                                <span onclick="openEditFundNameModal('${fund.id}', '${fund.name.replace(/'/g, "\\'") }'); event.stopPropagation();" style="cursor:pointer; font-size:0.9rem; margin-left:8px; opacity: 0.7;">✏️</span>
+                            <span class="invest-title" style="font-size: 1rem; font-weight: 700; color: #58a6ff;">
+                                ${fund.name}
                             </span>
-                            <span class="invest-arrow">▼</span>
+                            <span style="font-size: 0.75rem; color: #8b949e; background: #161b22; padding: 3px 8px; border-radius: 6px; border: 1px solid #21262d;">Gerenciar ⚙️</span>
                         </div>
                         
                         <div style="margin: 10px 0; display: flex; justify-content: space-between; align-items: center; background: #161b22; padding: 8px 12px; border-radius: 8px; border: 1px solid #21262d;">
@@ -3081,7 +3180,6 @@
                             </div>
                         </div>
                     </div>
-                    ${bodyActionsHtml}
                 `;
             }
 
@@ -3092,66 +3190,6 @@
                 latestBalance = sortedLogs[0].amount;
             }
 
-            const totalWithdrawn = (fund.withdrawals || []).reduce((acc, w) => acc + w.amount, 0);
-            const withdrawnHtml = totalWithdrawn > 0 
-                ? `<div style="margin-top: 6px; font-size: 0.72rem; color: #8b949e; border-top: 1px solid #30363d; padding-top: 4px;">💸 Lucro Realizado/Sacado: <b>${formatCurrency(totalWithdrawn)}</b></div>` 
-                : '';
-
-            let historyLogsHtml = '';
-            const allLogs = [
-                ...(fund.deposits || []).map(d => ({ type: 'aporte', id: d.id, date: d.date, amount: d.amount })),
-                ...(fund.balanceLogs || []).filter(b => !b.isSystem).map(b => ({ type: 'saldo', id: b.id, date: b.date, amount: b.amount })),
-                ...(fund.withdrawals || []).map(w => ({ type: 'resgate', id: w.id, date: w.date, amount: w.amount }))
-            ].sort((a, b) => new Date(b.date) - new Date(a.date));
-
-            allLogs.forEach(log => {
-                let logIcon = '🔄', label = 'Saldo', color = '#d29922', sign = '';
-                if (log.type === 'aporte') { logIcon = '➕'; label = 'Aporte'; color = '#58a6ff'; sign = '+'; }
-                else if (log.type === 'resgate') { logIcon = '🪙'; label = 'Resgate'; color = '#ff7b72'; sign = '-'; }
-
-                historyLogsHtml += `
-                    <div class="log-item">
-                        <span>${logIcon} ${label} • ${isoToBrDate(log.date)}</span>
-                        <div style="display:flex; align-items:center; gap:6px;">
-                            <span style="font-weight:700; color: ${color};">${sign}${formatCurrency(log.amount)}</span>
-                            <button class="action-icon-btn delete" onclick="deleteInvestLog('${fund.id}', '${log.id}', '${log.type}'); event.stopPropagation();" title="Apagar">🗑️</button>
-                        </div>
-                    </div>
-                `;
-            });
-
-            const bodyActionsHtml = `
-                <div class="invest-body">
-                    <div class="card-action-box">
-                        <div class="card-action-title">➕ Novo Aporte</div>
-                        <div style="display:flex; gap:6px;">
-                            <input type="date" id="depDate-${fund.id}" class="form-control" value="${getTodayIsoDateStr()}" style="padding:0.4rem; font-size:0.8rem;">
-                            <input type="text" inputmode="numeric" id="depAmount-${fund.id}" class="form-control smart-money" placeholder="R$ 0,00" style="padding:0.4rem; font-size:0.8rem;">
-                            <button class="btn btn-primary" onclick="addFundDeposit('${fund.id}')" style="width:auto; padding:0.4rem 0.8rem; font-size:0.78rem;">Aportar</button>
-                        </div>
-                    </div>
-
-                    <div class="card-action-box">
-                        <div class="card-action-title">🔄 Atualizar Saldo</div>
-                        <div style="display:flex; gap:6px;">
-                            <input type="date" id="balDate-${fund.id}" class="form-control" value="${getTodayIsoDateStr()}" style="padding:0.4rem; font-size:0.8rem;">
-                            <input type="text" inputmode="numeric" id="balAmount-${fund.id}" class="form-control smart-money" placeholder="R$ Atual" style="padding:0.4rem; font-size:0.8rem;">
-                            <button class="btn btn-secondary" onclick="addFundBalanceLog('${fund.id}')" style="width:auto; padding:0.4rem 0.8rem; font-size:0.78rem; border-color:#58a6ff; color:#58a6ff;">Atualizar</button>
-                        </div>
-                    </div>
-
-                    <div style="font-size:0.78rem; font-weight:700; color:#8b949e; margin: 0.8rem 0 0.4rem 0;">📜 Histórico de Lançamentos</div>
-                    <div class="log-list">
-                        ${historyLogsHtml || '<div style="font-size:0.73rem; color:#8b949e;">Nenhum histórico registrado.</div>'}
-                    </div>
-
-                    <div style="display:flex; justify-content:space-between; align-items:center; margin-top:1rem; border-top:1px solid #21262d; padding-top:0.6rem;">
-                        <button class="btn btn-secondary" style="width:auto; padding:0.3rem 0.7rem; font-size:0.75rem; border-color:#d29922; color:#d29922;" onclick="openFinishFundModal('${fund.id}')">🏁 Finalizar / Resgatar</button>
-                        <button class="btn btn-danger" style="width:auto; padding:0.3rem 0.7rem; font-size:0.75rem;" onclick="deleteFund('${fund.id}')">🗑️ Excluir</button>
-                    </div>
-                </div>
-            `;
-
             const realProfit = latestBalance - totalDeposited;
             const profitPercentage = totalDeposited > 0 ? ((realProfit / totalDeposited) * 100) : 0;
             const proj = calculateCompoundProjection(fund.deposits, fund.balanceLogs);
@@ -3161,15 +3199,14 @@
             const projSign = proj.profitAmount >= 0 ? '+' : '';
 
             return `
-                <div class="invest-header" onclick="toggleInvestCard('${fund.id}')">
+                <div class="invest-header" onclick="openInvestActionPopup('${fund.id}')" style="cursor: pointer;">
                     <div class="invest-header-top">
-                        <span class="invest-title">
-                            📈 ${fund.name} 
-                            <span onclick="openEditFundNameModal('${fund.id}', '${fund.name.replace(/'/g, "\\'") }'); event.stopPropagation();" style="cursor:pointer; font-size:0.9rem; margin-left:8px; opacity: 0.7;">✏️</span>
+                        <span class="invest-title" style="font-size: 1rem; font-weight: 700; color: #58a6ff;">
+                            ${fund.name}
                         </span>
-                        <span class="invest-arrow">▼</span>
+                        <span style="font-size: 0.75rem; color: #8b949e; background: #161b22; padding: 3px 8px; border-radius: 6px; border: 1px solid #21262d;">Gerenciar ⚙️</span>
                     </div>
-                    <div class="invest-metrics">
+                    <div class="invest-metrics" style="margin-top: 8px;">
                         <div class="invest-metric-box">
                             <span class="invest-metric-label">Saldo Atual</span>
                             <span class="invest-metric-val text-neutral">${formatCurrency(latestBalance)}</span>
@@ -3183,13 +3220,155 @@
                             <span class="invest-metric-val ${profitClass}">${profitSign}${profitPercentage.toFixed(2)}%</span>
                         </div>
                     </div>
-                    ${withdrawnHtml}
                     <div style="margin-top: 8px; font-size: 0.75rem; background: rgba(88, 166, 255, 0.08); padding: 5px 8px; border-radius: 6px;">
                         🚀 Projeção 12 meses <b class="${projClass}">${projSign}${formatCurrency(proj.profitAmount)} (${projSign}${proj.projectedPct.toFixed(2)}%)</b>
                     </div>
                 </div>
-                ${bodyActionsHtml}
             `;
+        }
+
+        function openInvestActionPopup(fundId) {
+            const fund = db.investmentFunds.find(f => String(f.id) === String(fundId));
+            if (!fund) return;
+
+            document.getElementById('popupFundIdInput').value = fund.id;
+            document.getElementById('popupFundTitle.innerText' in document.getElementById('popupFundTitle') ? 'popupFundTitle' : '').innerText = fund.name;
+            const titleEl = document.getElementById('popupFundTitle');
+            if (titleEl) titleEl.innerText = fund.name;
+
+            document.getElementById('popupBalDate').value = getTodayIsoDateStr();
+            document.getElementById('popupBalAmount').value = '';
+            document.getElementById('popupDepDate').value = getTodayIsoDateStr();
+            document.getElementById('popupDepAmount').value = '';
+            document.getElementById('popupWithdrawDate').value = getTodayIsoDateStr();
+            document.getElementById('popupWithdrawAmount').value = '';
+
+            // Fecha todos os acordeons do popup ao abrir
+            ['accUpdateBal', 'accNewDep', 'accWithdraw', 'accHistory'].forEach(id => {
+                document.getElementById(id)?.classList.remove('expanded');
+            });
+
+            // Preenche histórico de lançamentos no popup
+            const historyList = document.getElementById('popupHistoryLogsList');
+            historyList.innerHTML = '';
+
+            const allLogs = [
+                ...(fund.deposits || []).map(d => ({ type: 'aporte', id: d.id, date: d.date, amount: d.amount })),
+                ...(fund.balanceLogs || []).filter(b => !b.isSystem).map(b => ({ type: 'saldo', id: b.id, date: b.date, amount: b.amount })),
+                ...(fund.withdrawals || []).map(w => ({ type: 'resgate', id: w.id, date: w.date, amount: w.amount }))
+            ].sort((a, b) => new Date(b.date) - new Date(a.date));
+
+            if (allLogs.length === 0) {
+                historyList.innerHTML = '<div style="font-size:0.75rem; color:#8b949e; text-align:center; padding:10px;">Nenhum lançamento registrado.</div>';
+            } else {
+                allLogs.forEach(log => {
+                    let logIcon = '🔄', label = 'Saldo', color = '#d29922', sign = '';
+                    if (log.type === 'aporte') { logIcon = '➕'; label = 'Aporte'; color = '#58a6ff;'; sign = '+'; }
+                    else if (log.type === 'resgate') { logIcon = '🪙'; label = 'Retirada'; color = '#ff7b72;'; sign = '-'; }
+
+                    const item = document.createElement('div');
+                    item.className = 'log-item';
+                    item.innerHTML = `
+                        <span>${logIcon} ${label} • ${isoToBrDate(log.date)}</span>
+                        <div style="display:flex; align-items:center; gap:6px;">
+                            <span style="font-weight:700; color: ${color};">${sign}${formatCurrency(log.amount)}</span>
+                            <button class="action-icon-btn delete" onclick="deleteInvestLogFromPopup('${fund.id}', '${log.id}', '${log.type}')" title="Apagar">🗑️</button>
+                        </div>
+                    `;
+                    historyList.appendChild(item);
+                });
+            }
+
+            document.getElementById('investActionPopup').classList.add('active');
+        }
+
+        function toggleInvestActionAcc(accId) {
+            const acc = document.getElementById(accId);
+            if (acc) acc.classList.toggle('expanded');
+        }
+
+        function submitPopupBalance() {
+            const fundId = document.getElementById('popupFundIdInput').value;
+            const fund = db.investmentFunds.find(f => f.id === fundId);
+            if (!fund) return;
+            const date = document.getElementById('popupBalDate').value;
+            const amount = getMoney('popupBalAmount');
+            if (amount >= 0) {
+                if (!fund.balanceLogs) fund.balanceLogs = [];
+                fund.balanceLogs.push({ id: Date.now().toString(), date, amount });
+                saveDatabase();
+                document.getElementById('investActionPopup').classList.remove('active');
+                renderInvestmentsScreen();
+            }
+        }
+
+        function submitPopupDeposit() {
+            const fundId = document.getElementById('popupFundIdInput').value;
+            const fund = db.investmentFunds.find(f => f.id === fundId);
+            if (!fund) return;
+            const date = document.getElementById('popupDepDate').value;
+            const amount = getMoney('popupDepAmount');
+            if (amount > 0) {
+                if (!fund.deposits) fund.deposits = [];
+                fund.deposits.push({ id: Date.now().toString(), date, amount });
+                saveDatabase();
+                document.getElementById('investActionPopup').classList.remove('active');
+                renderInvestmentsScreen();
+            }
+        }
+
+        function submitPopupWithdraw() {
+            const fundId = document.getElementById('popupFundIdInput').value;
+            const fund = db.investmentFunds.find(f => f.id === fundId);
+            if (!fund) return;
+            const date = document.getElementById('popupWithdrawDate').value;
+            const amount = getMoney('popupWithdrawAmount');
+            if (amount > 0) {
+                if (fund.isCofrinho) {
+                    if (!fund.withdrawals) fund.withdrawals = [];
+                    fund.withdrawals.push({ id: Date.now().toString(), date, amount });
+                } else {
+                    if (!fund.withdrawals) fund.withdrawals = [];
+                    fund.withdrawals.push({ id: Date.now().toString(), date, amount });
+                    
+                    let latestBalance = (fund.deposits || []).reduce((acc, d) => acc + d.amount, 0);
+                    if (fund.balanceLogs && fund.balanceLogs.length > 0) {
+                        const sorted = [...fund.balanceLogs].sort((a,b) => new Date(b.date) - new Date(a.date));
+                        latestBalance = sorted[0].amount;
+                    }
+                    const newBal = Math.max(latestBalance - amount, 0);
+                    if (!fund.balanceLogs) fund.balanceLogs = [];
+                    fund.balanceLogs.push({ id: Date.now().toString(), date, amount: newBal, isSystem: true });
+                }
+                saveDatabase();
+                document.getElementById('investActionPopup').classList.remove('active');
+                renderInvestmentsScreen();
+            }
+        }
+
+        function deleteInvestLogFromPopup(fundId, logId, type) {
+            const fund = db.investmentFunds.find(f => f.id === fundId);
+            if (!fund) return;
+            if (confirm('Deseja apagar este registro?')) {
+                if (type === 'aporte') fund.deposits = fund.deposits.filter(d => d.id !== logId);
+                else if (type === 'resgate') fund.withdrawals = fund.withdrawals.filter(w => w.id !== logId);
+                else fund.balanceLogs = fund.balanceLogs.filter(b => b.id !== logId);
+                saveDatabase();
+                openInvestActionPopup(fundId); // Atualiza a lista no popup
+                renderInvestmentsScreen();
+            }
+        }
+
+        function openFinishFundModalFromPopup() {
+            const fundId = document.getElementById('popupFundIdInput').value;
+            document.getElementById('investActionPopup').classList.remove('active');
+            openFinishFundModal(fundId);
+        }
+
+        function deleteFundFromPopup() {
+            const fundId = document.getElementById('popupFundIdInput').value;
+            document.getElementById('investActionPopup').classList.remove('active');
+            deleteFund(fundId);
         }
 
         function toggleInvestCard(fundId) {
