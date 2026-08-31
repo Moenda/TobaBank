@@ -1501,7 +1501,10 @@
                     <input type="date" id="expenseDateInput" class="form-control" required>
                 </div>
 
-                <button type="submit" class="btn btn-primary" style="margin-top: 1rem;">Salvar Gasto</button>
+                <div style="display: flex; gap: 8px; margin-top: 1rem;">
+                    <button type="submit" class="btn btn-primary" style="flex: 2;">Salvar Gasto</button>
+                    <button type="button" class="btn btn-danger" id="deleteExpenseModalBtn" onclick="deleteExpenseFromModal()" style="flex: 1; display: none;">🗑️ Apagar</button>
+                </div>
             </form>
         </div>
     </div>
@@ -2982,6 +2985,7 @@ let currentShares = {};
             const dateInput = document.getElementById('expenseDateInput');
             const isInstCheckbox = document.getElementById('isInstallmentCheckbox');
             const instGroupEl = document.getElementById('installmentCheckboxGroup');
+            const deleteBtn = document.getElementById('deleteExpenseModalBtn');
 
             if (id) {
                 const item = db.transactions.find(t => t.id === id);
@@ -2994,6 +2998,7 @@ let currentShares = {};
                     dateInput.value = item.date;
                     isInstCheckbox.checked = false;
                     instGroupEl.style.display = 'none';
+                    if (deleteBtn) deleteBtn.style.display = 'block';
                 }
             } else {
                 title.innerText = presetDateIso ? `➕ Adicionar Gasto em ${isoToBrDate(presetDateIso)}` : "➕ Novo Gasto";
@@ -3004,9 +3009,20 @@ let currentShares = {};
                 dateInput.value = presetDateIso || getTodayIsoDateStr();
                 isInstCheckbox.checked = false;
                 instGroupEl.style.display = 'block';
+                if (deleteBtn) deleteBtn.style.display = 'none';
             }
             toggleInstallmentFields();
             modal.classList.add('active');
+        }
+
+        function deleteExpenseFromModal() {
+            const id = document.getElementById('expenseIdInput').value;
+            if (!id) return;
+            if (confirm('Deseja mesmo apagar este gasto?')) {
+                db.transactions = db.transactions.filter(t => t.id !== id);
+                saveDatabase();
+                document.getElementById('expenseModal').classList.remove('active');
+            }
         }
 
         function saveExpense() {
@@ -3223,11 +3239,16 @@ let currentShares = {};
                 let cleanCat = t.category.includes(' - ') ? t.category.split(' - ')[1] : t.category;
                 const itemEl = document.createElement('div');
                 itemEl.className = 'expense-item';
+                itemEl.style.cursor = 'pointer';
+                itemEl.onclick = () => openExpenseModal(t.id);
                 itemEl.innerHTML = `
-                    <div class="expense-details"><span class="expense-desc">${t.description}</span><span class="expense-meta">${cleanCat} • ${isoToBrDate(t.date)}</span></div>
-                    <div class="expense-right"><span class="expense-amount" style="font-weight:700; color:#f85149; font-size:0.82rem;">- ${formatCurrency(t.amount)}</span>
-                    <button class="action-icon-btn" onclick="openExpenseModal('${t.id}')" title="Editar">✏️</button>
-                    <button class="action-icon-btn delete" onclick="deleteExpense('${t.id}')" title="Apagar">🗑️</button></div>
+                    <div class="expense-details">
+                        <span class="expense-desc">${t.description}</span>
+                        <span class="expense-meta">${cleanCat} • ${isoToBrDate(t.date)}</span>
+                    </div>
+                    <div class="expense-right">
+                        <span class="expense-amount" style="font-weight:700; color:#f85149; font-size:0.82rem;">- ${formatCurrency(t.amount)}</span>
+                    </div>
                 `;
                 container.appendChild(itemEl);
             });
@@ -3236,6 +3257,8 @@ let currentShares = {};
                 const itemEl = document.createElement('div');
                 itemEl.className = 'expense-item';
                 itemEl.style.borderColor = '#388bfd';
+                itemEl.style.cursor = 'pointer';
+                itemEl.onclick = () => openEditInstallmentModal(p.installmentGroupId);
                 itemEl.innerHTML = `
                     <div class="expense-details">
                         <span class="expense-desc" style="color: #58a6ff;">💳 ${p.description}</span>
@@ -3243,7 +3266,6 @@ let currentShares = {};
                     </div>
                     <div class="expense-right">
                         <span class="expense-amount" style="font-weight:700; color:#f85149; font-size:0.82rem;">- ${formatCurrency(p.amount)}</span>
-                        <button class="action-icon-btn" onclick="openEditInstallmentModal('${p.installmentGroupId}')" title="Editar Parcelamento">✏️</button>
                     </div>
                 `;
                 container.appendChild(itemEl);
