@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Toba Bank 🚀</title>
-    <!-- Chart.js CDN para os Gráficos Lendários -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         * {
@@ -81,6 +80,39 @@
         }
         .add-btn:hover { background: #2ea043; }
         .config-btn:hover, .tools-btn:hover, .back-nav-btn:hover { background: #30363d; }
+
+        /* Fixed Expense Cards */
+        .fixed-card {
+            background: #0d1117;
+            border: 1px solid #21262d;
+            border-radius: 14px;
+            margin-bottom: 0.8rem;
+            overflow: hidden;
+            transition: border-color 0.2s ease;
+        }
+        .fixed-header {
+            padding: 0.9rem 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            user-select: none;
+        }
+        .fixed-body {
+            display: none;
+            padding: 0 1rem 1rem 1rem;
+        }
+        .fixed-card.expanded .fixed-body {
+            display: block;
+        }
+        .fixed-arrow {
+            font-size: 0.75rem;
+            color: #8b949e;
+            transition: transform 0.2s;
+        }
+        .fixed-card.expanded .fixed-arrow {
+            transform: rotate(180deg);
+        }
 
         /* Navigation Tabs */
         .tab-nav {
@@ -895,14 +927,17 @@
                 </div>
 
                 <div class="card" style="margin-bottom: 1.2rem; padding: 1rem;">
-                    <div class="card-title" style="margin-bottom: 10px; color: #3fb950;">➕ Adicionar gasto fixo</div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                        <div class="card-title" style="color: #3fb950; margin-bottom: 0;">➕ Adicionar gasto fixo</div>
+                        <button class="btn btn-primary" onclick="addFixedExpense()" style="width: auto; padding: 0.35rem 0.8rem; font-size: 0.78rem;">Adicionar</button>
+                    </div>
                     <div style="display: flex; flex-direction: column; gap: 8px;">
                         <div style="display: flex; gap: 8px;">
                             <input type="text" id="fixedNameInput" class="form-control" placeholder="Ex: Spotify, Netflix, Academia..." style="flex: 2;">
                             <input type="text" inputmode="numeric" id="fixedAmountInput" class="form-control smart-money" placeholder="R$ 0,00" style="flex: 1;">
                         </div>
-                        <div style="display: flex; gap: 8px;">
-                            <select id="fixedCategorySelect" class="form-control" style="flex: 3;" required>
+                        <div>
+                            <select id="fixedCategorySelect" class="form-control" required>
                                 <optgroup label="🏠 Casa & Moradia">
                                     <option value="Moradia - Aluguel/Condomínio">🏢 Aluguel / Condomínio</option>
                                     <option value="Moradia - Contas Básicas (Luz/Água/Internet)">💡 Contas Básicas (Luz, Água, Internet)</option>
@@ -936,7 +971,6 @@
                                     <option value="Outros">📦 Outros Gastos</option>
                                 </optgroup>
                             </select>
-                            <button class="btn btn-primary" onclick="addFixedExpense()" style="flex: 1;">Add</button>
                         </div>
                     </div>
                 </div>
@@ -1636,20 +1670,12 @@
     </div>
 
         <script>
-        /* ==========================================================================
-           1. CONSTANTES, CONFIGURAÇÕES & ESTADO GLOBAL
-           ========================================================================== */
-
-        // Chave principal de armazenamento no localStorage
         const STORAGE_KEY = 'TOBA_BANK_DB';
 
-        // Chave de cópia de segurança automática preventiva (Auto-Backup)
         const BACKUP_KEY = 'TOBA_BANK_DB_AUTO_BACKUP';
 
-        // Trava de segurança: impede gravações antes da leitura inicial bem-sucedida do banco
         let isDbLoaded = false;
 
-        // Estrutura de dados padrão do banco do Toba Bank
         let db = {
             version: 29,
             config: {
@@ -1663,43 +1689,30 @@
             splitterGroups: []
         };
 
-        // Estado de visibilidade dos cofrinhos de giro rápido
         let cofrinhosVisible = false;
 
-        // Estado das fatias percentuais em edição no modal do raxador
         let currentShares = {};
 
-        // Instâncias ativas dos gráficos do Chart.js
         let patrimonyChartInstance = null;
         let projectionChartInstance = null;
 
-        // Filtros e modos de exibição dos gráficos patrimoniais
         let currentChartPeriod = '3m';
         let currentProjPeriod = '6m';
         let chartMode = 'brl';
         let chartVisibleAssets = new Set();
 
-
-        /* ==========================================================================
-           2. CAMADA DE PERSISTÊNCIA SEGURA & BACKUPS (OFFLINE ENGINE)
-           ========================================================================== */
-
-        // Carrega o banco de dados do localStorage com validação, migração incremental e proteção contra corrupção
         function loadDatabase() {
             const data = localStorage.getItem(STORAGE_KEY);
             if (data) {
                 try {
-                    // 1. Cria auto-backup do dado existente antes de qualquer manipulação
                     try {
                         localStorage.setItem(BACKUP_KEY, data);
                     } catch (backupErr) {
                         console.warn("Aviso ao salvar auto-backup inicial:", backupErr);
                     }
 
-                    // 2. Faz o parsing do JSON salvo
                     const parsed = JSON.parse(data);
 
-                    // 3. Validação defensiva e migrações incrementais preservando todo o histórico existente
                     if (!parsed.transactions) parsed.transactions = [];
                     if (!parsed.installments) parsed.installments = [];
                     if (!parsed.config) parsed.config = { startDate: getTodayIsoDateStr(), fixedExpenses: [] };
@@ -1707,7 +1720,6 @@
                     if (!parsed.investmentFunds) parsed.investmentFunds = [];
                     if (!parsed.splitterGroups) parsed.splitterGroups = [];
 
-                    // Migração de modelo legado de gastos fixos
                     if (parsed.config.fixedTotal && !parsed.config.fixedExpenses) {
                         parsed.config.fixedExpenses = [];
                         if (parsed.config.fixedTotal > 0) {
@@ -1721,7 +1733,6 @@
                     }
                     if (!parsed.config.fixedExpenses) parsed.config.fixedExpenses = [];
 
-                    // Sanitização defensiva dos campos de investimentos e cofrinhos
                     parsed.investmentFunds.forEach(f => {
                         if (f.isFinished === undefined) f.isFinished = false;
                         if (f.irAmount === undefined) f.irAmount = 0;
@@ -1731,14 +1742,12 @@
                         if (f.isCofrinho === undefined) f.isCofrinho = false;
                     });
 
-                    // Sanitização defensiva dos grupos do raxador de rolês
                     parsed.splitterGroups.forEach(g => {
                         if (g.isFinished === undefined) g.isFinished = false;
                         if (!g.expenses) g.expenses = [];
                         if (!g.members) g.members = [];
                     });
 
-                    // Normalização do formato de data da configuração inicial
                     if (parsed.config.startDate && parsed.config.startDate.includes('/')) {
                         const [d, m, y] = parsed.config.startDate.split('/');
                         parsed.config.startDate = `${y}-${m.padStart(2,'0')}-${d.padStart(2,'0')}`;
@@ -1746,31 +1755,25 @@
 
                     parsed.version = 29;
 
-                    // Atualiza a variável global e libera a trava de segurança
                     db = parsed;
                     isDbLoaded = true;
                 } catch (e) {
                     console.error("Erro crítico ao carregar banco de dados:", e);
                     alert("⚠️ Atenção: Houve um erro ao ler seus dados salvos. O banco não foi sobrescrito para proteger suas informações.");
-                    // Não chamamos saveDatabase() aqui para nunca zerar o storage com falha de parse
                 }
             } else {
-                // Primeira utilização: salva o estado inicial seguro
                 isDbLoaded = true;
                 saveDatabase();
             }
         }
 
-        // Salva o estado atual do banco no localStorage com backup preventivo e atualização de telas ativas
         function saveDatabase() {
-            // Trava de segurança: impede sobrescrita acidental se o banco não estiver carregado
             if (!isDbLoaded) {
                 console.warn("Gravação bloqueada: O banco de dados ainda não foi carregado com segurança.");
                 return;
             }
 
             try {
-                // Guarda snapshot preventivo no localStorage antes de gravar o novo estado
                 const currentStored = localStorage.getItem(STORAGE_KEY);
                 if (currentStored) {
                     localStorage.setItem(BACKUP_KEY, currentStored);
@@ -1780,7 +1783,6 @@
                 console.error("Erro ao gravar dados no localStorage:", err);
             }
 
-            // Atualiza em tempo real as telas e abas que estiverem abertas
             renderDashboard();
             if (document.getElementById('tabHistory')?.classList.contains('active')) renderHistory();
             if (document.getElementById('tabInstallments')?.classList.contains('active')) renderInstallments();
@@ -1789,7 +1791,6 @@
             if (document.getElementById('viewSplitter')?.classList.contains('active')) renderSplitterScreen();
         }
 
-        // Gera e baixa um arquivo JSON contendo o backup completo de todos os dados do banco
         function exportBackup() {
             const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(db, null, 2));
             const downloadAnchor = document.createElement('a');
@@ -1800,7 +1801,6 @@
             downloadAnchor.remove();
         }
 
-        // Lê e valida um arquivo JSON de backup, restaurando os dados no banco após confirmação de integridade
         function importBackup(event) {
             const file = event.target.files[0];
             if (!file) return;
@@ -1824,7 +1824,6 @@
             reader.readAsText(file);
         }
 
-        // Zera completamente todos os dados do aplicativo após confirmação explícita do usuário
         function resetAllData() {
             if (confirm('🚨 Tem certeza que deseja apagar TODOS os dados do Toba Bank? Esta ação não pode ser desfeita!')) {
                 localStorage.removeItem(STORAGE_KEY);
@@ -1832,25 +1831,17 @@
             }
         }
 
-
-        /* ==========================================================================
-           3. UTILITÁRIOS, FORMATADORES & CÁLCULOS FINANCEIROS
-           ========================================================================== */
-
-        // Obtém o valor numérico de um input de formulário, tratando máscara de moeda ou vírgulas
         function getMoney(id) {
             const el = document.getElementById(id);
             if (!el) return 0;
             let val = el.value;
             if (!val) return 0;
             
-            // Se o input veio formatado pela máscara smart-money (ex: 100,00 ou 1.000,00)
             if (el.classList.contains('smart-money')) {
                 val = val.replace(/\./g, '').replace(',', '.');
                 return parseFloat(val) || 0;
             }
             
-            // Tratamento geral para inputs numéricos comuns ou teclados que mandam ponto/vírgula
             val = val.toString().trim();
             if (val.includes(',') && val.includes('.')) {
                 if (val.indexOf(',') > val.indexOf('.')) {
@@ -1864,25 +1855,21 @@
             return parseFloat(val) || 0;
         }
 
-        // Formata um valor numérico para exibição dentro de inputs com máscara brasileira (ex: 1.234,56)
         function formatMoneyInput(value) {
             if (value === null || value === undefined || isNaN(value)) return '';
             return parseFloat(value).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
         }
 
-        // Formata um número para o padrão monetário brasileiro completo com símbolo (R$ 1.234,56)
         function formatCurrency(val) {
             return (val || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
         }
 
-        // Converte uma data no formato ISO (AAAA-MM-DD) para o formato brasileiro (DD/MM/AAAA)
         function isoToBrDate(isoStr) {
             if (!isoStr || !isoStr.includes('-')) return isoStr || '';
             const [y, m, d] = isoStr.split('-');
             return `${d}/${m}/${y}`;
         }
 
-        // Retorna o nome do mês capitalizado acompanhado do ano abreviado (ex: Agosto/26)
         function formatMonthYearLabel(yearStr, monthIndex) {
             const date = new Date(yearStr, monthIndex, 1);
             const rawMonthName = date.toLocaleDateString('pt-BR', { month: 'long' });
@@ -1891,7 +1878,6 @@
             return `${capitalizedMonth}/${shortYear}`;
         }
 
-        // Retorna a chave do mês atual no formato AAAA-MM (ex: 2026-08)
         function getCurrentMonthKey() {
             const date = new Date();
             const year = date.getFullYear();
@@ -1899,7 +1885,6 @@
             return `${year}-${month}`;
         }
 
-        // Retorna a data atual no formato padrão ISO (AAAA-MM-DD)
         function getTodayIsoDateStr() {
             const d = new Date();
             const year = d.getFullYear();
@@ -1908,12 +1893,10 @@
             return `${year}-${month}-${day}`;
         }
 
-        // Retorna a quantidade total de dias de um determinado mês e ano
         function getDaysInMonth(year, monthIndex) {
             return new Date(year, monthIndex + 1, 0).getDate();
         }
 
-        // Calcula os dias efetivos do mês considerando a data de início de contagem do usuário
         function getEffectiveDaysInMonth(year, monthIndex) {
             const totalDays = getDaysInMonth(year, monthIndex);
             if (!db.config.startDate) return totalDays;
@@ -1932,7 +1915,6 @@
             return totalDays;
         }
 
-        // Retorna a lista de gastos fixos vigentes ou o snapshot histórico congelado para um mês específico
         function getFixedExpensesForMonth(mKey) {
             const currentMonthKey = getCurrentMonthKey();
             if (!db.months[mKey]) db.months[mKey] = {};
@@ -1951,12 +1933,10 @@
             }
         }
 
-        // Calcula a soma total dos gastos fixos de um determinado mês
         function getFixedTotalForMonth(mKey) {
             return getFixedExpensesForMonth(mKey).reduce((acc, item) => acc + item.amount, 0);
         }
 
-        // Retorna todas as parcelas de compras a prazo que vencem no mês informado
         function getActiveInstallmentsForMonth(monthKey) {
             const result = [];
             const [targetYear, targetMonth] = monthKey.split('-').map(Number);
@@ -1983,7 +1963,6 @@
             return result;
         }
 
-        // Calcula a rentabilidade histórica pro-rata e projeta o rendimento composto para 12 meses
         function calculateCompoundProjection(deposits, balanceLogs) {
             if (!deposits || deposits.length === 0) return { profitAmount: 0, projectedPct: 0 };
 
@@ -2012,12 +1991,6 @@
             return { profitAmount, projectedPct, dailyRate };
         }
 
-
-        /* ==========================================================================
-           4. NAVEGAÇÃO & CONTROLE DE TELAS (VIEWS E TABS)
-           ========================================================================== */
-
-        // Alterna a exibição entre as telas principais do aplicativo (Início, Ferramentas, Investimentos, Raxador, Gráficos)
         function switchView(viewName) {
             document.querySelectorAll('.app-view').forEach(view => view.classList.remove('active'));
             
@@ -2071,7 +2044,6 @@
             }
         }
 
-        // Alterna entre as abas internas da tela principal (Mês Atual, Parcelas, Gastos Fixos, Histórico)
         function switchTab(tabName) {
             document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
             document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
@@ -2094,7 +2066,6 @@
             }
         }
 
-        // Alterna entre as abas do gráfico de patrimônio (Retrovisor de histórico vs Bola de Cristal de projeção)
         function switchChartTab(tab) {
             document.getElementById('tabChartPastBtn')?.classList.toggle('active', tab === 'past');
             document.getElementById('tabChartFutureBtn')?.classList.toggle('active', tab === 'future');
@@ -2109,7 +2080,6 @@
             }
         }
 
-        // Altera o período de tempo visualizado no gráfico de histórico passado (3 meses, 6 meses, 1 ano)
         function changeChartPeriod(period) {
             currentChartPeriod = period;
             document.querySelectorAll('#chartPastContainer .period-btn').forEach(b => {
@@ -2118,7 +2088,6 @@
             renderPatrimonyChart(period);
         }
 
-        // Altera a métrica do gráfico de histórico entre valor em Reais (R$) e percentual de crescimento (%)
         function changeChartMode(mode) {
             chartMode = mode;
             document.getElementById('chartModeBrl')?.classList.toggle('active', mode === 'brl');
@@ -2126,7 +2095,6 @@
             renderPatrimonyChart(currentChartPeriod);
         }
 
-        // Alterna a visibilidade de uma linha de ativo específico no gráfico patrimonial
         function toggleChartAsset(id) {
             if (chartVisibleAssets.has(id)) {
                 chartVisibleAssets.delete(id);
@@ -2136,7 +2104,6 @@
             renderPatrimonyChart(currentChartPeriod);
         }
 
-        // Altera o período de projeção futura no gráfico de projeção composta (6 meses, 1 ano, 5 anos)
         function changeProjPeriod(period) {
             currentProjPeriod = period;
             document.querySelectorAll('#chartFutureContainer .period-btn').forEach(b => {
@@ -2145,12 +2112,6 @@
             renderProjectionChart(period);
         }
 
-
-        /* ==========================================================================
-           5. MÓDULO 1: FLUXO DE CAIXA, GASTOS FIXOS & PARCELAMENTOS
-           ========================================================================== */
-
-        // Processa e renderiza todas as métricas do mês atual, saldo diário disponível, cofre acumulado e alertas
         function renderDashboard() {
             const now = new Date();
             const currentMonthKey = getCurrentMonthKey();
@@ -2240,7 +2201,6 @@
             renderExpenseListWithInstallments(currentMonthTransactions, activeInstallmentsMonth);
         }
 
-        // Desenha as barras de progresso percentual de consumo por categoria de despesa
         function renderCategoryBars(transactions, totalSpent, containerId = 'categoryBarsContainer') {
             const container = document.getElementById(containerId);
             if (!container) return;
@@ -2334,7 +2294,6 @@
             }
         }
 
-        // Renderiza os cards das compras parceladas ativas e a seção de parcelamentos já quitados
         function renderInstallments() {
             const activeContainer = document.getElementById('installmentsContainer');
             const finishedContainer = document.getElementById('finishedInstallmentsContainer');
@@ -2441,13 +2400,11 @@
             }
         }
 
-        // Expande ou recolhe os detalhes de um card de compra parcelada
         function toggleInstallmentCard(instId) {
             const card = document.getElementById(`instCard-${instId}`);
             if (card) card.classList.toggle('expanded');
         }
 
-        // Abre o formulário modal para criar um novo gasto ou editar um lançamento existente
         function openExpenseModal(id = null, presetDateIso = null) {
             const modal = document.getElementById('expenseModal');
             const title = document.getElementById('expenseModalTitle');
@@ -2489,7 +2446,6 @@
             setTimeout(() => descInput.focus(), 100);
         }
 
-        // Exclui a despesa atualmente aberta no modal de edição
         function deleteExpenseFromModal() {
             const id = document.getElementById('expenseIdInput').value;
             if (id && confirm('Deseja realmente apagar esta despesa?')) {
@@ -2504,7 +2460,6 @@
             if (card) card.classList.toggle('expanded');
         }
 
-        // Valida e salva uma nova despesa à vista ou gera o grupo de parcelas se for compra a prazo
         function saveExpense() {
             const id = document.getElementById('expenseIdInput').value;
             const desc = document.getElementById('expenseDescInput').value;
@@ -2540,7 +2495,6 @@
             document.getElementById('expenseModal').classList.remove('active');
         }
 
-        // Remove uma despesa à vista individual da lista de transações
         function deleteExpense(id) {
             if (confirm('Deseja realmente apagar este gasto?')) {
                 db.transactions = db.transactions.filter(t => String(t.id) !== String(id));
@@ -2548,7 +2502,6 @@
             }
         }
 
-        // Abre o modal para editar o valor, parcelas ou descrição de uma compra parcelada
         function openEditInstallmentModal(instId) {
             const inst = db.installments.find(i => String(i.id) === String(instId));
             if (!inst) return;
@@ -2560,7 +2513,6 @@
             document.getElementById('editInstallmentModal').classList.add('active');
         }
 
-        // Salva as alterações feitas em uma compra parcelada e recalcula suas parcelas
         function saveEditedInstallment() {
             const id = document.getElementById('editInstId').value;
             const inst = db.installments.find(i => String(i.id) === String(id));
@@ -2576,7 +2528,6 @@
             }
         }
 
-        // Exclui completamente uma compra parcelada e todas as suas parcelas associadas
         function deleteInstallmentGroup(instId) {
             if (confirm('Deseja realmente apagar esta compra parcelada inteira?')) {
                 db.installments = db.installments.filter(i => String(i.id) !== String(instId));
@@ -2584,7 +2535,6 @@
             }
         }
 
-        // Exclui uma compra parcelada diretamente a partir do modal de edição
         function deleteInstallmentFromEditModal() {
             const id = document.getElementById('editInstId').value;
             if (id && confirm('Deseja realmente apagar esta compra parcelada inteira?')) {
@@ -2594,7 +2544,6 @@
             }
         }
 
-        // Renderiza a lista de contas e assinaturas fixas mensais cadastradas e calcula o total
         function renderFixedExpenses() {
             const listContainer = document.getElementById('fixedExpensesList');
             const totalDisplay = document.getElementById('fixedTotalDisplay');
@@ -2618,22 +2567,37 @@
                 const dailyItemRate = totalDaysInMonth > 0 ? (item.amount / totalDaysInMonth) : 0;
 
                 const el = document.createElement('div');
-                el.className = 'expense-item';
+                el.className = 'fixed-card';
+                el.id = `fixedCard-${item.id}`;
                 el.innerHTML = `
-                    <div class="expense-details">
-                        <span class="expense-desc">🔄 ${item.name}</span>
-                        <span class="expense-meta">${cleanCat} • -${formatCurrency(dailyItemRate)}/dia</span>
+                    <div class="fixed-header" onclick="toggleFixedCard('${item.id}')">
+                        <div style="display: flex; flex-direction: column;">
+                            <span style="font-weight: 600; font-size: 0.88rem; color: #f0f6fc;">🔄 ${item.name}</span>
+                            <span style="font-size: 0.73rem; color: #8b949e; margin-top: 2px;">${cleanCat}</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <span style="font-weight: 700; color: #f85149; font-size: 0.88rem;">-${formatCurrency(item.amount)}</span>
+                            <span class="fixed-arrow">▼</span>
+                        </div>
                     </div>
-                    <div class="expense-right">
-                        <span class="expense-amount-value">-${formatCurrency(item.amount)}</span>
-                        <button class="action-icon-btn delete" onclick="deleteFixedExpense('${item.id}')" title="Apagar">🗑️</button>
+                    <div class="fixed-body">
+                        <div style="font-size: 0.78rem; color: #8b949e; margin-bottom: 10px;">
+                            Impacto diário: <b style="color: #58a6ff;">-${formatCurrency(dailyItemRate)}/dia</b>
+                        </div>
+                        <div style="text-align: right;">
+                            <button class="btn btn-danger" style="width: auto; padding: 0.35rem 0.8rem; font-size: 0.75rem;" onclick="deleteFixedExpense('${item.id}')">🗑️ Apagar Gasto Fixo</button>
+                        </div>
                     </div>
                 `;
                 listContainer.appendChild(el);
             });
         }
 
-        // Cadastra uma nova assinatura ou conta fixa mensal recorrente
+        function toggleFixedCard(id) {
+            const card = document.getElementById(`fixedCard-${id}`);
+            if (card) card.classList.toggle('expanded');
+        }
+
         function addFixedExpense() {
             const name = document.getElementById('fixedNameInput').value;
             const amount = getMoney('fixedAmountInput');
@@ -2654,7 +2618,6 @@
             saveDatabase();
         }
 
-        // Remove uma assinatura ou gasto fixo cadastrado
         function deleteFixedExpense(id) {
             if (confirm('Deseja excluir este gasto fixo?')) {
                 db.config.fixedExpenses = (db.config.fixedExpenses || []).filter(item => item.id !== id);
@@ -2662,7 +2625,6 @@
             }
         }
 
-        // Renderiza a lista de meses anteriores com seus respectivos resumos de gastos e saldos
         function renderHistory() {
             const container = document.getElementById('historyContainer');
             if (!container) return;
@@ -2733,13 +2695,11 @@
             });
         }
 
-        // Expande ou recolhe o card detalhado de um mês anterior no histórico
         function toggleHistoryCard(mKey) {
             const card = document.getElementById(`historyCard-${mKey}`);
             if (card) card.classList.toggle('expanded');
         }
 
-        // Exibe ou oculta os campos de número de parcelas no modal ao marcar a opção de parcelamento
         function toggleInstallmentFields() {
             const isChecked = document.getElementById('isInstallmentCheckbox').checked;
             const container = document.getElementById('installmentFieldsContainer');
@@ -2755,7 +2715,6 @@
             }
         }
 
-        // Calcula e exibe em tempo real o valor estimado de cada parcela durante a digitação
         function updateInstallmentPreview() {
             const isChecked = document.getElementById('isInstallmentCheckbox').checked;
             if (!isChecked) return;
@@ -2765,7 +2724,6 @@
             document.getElementById('installmentCalcPreview').innerText = `Valor de cada parcela: ${formatCurrency(parcelVal)}`;
         }
 
-        // Abre o modal de configurações e preenche os campos com os valores atuais do banco
         function openConfigModalHandler() {
             const configModal = document.getElementById('configModal');
             const dailyInput = document.getElementById('dailyBudgetInput');
@@ -2780,7 +2738,6 @@
             configModal.classList.add('active');
         }
 
-        // Atualiza a prévia do orçamento mensal total conforme o usuário ajusta o valor da meta diária
         function updateMonthlyProjection() {
             const dailyVal = getMoney('dailyBudgetInput');
             const now = new Date();
@@ -2790,12 +2747,6 @@
             document.getElementById('monthlyProjection').innerText = `Orçamento previsto de ${monthFormatted} (${effectiveDays} dias): ${formatCurrency(monthlyTotal)}`;
         }
 
-
-        /* ==========================================================================
-           6. MÓDULO 2: INVESTIMENTOS & COFRINHOS (PRO-RATA E COMPOSTO)
-           ========================================================================== */
-
-        // Renderiza os cards de investimentos de longo prazo, cofrinhos de giro rápido e histórico de resgatados
         function renderInvestmentsScreen() {
             const investContainer = document.getElementById('investmentsContainer');
             const cofrinhosContainer = document.getElementById('cofrinhosContainer');
@@ -3016,7 +2967,6 @@
             projEl.style.color = globalProjectedProfitSum >= 0 ? '#3fb950' : '#f85149';
         }
 
-        // Gera a estrutura HTML completa do card de um fundo de investimento ou cofrinho
         function createCardHtml(fund) {
             if (fund.isCofrinho) {
                 const totalDeposited = (fund.deposits || []).reduce((acc, d) => acc + d.amount, 0);
@@ -3219,25 +3169,21 @@
             `;
         }
 
-        // Expande ou recolhe o acordeon com histórico e ações de um fundo de investimento
         function toggleInvestCard(fundId) {
             const card = document.getElementById(`investCard-${fundId}`);
             if (card) card.classList.toggle('expanded');
         }
 
-        // Exibe ou oculta a seção de cofrinhos de giro rápido na tela de investimentos
         function toggleCofrinhosView() {
             cofrinhosVisible = !cofrinhosVisible;
             document.getElementById('cofrinhosWrapper').style.display = cofrinhosVisible ? 'block' : 'none';
             document.getElementById('btnToggleCofrinhos').innerText = cofrinhosVisible ? '🐷 Ocultar Cofrinhos' : '🐷 Ver Cofrinhos';
         }
 
-        // Abre o modal explicativo sobre a dinâmica de funcionamento dos cofrinhos
         function openCofrinhoHelpModal() {
             document.getElementById('cofrinhoHelpModal')?.classList.add('active');
         }
 
-        // Abre o modal com o fatiamento mensal pro-rata de rendimentos de todos os investimentos
         function openInvestmentsHistoryModal() {
             const content = document.getElementById('investmentsHistoryContent');
             content.innerHTML = '';
@@ -3388,7 +3334,6 @@
             document.getElementById('investmentsHistoryModal').classList.add('active');
         }
 
-        // Abre o modal para criar um novo investimento de longo prazo ou cofrinho
         function openNewFundModal(isCofrinho = false) {
             document.getElementById('fundIsCofrinhoValue').value = isCofrinho ? 'true' : 'false';
             document.getElementById('newFundModalTitle').innerText = isCofrinho ? '🐷 Novo Cofrinho (Giro Rápido)' : '📈 Novo Card de Investimento';
@@ -3398,7 +3343,6 @@
             document.getElementById('newFundModal').classList.add('active');
         }
 
-        // Abre o modal para renomear um fundo de investimento ou cofrinho existente
         function openEditFundNameModal(fundId, currentName) {
             document.getElementById('editFundNameId').value = fundId;
             document.getElementById('editFundNameInput').value = currentName;
@@ -3406,7 +3350,6 @@
             setTimeout(() => document.getElementById('editFundNameInput').focus(), 100);
         }
 
-        // Salva o novo nome configurado para o fundo de investimento ou cofrinho
         function saveFundName() {
             const fundId = document.getElementById('editFundNameId').value;
             const newName = document.getElementById('editFundNameInput').value.trim();
@@ -3418,7 +3361,6 @@
             }
         }
 
-        // Registra um novo aporte de capital em um fundo de investimento
         function addFundDeposit(fundId) {
             event?.stopPropagation();
             const fund = db.investmentFunds.find(f => f.id === fundId);
@@ -3434,7 +3376,6 @@
             }
         }
 
-        // Registra uma nova atualização do saldo total de um fundo para apuração do rendimento
         function addFundBalanceLog(fundId) {
             event?.stopPropagation();
             const fund = db.investmentFunds.find(f => f.id === fundId);
@@ -3450,7 +3391,6 @@
             }
         }
 
-        // Remove um registro específico de aporte, atualização de saldo ou saque de um fundo
         function deleteInvestLog(fundId, logId, type) {
             event?.stopPropagation();
             const fund = db.investmentFunds.find(f => f.id === fundId);
@@ -3465,7 +3405,6 @@
             }
         }
 
-        // Registra um saque de rendimento realizado em um cofrinho de giro rápido
         function addCofrinhoWithdrawal(fundId) {
             event?.stopPropagation();
             const fund = db.investmentFunds.find(f => f.id === fundId);
@@ -3481,7 +3420,6 @@
             }
         }
 
-        // Remove um registro de saque realizado em um cofrinho
         function deleteCofrinhoWithdrawal(fundId, withdrawalId) {
             event?.stopPropagation();
             const fund = db.investmentFunds.find(f => f.id === fundId);
@@ -3494,7 +3432,6 @@
             }
         }
 
-        // Abre o modal para realizar o resgate total ou parcial de um fundo com cálculo de IR
         function openFinishFundModal(fundId) {
             const fund = db.investmentFunds.find(f => String(f.id) === String(fundId));
             if (!fund) return;
@@ -3507,7 +3444,7 @@
             }
 
             const realProfit = Math.max(latestBalance - totalDeposited, 0);
-            const estimatedIr = realProfit * 0.15; // Alíquota padrão estimada de 15%
+            const estimatedIr = realProfit * 0.15;
 
             document.getElementById('finishFundIdInput').value = fund.id;
             const nameDisplay = document.getElementById('finishFundNameDisplay');
@@ -3527,7 +3464,6 @@
             document.getElementById('finishFundModal').classList.add('active');
         }
 
-        // Alterna os campos do modal de resgate entre resgate total e resgate parcial
         function toggleRescueType() {
             const type = document.getElementById('rescueTypeSelect').value;
             const partialBox = document.getElementById('partialRescueSection') || document.getElementById('rescuePartialBox');
@@ -3544,7 +3480,6 @@
             updateFinishNetPreview();
         }
 
-        // Atualiza a prévia do valor líquido a receber deduzindo o imposto de renda informado
         function updateFinishNetPreview() {
             const gross = getMoney('finishGrossAmount');
             const ir = getMoney('finishIrAmount');
@@ -3552,7 +3487,6 @@
             document.getElementById('finishNetPreview').innerText = `Valor Líquido no Bolso: ${formatCurrency(net)}`;
         }
 
-        // Confirma a operação de resgate (parcial ou total) e move para o histórico se finalizado
         function confirmFinishFund() {
             const fundId = document.getElementById('finishFundIdInput').value;
             const rescueType = document.getElementById('rescueTypeSelect').value;
@@ -3595,7 +3529,6 @@
             }
         }
 
-        // Reativa um investimento que estava no histórico de resgatados de volta para os ativos
         function toggleFinishFund(fundId) {
             const fund = db.investmentFunds.find(f => f.id === fundId);
             if (!fund) return;
@@ -3604,7 +3537,6 @@
             renderInvestmentsScreen();
         }
 
-        // Exclui permanentemente um fundo de investimento ou cofrinho e todo o seu histórico
         function deleteFund(fundId) {
             if (confirm('Tem certeza que deseja apagar este investimento?')) {
                 db.investmentFunds = db.investmentFunds.filter(f => f.id !== fundId);
@@ -3613,12 +3545,6 @@
             }
         }
 
-
-        /* ==========================================================================
-           7. MÓDULO 3: RAXADOR DE ROLÊS (DIVISÃO DE GASTOS)
-           ========================================================================== */
-
-        // Abre o modal para criar um novo grupo de divisão de despesas de rolê ou viagem
         function openNewSplitterGroupModal() {
             document.getElementById('newSplitterName').value = '';
             document.getElementById('newSplitterDate').value = getTodayIsoDateStr();
@@ -3626,7 +3552,6 @@
             document.getElementById('newSplitterModal').classList.add('active');
         }
 
-        // Renderiza a lista de grupos de divisão de despesas ativos e finalizados
         function renderSplitterScreen() {
             const activeContainer = document.getElementById('splitterActiveContainer');
             const finishedContainer = document.getElementById('splitterFinishedContainer');
@@ -3679,7 +3604,6 @@
             if (!hasFinished) finishedContainer.innerHTML = '<div class="empty-state">Nenhum rolê finalizado.</div>';
         }
 
-        // Abre a tela de detalhes de um grupo específico do raxador de despesas
         function openSplitterGroupView(groupId) {
             const g = db.splitterGroups.find(item => item.id === groupId);
             if (!g) return;
@@ -3717,7 +3641,6 @@
             switchView('splitterDetail');
         }
 
-        // Exibe ou oculta o painel de edição de nome, categoria, data e participantes do grupo
         function toggleSplitterMetaCard() {
             const card = document.getElementById('splitterMetaCard');
             if (card) {
@@ -3726,7 +3649,6 @@
             }
         }
 
-        // Atualiza os metadados do grupo (nome, categoria e data) conforme edição
         function updateSplitterGroupMeta() {
             const id = document.getElementById('splitterGroupIdInput').value;
             const g = db.splitterGroups.find(item => item.id === id);
@@ -3738,7 +3660,6 @@
             saveDatabase();
         }
 
-        // Adiciona novos participantes à lista de membros do grupo do raxador
         function saveSplitterMembers() {
             const id = document.getElementById('splitterGroupIdInput').value;
             const g = db.splitterGroups.find(item => item.id === id);
@@ -3749,7 +3670,6 @@
             renderSplitterExpensesAndSettlement(g);
         }
 
-        // Abre o formulário modal para adicionar ou editar uma despesa do rolê
         function openSplitterExpenseModal(expenseId = null) {
             const id = document.getElementById('splitterGroupIdInput').value;
             const g = db.splitterGroups.find(item => item.id === id);
@@ -3818,7 +3738,6 @@
             setTimeout(() => descInput.focus(), 100);
         }
 
-        // Renderiza os seletores e inputs de divisão percentual para cada participante no modal de gasto
         function renderShareRows(allMembers) {
             const container = document.getElementById('splitterExpenseSharesContainer');
             container.innerHTML = '';
@@ -3863,7 +3782,6 @@
             });
         }
 
-        // Atualiza o valor da fatia percentual atribuída a um participante específico
         function updateShareValue(member, val) {
             const num = parseFloat(val) || 0;
             currentShares[member] = Math.max(0, Math.min(100, num));
@@ -3871,7 +3789,6 @@
             renderShareRows(allMembers);
         }
 
-        // Salva ou atualiza uma despesa dentro do grupo do raxador validando a soma das porcentagens
         function saveSplitterExpense() {
             const id = document.getElementById('splitterGroupIdInput').value;
             const g = db.splitterGroups.find(item => item.id === id);
@@ -3907,7 +3824,6 @@
             renderSplitterExpensesAndSettlement(g);
         }
 
-        // Inclui ou exclui um participante da divisão redistribuindo igualmente as porcentagens
         function toggleMemberShare(member) {
             const allMembers = Object.keys(currentShares);
             const isCheckedNow = document.getElementById(`chk-member-${member}`).checked;
@@ -3925,7 +3841,6 @@
             renderShareRows(allMembers);
         }
 
-        // Remove uma despesa lançada dentro do grupo do raxador
         function deleteSplitterExpenseFromModal() {
             const groupId = document.getElementById('splitterGroupIdInput').value;
             const expenseId = document.getElementById('splitterExpenseIdInput').value;
@@ -3940,7 +3855,6 @@
             }
         }
 
-        // Renderiza o extrato do rolê e calcula o algoritmo de acerto de contas simplificado para PIX
         function renderSplitterExpensesAndSettlement(g) {
             const listEl = document.getElementById('splitterExpensesList');
             listEl.innerHTML = '';
@@ -4050,7 +3964,6 @@
             settlementBox.innerHTML = htmlTxt;
         }
 
-        // Alterna o status do rolê entre ativo (em andamento) e finalizado (concluído)
         function toggleSplitterFinished() {
             const id = document.getElementById('splitterGroupIdInput').value;
             const g = db.splitterGroups.find(item => item.id === id);
@@ -4060,7 +3973,6 @@
             openSplitterGroupView(g.id);
         }
 
-        // Exclui permanentemente um grupo do raxador e todas as suas despesas
         function deleteSplitterGroup() {
             if (confirm('Tem certeza que deseja apagar este grupo de gastos por completo?')) {
                 const id = document.getElementById('splitterGroupIdInput').value;
@@ -4070,19 +3982,12 @@
             }
         }
 
-
-        /* ==========================================================================
-           8. MÓDULO 4: GRÁFICOS PATRIMONIAIS (CHART.JS)
-           ========================================================================== */
-
-        // Inicializa as instâncias e renderiza os gráficos de evolução patrimonial
         function openPatrimonyChart() {
             chartVisibleAssets.clear();
             switchView('patrimonyChart');
             switchChartTab('past');
         }
 
-        // Constrói o gráfico de linha Chart.js com o histórico dos ativos no período selecionado
         function renderPatrimonyChart(period) {
             const ctx = document.getElementById('patrimonyChartCanvas').getContext('2d');
             const lineColors = ['#58a6ff', '#3fb950', '#d29922', '#ff7b72', '#bc8cff', '#7ee787', '#ffb6c1', '#00ced1'];
@@ -4217,7 +4122,6 @@
             });
         }
 
-        // Constrói o gráfico de projeção futura com juros compostos baseado na taxa média da carteira
         function renderProjectionChart(period) {
             const ctx = document.getElementById('projectionChartCanvas').getContext('2d');
             const activeFunds = (db.investmentFunds || []).filter(f => !f.isFinished);
@@ -4270,7 +4174,7 @@
                 let labelStr = formatMonthYearLabel(futureDate.getFullYear(), futureDate.getMonth());
                 labels.push(labelStr);
 
-                let daysInFuture = i * 30.416; // Média de dias por mês
+                let daysInFuture = i * 30.416;
                 let projected = totalCurrentBal * Math.pow(1 + globalDailyRate, daysInFuture);
                 dataPoints.push(projected.toFixed(2));
             }
@@ -4328,12 +4232,6 @@
             `;
         }
 
-
-        /* ==========================================================================
-           9. INICIALIZAÇÃO & EVENT LISTENERS
-           ========================================================================== */
-
-        // Configura os ouvintes de eventos para modais de configuração, orçamento e formulários
         function setupEvents() {
             const configModal = document.getElementById('configModal');
             const closeConfigBtn = document.getElementById('closeConfigBtn');
@@ -4439,7 +4337,6 @@
                 };
             }
 
-            // Escuta global para aplicar a máscara financeira inteligente (digitação de trás pra frente)
             document.addEventListener('input', function(e) {
                 if (e.target.classList.contains('smart-money')) {
                     let val = e.target.value.replace(/\D/g, '');
@@ -4453,7 +4350,6 @@
             });
         }
 
-        // Inicializa a aplicação na sequência segura: carga do banco, eventos, tela inicial e dashboard
         document.addEventListener('DOMContentLoaded', () => {
             loadDatabase();
             setupEvents();
