@@ -1209,134 +1209,161 @@
             <div id="finishedInvestmentsContainer"></div>
         </div>
 
-        <!-- MODAL POPUP DE GERENCIAMENTO DO INVESTIMENTO -->
-        <!-- MODAL POPUP DE GERENCIAMENTO DO INVESTIMENTO -->
-    <div class="invest-popup-overlay" id="investActionPopup">
-        <div class="invest-popup">
-            <div class="modal-header" style="align-items: flex-start; border-bottom: none; padding-bottom: 0;">
-                <div style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
-                    <div style="display: flex; align-items: center; gap: 6px;">
-                        <h3 id="popupFundTitle" style="font-size: 1.1rem; color: #f0f6fc;">Gerenciar Ativo</h3>
-                        <span onclick="openEditFundNameModalFromPopup()" style="cursor: pointer; font-size: 0.9rem; opacity: 0.8;" title="Editar Nome">✏️</span>
+        <div class="invest-popup-overlay" id="investActionPopup">
+            <div class="invest-popup">
+                <div class="modal-header" style="align-items: flex-start; border-bottom: none; padding-bottom: 0;">
+                    <div style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
+                        <div style="display: flex; align-items: center; gap: 6px;">
+                            <h3 id="popupFundTitle" style="font-size: 1.1rem; color: #f0f6fc;">Gerenciar Ativo</h3>
+                            <span onclick="openEditFundNameModalFromPopup()" style="cursor: pointer; font-size: 0.9rem; opacity: 0.8;" title="Editar Nome">✏️</span>
+                        </div>
+                        <button class="close-btn" onclick="document.getElementById('investActionPopup').classList.remove('active')">&times;</button>
                     </div>
-                    <button class="close-btn" onclick="document.getElementById('investActionPopup').classList.remove('active')">&times;</button>
                 </div>
-            </div>
-            <input type="hidden" id="popupFundIdInput">
+                <input type="hidden" id="popupFundIdInput">
 
-            <!-- CABEÇALHO DE RESUMO (MUDÁVEL: INVESTIMENTO VS COFRINHO) -->
-            <div id="popupHeaderInvest" style="background: #0d1117; border: 1px solid #21262d; border-radius: 10px; padding: 10px 12px; margin: 10px 0 14px 0; display: flex; justify-content: space-between; align-items: center;">
-                <div>
-                    <div style="color: #8b949e; font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.5px;">Total Aportado</div>
-                    <div id="popupHeaderDeposited" style="font-weight: 700; color: #f0f6fc; font-size: 0.95rem; margin-top: 2px;">R$ 0,00</div>
-                </div>
-                <div style="text-align: right;">
-                    <div style="color: #8b949e; font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.5px;">Data de Início</div>
-                    <div id="popupHeaderStartDate" style="font-weight: 700; color: #f0f6fc; font-size: 0.95rem; margin-top: 2px;">--/--/----</div>
-                </div>
-            </div>
-
-            <div id="popupHeaderCofrinho" style="background: #0d1117; border: 1px solid #21262d; border-radius: 10px; padding: 10px 12px; margin: 10px 0 14px 0; display: none; justify-content: space-between; align-items: center;">
-                <div>
-                    <div style="color: #8b949e; font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.5px;">Saldo Base (Imobilizado)</div>
-                    <div id="popupHeaderCofrinhoBase" style="font-weight: 700; color: #f0f6fc; font-size: 0.95rem; margin-top: 2px;">R$ 0,00</div>
-                </div>
-                <div style="text-align: right;">
-                    <div style="color: #8b949e; font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.5px;">Saques Realizados</div>
-                    <div id="popupHeaderCofrinhoWithdrawn" style="font-weight: 700; color: #3fb950; font-size: 0.95rem; margin-top: 2px;">R$ 0,00</div>
-                </div>
-            </div>
-
-            <!-- APENAS PARA INVESTIMENTOS NORMAIS -->
-            <div id="popupNormalInvestActions">
-                <!-- ACORDEON 1: ATUALIZAR SALDO -->
-                <div class="invest-action-accordion" id="accUpdateBal">
-                    <div class="invest-action-header" onclick="toggleInvestActionAcc('accUpdateBal')">
-                        <span style="color: #f0f6fc;">🔄 Atualizar Saldo</span>
-                        <span class="invest-action-arrow">▼</span>
+                <div id="popupHeaderInvest" style="background: #0d1117; border: 1px solid #21262d; border-radius: 10px; padding: 10px 12px; margin: 10px 0 14px 0; display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <div style="color: #8b949e; font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.5px;">Total Aportado</div>
+                        <div id="popupHeaderDeposited" style="font-weight: 700; color: #f0f6fc; font-size: 0.95rem; margin-top: 2px;">R$ 0,00</div>
                     </div>
-                    <div class="invest-action-body">
-                        <div style="display: flex; flex-direction: column; gap: 8px;">
-                            <input type="date" id="popupBalDate" class="form-control" style="padding:0.5rem; font-size:0.8rem;">
-                            <input type="text" inputmode="numeric" id="popupBalAmount" class="form-control smart-money" placeholder="R$ Saldo Atual" style="padding:0.5rem; font-size:0.8rem;">
-                            <button class="btn btn-secondary" onclick="submitPopupBalance()" style="border-color:#58a6ff; color:#58a6ff; font-size:0.8rem;">Atualizar Saldo</button>
+                    <div style="text-align: right;">
+                        <div style="color: #8b949e; font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.5px;">Data de Início</div>
+                        <div id="popupHeaderStartDate" style="font-weight: 700; color: #f0f6fc; font-size: 0.95rem; margin-top: 2px;">--/--/----</div>
+                    </div>
+                </div>
+
+                <div id="popupHeaderCofrinho" style="background: #0d1117; border: 1px solid #21262d; border-radius: 10px; padding: 10px 12px; margin: 10px 0 14px 0; display: none; justify-content: space-between; align-items: center;">
+                    <div>
+                        <div style="color: #8b949e; font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.5px;">Saldo Base (Imobilizado)</div>
+                        <div id="popupHeaderCofrinhoBase" style="font-weight: 700; color: #f0f6fc; font-size: 0.95rem; margin-top: 2px;">R$ 0,00</div>
+                    </div>
+                    <div style="text-align: right;">
+                        <div style="color: #8b949e; font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.5px;">Saques Realizados</div>
+                        <div id="popupHeaderCofrinhoWithdrawn" style="font-weight: 700; color: #3fb950; font-size: 0.95rem; margin-top: 2px;">R$ 0,00</div>
+                    </div>
+                </div>
+
+                <div id="popupNormalInvestActions">
+                    <div class="invest-action-accordion" id="accUpdateBal">
+                        <div class="invest-action-header" onclick="toggleInvestActionAcc('accUpdateBal')">
+                            <span style="color: #f0f6fc;">🔄 Atualizar Saldo</span>
+                            <span class="invest-action-arrow">▼</span>
+                        </div>
+                        <div class="invest-action-body">
+                            <div style="display: flex; flex-direction: column; gap: 8px;">
+                                <input type="date" id="popupBalDate" class="form-control" style="padding:0.5rem; font-size:0.8rem;">
+                                <input type="text" inputmode="numeric" id="popupBalAmount" class="form-control smart-money" placeholder="R$ Saldo Atual" style="padding:0.5rem; font-size:0.8rem;">
+                                <button class="btn btn-secondary" onclick="submitPopupBalance()" style="border-color:#58a6ff; color:#58a6ff; font-size:0.8rem;">Atualizar Saldo</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="invest-action-accordion" id="accNewDep">
+                        <div class="invest-action-header" onclick="toggleInvestActionAcc('accNewDep')">
+                            <span style="color: #f0f6fc;">➕ Novo Aporte</span>
+                            <span class="invest-action-arrow">▼</span>
+                        </div>
+                        <div class="invest-action-body">
+                            <div style="display: flex; flex-direction: column; gap: 8px;">
+                                <input type="date" id="popupDepDate" class="form-control" style="padding:0.5rem; font-size:0.8rem;">
+                                <input type="text" inputmode="numeric" id="popupDepAmount" class="form-control smart-money" placeholder="R$ 0,00" style="padding:0.5rem; font-size:0.8rem;">
+                                <button class="btn btn-primary" onclick="submitPopupDeposit()" style="font-size:0.8rem; background: #238636;">Confirmar Aporte</button>
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- ACORDEON 2: NOVO APORTE -->
-                <div class="invest-action-accordion" id="accNewDep">
-                    <div class="invest-action-header" onclick="toggleInvestActionAcc('accNewDep')">
-                        <span style="color: #f0f6fc;">➕ Novo Aporte</span>
+                <div class="invest-action-accordion" id="accWithdraw">
+                    <div class="invest-action-header" onclick="toggleInvestActionAcc('accWithdraw')">
+                        <span style="color: #f0f6fc;">🪙 Retirar Saldo / Resgate</span>
                         <span class="invest-action-arrow">▼</span>
                     </div>
                     <div class="invest-action-body">
                         <div style="display: flex; flex-direction: column; gap: 8px;">
-                            <input type="date" id="popupDepDate" class="form-control" style="padding:0.5rem; font-size:0.8rem;">
-                            <input type="text" inputmode="numeric" id="popupDepAmount" class="form-control smart-money" placeholder="R$ 0,00" style="padding:0.5rem; font-size:0.8rem;">
-                            <button class="btn btn-primary" onclick="submitPopupDeposit()" style="font-size:0.8rem; background: #238636;">Confirmar Aporte</button>
+                            <input type="date" id="popupWithdrawDate" class="form-control" style="padding:0.5rem; font-size:0.8rem;">
+                            <input type="text" inputmode="numeric" id="popupWithdrawAmount" class="form-control smart-money" placeholder="R$ 0,00" style="padding:0.5rem; font-size:0.8rem;">
+                            <button class="btn btn-secondary" onclick="submitPopupWithdraw()" style="border-color:#d29922; color:#d29922; font-size:0.8rem;">Efetuar Retirada</button>
                         </div>
                     </div>
                 </div>
-            </div>
 
-            <!-- COMUM (INVESTIMENTOS E COFRINHOS): RETIRAR SALDO -->
-            <div class="invest-action-accordion" id="accWithdraw">
-                <div class="invest-action-header" onclick="toggleInvestActionAcc('accWithdraw')">
-                    <span style="color: #f0f6fc;">🪙 Retirar Saldo / Resgate</span>
-                    <span class="invest-action-arrow">▼</span>
-                </div>
-                <div class="invest-action-body">
-                    <div style="display: flex; flex-direction: column; gap: 8px;">
-                        <input type="date" id="popupWithdrawDate" class="form-control" style="padding:0.5rem; font-size:0.8rem;">
-                        <input type="text" inputmode="numeric" id="popupWithdrawAmount" class="form-control smart-money" placeholder="R$ 0,00" style="padding:0.5rem; font-size:0.8rem;">
-                        <button class="btn btn-secondary" onclick="submitPopupWithdraw()" style="border-color:#d29922; color:#d29922; font-size:0.8rem;">Efetuar Retirada</button>
+                <div class="invest-action-accordion" id="accHistory">
+                    <div class="invest-action-header" onclick="toggleInvestActionAcc('accHistory')">
+                        <span style="color: #f0f6fc;">📜 Histórico de Lançamentos</span>
+                        <span class="invest-action-arrow">▼</span>
+                    </div>
+                    <div class="invest-action-body">
+                        <div class="log-list" id="popupHistoryLogsList" style="max-height: 180px; overflow-y: auto;">
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            <!-- ACORDEON: HISTÓRICO DE LANÇAMENTOS -->
-            <div class="invest-action-accordion" id="accHistory">
-                <div class="invest-action-header" onclick="toggleInvestActionAcc('accHistory')">
-                    <span style="color: #f0f6fc;">📜 Histórico de Lançamentos</span>
-                    <span class="invest-action-arrow">▼</span>
+                <div style="display: flex; gap: 8px; margin-top: 1.2rem; border-top: 1px solid #30363d; padding-top: 1rem;">
+                    <button class="btn btn-secondary" style="font-size: 0.8rem; border-color:#d29922; color:#d29922;" onclick="openFinishFundModalFromPopup()">🏁 Finalizar / Resgatar</button>
+                    <button class="btn btn-danger" style="font-size: 0.8rem;" onclick="deleteFundFromPopup()">🗑️ Excluir</button>
                 </div>
-                <div class="invest-action-body">
-                    <div class="log-list" id="popupHistoryLogsList" style="max-height: 180px; overflow-y: auto;">
-                        <!-- Preenchido via JS -->
-                    </div>
-                </div>
-            </div>
-
-            <div style="display: flex; gap: 8px; margin-top: 1.2rem; border-top: 1px solid #30363d; padding-top: 1rem;">
-                <button class="btn btn-secondary" style="font-size: 0.8rem; border-color:#d29922; color:#d29922;" onclick="openFinishFundModalFromPopup()">🏁 Finalizar / Resgatar</button>
-                <button class="btn btn-danger" style="font-size: 0.8rem;" onclick="deleteFundFromPopup()">🗑️ Excluir</button>
             </div>
         </div>
-    </div>
 
+        <div class="invest-popup-overlay" id="finishedActionPopup">
+            <div class="invest-popup">
+                <div class="modal-header" style="align-items: flex-start; border-bottom: none; padding-bottom: 0;">
+                    <div style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
+                        <h3 id="popupFinishedTitle" style="font-size: 1.1rem; color: #f0f6fc;">Ativo Finalizado</h3>
+                        <button class="close-btn" onclick="document.getElementById('finishedActionPopup').classList.remove('active')">&times;</button>
+                    </div>
+                </div>
+                <input type="hidden" id="popupFinishedIdInput">
 
-        <!-- VIEW 5: TELA DE RAXADOR DE GASTOS (🍕) -->
+                <!-- CABEÇALHO DE RESUMO DO FINALIZADO -->
+                <div style="background: #0d1117; border: 1px solid #21262d; border-radius: 10px; padding: 12px; margin: 12px 0; display: flex; flex-direction: column; gap: 8px;">
+                    <div style="display: flex; justify-content: space-between; font-size: 0.8rem;">
+                        <span style="color: #8b949e;">Período:</span>
+                        <span id="popupFinishedPeriod" style="color: #f0f6fc; font-weight: 600;">--</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; font-size: 0.8rem;">
+                        <span style="color: #8b949e;">Aporte Total:</span>
+                        <span id="popupFinishedDep" style="color: #f0f6fc; font-weight: 600;">--</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; font-size: 0.8rem;">
+                        <span style="color: #8b949e;">Saque Total:</span>
+                        <span id="popupFinishedWd" style="color: #f0f6fc; font-weight: 600;">--</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; font-size: 0.8rem; border-top: 1px solid #21262d; padding-top: 6px;">
+                        <span style="color: #8b949e;">Lucro Líquido:</span>
+                        <span id="popupFinishedProfit" style="font-weight: 700;">--</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; font-size: 0.8rem;">
+                        <span style="color: #8b949e;">IR Retido:</span>
+                        <span id="popupFinishedIr" style="color: #ff7b72; font-weight: 600;">--</span>
+                    </div>
+                </div>
+
+                <div style="display: flex; gap: 8px; margin-top: 1.2rem; border-top: 1px solid #30363d; padding-top: 1rem;">
+                    <button class="btn btn-secondary" style="flex: 1; font-size: 0.8rem; border-color:#58a6ff; color:#58a6ff;" onclick="reactivateFundFromPopup()">🔄 Reativar Ativo</button>
+                    <button class="btn btn-danger" style="flex: 1; font-size: 0.8rem;" onclick="deleteFinishedFundFromPopup()">🗑️ Excluir</button>
+                </div>
+            </div>
+        </div>
+
         <div class="app-view" id="viewSplitter">
             <div class="section-title" style="margin-top: 0.5rem; display: flex; justify-content: space-between; align-items: center;">
                 <span>🍕 Raxador de Rolês</span>
                 <button class="btn btn-primary" onclick="openNewSplitterGroupModal()" style="width: auto; padding: 0.4rem 0.8rem; font-size: 0.8rem;">+ Novo Grupo</button>
             </div>
 
-            <!-- SEÇÃO 1: EM ANDAMENTO -->
             <div style="font-size: 0.85rem; font-weight: 700; color: #d29922; margin: 1rem 0 0.5rem 0; display: flex; align-items: center; gap: 6px;">
                 <span>🏃 Em Andamento</span>
             </div>
             <div id="splitterActiveContainer"></div>
 
-            <!-- SEÇÃO 2: FINALIZADOS -->
             <div style="font-size: 0.85rem; font-weight: 700; color: #3fb950; margin: 1.5rem 0 0.5rem 0; display: flex; align-items: center; gap: 6px;">
                 <span>🏁 Finalizados</span>
             </div>
             <div id="splitterFinishedContainer"></div>
         </div>
 
-        <!-- VIEW 6: DETALHES DO RAXADOR (🍕) -->
         <div class="app-view" id="viewSplitterDetail">
             <div class="section-title" style="margin-top: 0.5rem; display: flex; flex-direction: column; align-items: flex-start; gap: 12px;">
                 <div style="display: flex; justify-content: space-between; align-items: flex-start; width: 100%;">
@@ -1352,7 +1379,6 @@
 
             <input type="hidden" id="splitterGroupIdInput">
 
-            <!-- Meta info edit (Oculto com display: none por padrão) -->
             <div class="card" style="margin-bottom: 1.5rem; padding: 1rem; display: none;" id="splitterMetaCard">
                 <div class="form-group splitter-edit-field">
                     <label>Nome do Rolê</label>
@@ -1391,7 +1417,6 @@
             <div id="splitterExpensesList" class="expense-list" style="margin-bottom: 1rem;"></div>
         </div>
 
-        <!-- VIEW 4: TELA DEDICADA DE GRÁFICO DE EVOLUÇÃO PATRIMONIAL 📈 -->
         <div class="app-view" id="viewPatrimonyChart">
             <div class="section-title" style="margin-top: 0.5rem; justify-content: center;">
                 <span style="font-size: 1rem;">📊 Visão Estratégica</span>
@@ -1425,7 +1450,6 @@
                 </div>
             </div>
 
-            <!-- ABA 2: FUTURO (PROJEÇÃO PRO-RATA) -->
             <div id="chartFutureContainer" style="display: none;">
                 <div class="period-selector">
                     <button class="period-btn active" data-period="6m" onclick="changeProjPeriod('6m')">6 Meses</button>
@@ -1449,7 +1473,6 @@
 
     </div>
 
-    <!-- MODAL ADICIONAR/EDITAR GASTO RAXADOR -->
     <div class="modal-overlay" id="newSplitterExpenseModal">
         <div class="modal">
             <div class="modal-header">
@@ -1482,7 +1505,6 @@
             <div class="form-group">
                     <label id="splitterSharesTitleLabel">⚖️ Divisão por Participante (%)</label>
                 <div id="splitterExpenseSharesContainer" style="display: flex; flex-direction: column; gap: 6px; margin-top: 6px;">
-                    <!-- Preenchido via JS com linhas de percentual dinâmicas -->
                 </div>
             </div>
             
@@ -1493,7 +1515,6 @@
         </div>
     </div>
 
-    <!-- MODAL CRIAR NOVO GRUPO DO RAXADOR -->
     <div class="modal-overlay" id="newSplitterModal">
         <div class="modal">
             <div class="modal-header">
@@ -1527,7 +1548,6 @@
         </div>
     </div>
 
-    <!-- MODAL DE HISTÓRICO DE RENDIMENTOS DE INVESTIMENTOS -->
     <div class="modal-overlay" id="investmentsHistoryModal">
         <div class="modal">
             <div class="modal-header">
@@ -1541,7 +1561,6 @@
         </div>
     </div>
 
-    <!-- MODAL DE AJUDA DA MATEMÁTICA PRO-RATA -->
     <div class="modal-overlay" id="mathHelpModal">
         <div class="modal">
             <div class="modal-header">
@@ -1566,7 +1585,6 @@
         </div>
     </div>
 
-    <!-- MODAL DE AJUDA DOS COFRINHOS ATUALIZADO -->
     <div class="modal-overlay" id="cofrinhoHelpModal">
         <div class="modal">
             <div class="modal-header">
@@ -1590,7 +1608,6 @@
         </div>
     </div>
 
-    <!-- MODAL DE RESGATE / IR / INVESTIMENTO NORMAL -->
     <div class="modal-overlay" id="finishFundModal">
         <div class="modal">
             <div class="modal-header">
@@ -1642,7 +1659,6 @@
         </div>
     </div>
 
-    <!-- MODAL EDITAR NOME DO INVESTIMENTO (LÁPIS) -->
     <div class="modal-overlay" id="editFundNameModal">
         <div class="modal">
             <div class="modal-header">
@@ -1660,7 +1676,6 @@
         </div>
     </div>
 
-    <!-- MODAL CRIAR NOVO FUNDO / COFRINHO -->
     <div class="modal-overlay" id="newFundModal">
         <div class="modal">
             <div class="modal-header">
@@ -1688,7 +1703,6 @@
         </div>
     </div>
 
-    <!-- MODAL DE EDITAR PARCELA -->
     <div class="modal-overlay" id="editInstallmentModal">
         <div class="modal">
             <div class="modal-header">
@@ -1721,7 +1735,6 @@
         </div>
     </div>
 
-    <!-- MODAL DE GASTOS -->
     <div class="modal-overlay" id="expenseModal">
         <div class="modal">
             <div class="modal-header">
@@ -1809,7 +1822,6 @@
         </div>
     </div>
 
-    <!-- MODAL DE CONFIGURAÇÕES -->
     <div class="modal-overlay" id="configModal">
         <div class="modal">
             <div class="modal-header">
@@ -2585,6 +2597,39 @@
         function toggleInstallmentCard(instId) {
             const card = document.getElementById(`instCard-${instId}`);
             if (card) card.classList.toggle('expanded');
+        }
+
+        function openFinishedActionPopup(id) {
+            const finishedList = db.finishedInvestments || [];
+            const item = finishedList.find(f => String(f.id) === String(id));
+            if (!item) return;
+
+            document.getElementById('popupFinishedIdInput').value = item.id;
+            document.getElementById('popupFinishedTitle').innerText = item.name;
+            document.getElementById('popupFinishedPeriod').innerText = `${isoToBrDate(item.startDate)} a ${isoToBrDate(item.endDate)}`;
+            document.getElementById('popupFinishedDep').innerText = formatCurrency(item.totalDeposited);
+            document.getElementById('popupFinishedWd').innerText = formatCurrency(item.totalWithdrawn);
+            
+            const profitEl = document.getElementById('popupFinishedProfit');
+            const profitSign = item.netProfit >= 0 ? '+' : '';
+            profitEl.innerText = `${profitSign}${formatCurrency(item.netProfit)} (${profitSign}${item.netProfitPct.toFixed(2)}%)`;
+            profitEl.className = item.netProfit >= 0 ? 'text-green' : 'text-red';
+
+            document.getElementById('popupFinishedIr').innerText = `-${formatCurrency(item.irAmount || 0)}`;
+
+            document.getElementById('finishedActionPopup').classList.add('active');
+        }
+
+        function reactivateFundFromPopup() {
+            const id = document.getElementById('popupFinishedIdInput').value;
+            document.getElementById('finishedActionPopup').classList.remove('active');
+            reactivateFund(id); // Chama sua função existente de reativação
+        }
+
+        function deleteFinishedFundFromPopup() {
+            const id = document.getElementById('popupFinishedIdInput').value;
+            document.getElementById('finishedActionPopup').classList.remove('active');
+            deleteFinishedFund(id); // Chama sua função existente de exclusão de finalizado
         }
 
         function openExpenseModal(id = null, presetDateIso = null) {
