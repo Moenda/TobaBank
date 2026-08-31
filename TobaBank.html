@@ -126,15 +126,28 @@
             background: #21262d;
             border: 1px solid #30363d;
             color: #f0f6fc;
-            font-size: 1rem;
+            font-size: 0.85rem;
             padding: 0.45rem 0.75rem;
             border-radius: 10px;
             cursor: pointer;
             transition: all 0.2s ease;
             display: flex;
             align-items: center;
+            justify-content: center;
             gap: 6px;
+            height: 38px;
+            line-height: 1;
+            white-space: nowrap;
         }
+        .add-btn {
+            background: #238636;
+            border-color: #2ea043;
+            font-weight: 600;
+            font-size: 0.85rem;
+        }
+        .add-btn:hover { background: #2ea043; }
+        .config-btn:hover, .tools-btn:hover, .back-nav-btn:hover { background: #30363d; }
+
         .add-btn {
             background: #238636;
             border-color: #2ea043;
@@ -2422,7 +2435,6 @@
                             <div class="expense-right">
                                 <div class="expense-amount">
                                     <span class="expense-amount-value" style="color: #d29922;">-${formatCurrency(p.amount)}</span>
-                                    <span class="expense-amount-daily" style="color: #58a6ff;">(Rateado)</span>
                                 </div>
                             </div>
                         `;
