@@ -1294,57 +1294,54 @@
     </div>
 
     <!-- MODAL DE RESGATE / IR / INVESTIMENTO NORMAL -->
-    <!-- MODAL MESTRE DE AÇÕES DO INVESTIMENTO (MODO STEVE JOBS) -->
-    <div class="modal-overlay" id="investActionModal">
+    <div class="modal-overlay" id="finishFundModal">
         <div class="modal">
             <div class="modal-header">
-                <h3 id="investActionModalTitle" style="color: #58a6ff; font-size: 1.2rem; margin: 0;">Nome do Ativo</h3>
-                <div style="display: flex; gap: 8px; align-items: center;">
-                    <button class="action-icon-btn" id="editInvestNameBtn" style="background: #21262d; border: 1px solid #30363d; border-radius: 8px; padding: 6px;" title="Editar Nome">✏️</button>
-                    <button class="close-btn" onclick="document.getElementById('investActionModal').classList.remove('active')">&times;</button>
-                </div>
+                <h3>🏁 Resgatar / Finalizar</h3>
+                <button class="close-btn" onclick="document.getElementById('finishFundModal').classList.remove('active')">&times;</button>
             </div>
-            <input type="hidden" id="modalInvestFundId">
+            <form id="finishFundForm">
+                <input type="hidden" id="finishFundIdInput">
+                
+                <div class="form-group">
+                    <label>Tipo de Resgate</label>
+                    <select id="rescueTypeSelect" class="form-control" onchange="toggleRescueType()">
+                        <option value="partial">🪙 Resgate Parcial (Lucro)</option>
+                        <option value="total">💀 Resgate Total (Encerrar Investimento)</option>
+                    </select>
+                </div>
 
-            <div id="investNormalPanel" style="display: none;">
-                <div class="card-action-box" style="margin-bottom: 0.8rem;">
-                    <div class="card-action-title">➕ Novo Aporte</div>
-                    <div style="display:flex; gap:6px;">
-                        <input type="date" id="modalDepDate" class="form-control" style="padding:0.5rem; font-size:0.85rem;">
-                        <input type="text" inputmode="numeric" id="modalDepAmount" class="form-control smart-money" placeholder="R$ 0,00" style="padding:0.5rem; font-size:0.85rem;">
-                        <button class="btn btn-primary" onclick="addFundDepositFromModal()" style="width:auto; padding:0.5rem 0.8rem; font-size:0.85rem;">Aportar</button>
+                <div class="form-group">
+                    <label>Data do Resgate</label>
+                    <input type="date" id="finishDateInput" class="form-control" required>
+                </div>
+
+                <div id="partialRescueSection">
+                    <div style="font-size: 0.8rem; color: #58a6ff; margin-bottom: 0.8rem; background: rgba(88, 166, 255, 0.1); padding: 8px; border-radius: 8px; font-weight: 600;" id="availableProfitAlert">
+                        Lucro disponível: R$ 0,00
+                    </div>
+                    <div class="form-group">
+                        <label>Valor a Retirar (R$)</label>
+                        <input type="text" inputmode="numeric" id="rescueAmountInput" class="form-control smart-money" placeholder="0,00">
                     </div>
                 </div>
-                <div class="card-action-box" style="margin-bottom: 0.8rem;">
-                    <div class="card-action-title">🔄 Atualizar Saldo</div>
-                    <div style="display:flex; gap:6px;">
-                        <input type="date" id="modalBalDate" class="form-control" style="padding:0.5rem; font-size:0.85rem;">
-                        <input type="text" inputmode="numeric" id="modalBalAmount" class="form-control smart-money" placeholder="R$ Atual" style="padding:0.5rem; font-size:0.85rem;">
-                        <button class="btn btn-secondary" onclick="addFundBalanceLogFromModal()" style="width:auto; padding:0.5rem 0.8rem; font-size:0.85rem; border-color:#58a6ff; color:#58a6ff;">Atualizar</button>
+
+                <div id="totalRescueSection" style="display:none;">
+                    <div class="form-group">
+                        <label>Valor Bruto do Resgate (R$)</label>
+                        <input type="text" inputmode="numeric" id="finishGrossAmount" class="form-control smart-money" placeholder="0,00">
+                    </div>
+                    <div class="form-group">
+                        <label>Imposto de Renda Retido (IR em R$)</label>
+                        <input type="text" inputmode="numeric" id="finishIrAmount" class="form-control smart-money" placeholder="0,00">
+                    </div>
+                    <div style="font-size: 0.8rem; color: #3fb950; margin-bottom: 1rem;" id="finishNetPreview">
+                        Valor Líquido no Bolso: R$ 0,00
                     </div>
                 </div>
-            </div>
 
-            <div id="investCofrinhoPanel" style="display: none;">
-                <div class="card-action-box" style="margin-bottom: 0.8rem;">
-                    <div class="card-action-title" style="color: #3fb950;">🪙 Novo Saque</div>
-                    <div style="display:flex; gap:6px;">
-                        <input type="date" id="modalSaqueDate" class="form-control" style="padding:0.5rem; font-size:0.85rem;">
-                        <input type="text" inputmode="numeric" id="modalSaqueAmount" class="form-control smart-money" placeholder="R$ 0,00" style="padding:0.5rem; font-size:0.85rem;">
-                        <button class="btn btn-primary" onclick="addCofrinhoWithdrawalFromModal()" style="width:auto; padding:0.5rem 0.8rem; font-size:0.85rem; background: #238636;">Sacar</button>
-                    </div>
-                </div>
-            </div>
-
-            <div style="font-size:0.85rem; font-weight:700; color:#8b949e; margin: 1rem 0 0.5rem 0;">📜 Histórico de Lançamentos</div>
-            <div class="log-list" id="modalInvestHistoryList" style="max-height: 220px; overflow-y: auto; margin-bottom: 1.2rem; padding-right: 4px;">
-                <!-- Preenchido via JS -->
-            </div>
-
-            <div style="display:flex; justify-content:space-between; align-items:center; border-top:1px solid #21262d; padding-top:1rem;">
-                <button class="btn btn-secondary" id="modalInvestFinishBtn" style="width:auto; padding:0.5rem 0.8rem; font-size:0.85rem; border-color:#d29922; color:#d29922;">🏁 Resgatar / Finalizar</button>
-                <button class="btn btn-danger" id="modalInvestDeleteBtn" style="width:auto; padding:0.5rem 0.8rem; font-size:0.85rem;">🗑️ Excluir</button>
-            </div>
+                <button type="submit" class="btn btn-primary" id="confirmRescueBtn">Confirmar Retirada</button>
+            </form>
         </div>
     </div>
 
@@ -1504,10 +1501,7 @@
                     <input type="date" id="expenseDateInput" class="form-control" required>
                 </div>
 
-                <div style="display: flex; gap: 8px; margin-top: 1rem;">
-                    <button type="submit" class="btn btn-primary" style="flex: 2;">Salvar Gasto</button>
-                    <button type="button" class="btn btn-danger" id="deleteExpenseModalBtn" onclick="deleteExpenseFromModal()" style="flex: 1; display: none;">🗑️ Apagar</button>
-                </div>
+                <button type="submit" class="btn btn-primary" style="margin-top: 1rem;">Salvar Gasto</button>
             </form>
         </div>
     </div>
@@ -2988,7 +2982,6 @@ let currentShares = {};
             const dateInput = document.getElementById('expenseDateInput');
             const isInstCheckbox = document.getElementById('isInstallmentCheckbox');
             const instGroupEl = document.getElementById('installmentCheckboxGroup');
-            const deleteBtn = document.getElementById('deleteExpenseModalBtn');
 
             if (id) {
                 const item = db.transactions.find(t => t.id === id);
@@ -3001,7 +2994,6 @@ let currentShares = {};
                     dateInput.value = item.date;
                     isInstCheckbox.checked = false;
                     instGroupEl.style.display = 'none';
-                    if (deleteBtn) deleteBtn.style.display = 'block';
                 }
             } else {
                 title.innerText = presetDateIso ? `➕ Adicionar Gasto em ${isoToBrDate(presetDateIso)}` : "➕ Novo Gasto";
@@ -3012,20 +3004,9 @@ let currentShares = {};
                 dateInput.value = presetDateIso || getTodayIsoDateStr();
                 isInstCheckbox.checked = false;
                 instGroupEl.style.display = 'block';
-                if (deleteBtn) deleteBtn.style.display = 'none';
             }
             toggleInstallmentFields();
             modal.classList.add('active');
-        }
-
-        function deleteExpenseFromModal() {
-            const id = document.getElementById('expenseIdInput').value;
-            if (!id) return;
-            if (confirm('Deseja mesmo apagar este gasto?')) {
-                db.transactions = db.transactions.filter(t => t.id !== id);
-                saveDatabase();
-                document.getElementById('expenseModal').classList.remove('active');
-            }
         }
 
         function saveExpense() {
@@ -3242,16 +3223,11 @@ let currentShares = {};
                 let cleanCat = t.category.includes(' - ') ? t.category.split(' - ')[1] : t.category;
                 const itemEl = document.createElement('div');
                 itemEl.className = 'expense-item';
-                itemEl.style.cursor = 'pointer';
-                itemEl.onclick = () => openExpenseModal(t.id);
                 itemEl.innerHTML = `
-                    <div class="expense-details">
-                        <span class="expense-desc">${t.description}</span>
-                        <span class="expense-meta">${cleanCat} • ${isoToBrDate(t.date)}</span>
-                    </div>
-                    <div class="expense-right">
-                        <span class="expense-amount" style="font-weight:700; color:#f85149; font-size:0.82rem;">- ${formatCurrency(t.amount)}</span>
-                    </div>
+                    <div class="expense-details"><span class="expense-desc">${t.description}</span><span class="expense-meta">${cleanCat} • ${isoToBrDate(t.date)}</span></div>
+                    <div class="expense-right"><span class="expense-amount" style="font-weight:700; color:#f85149; font-size:0.82rem;">- ${formatCurrency(t.amount)}</span>
+                    <button class="action-icon-btn" onclick="openExpenseModal('${t.id}')" title="Editar">✏️</button>
+                    <button class="action-icon-btn delete" onclick="deleteExpense('${t.id}')" title="Apagar">🗑️</button></div>
                 `;
                 container.appendChild(itemEl);
             });
@@ -3260,8 +3236,6 @@ let currentShares = {};
                 const itemEl = document.createElement('div');
                 itemEl.className = 'expense-item';
                 itemEl.style.borderColor = '#388bfd';
-                itemEl.style.cursor = 'pointer';
-                itemEl.onclick = () => openEditInstallmentModal(p.installmentGroupId);
                 itemEl.innerHTML = `
                     <div class="expense-details">
                         <span class="expense-desc" style="color: #58a6ff;">💳 ${p.description}</span>
@@ -3269,6 +3243,7 @@ let currentShares = {};
                     </div>
                     <div class="expense-right">
                         <span class="expense-amount" style="font-weight:700; color:#f85149; font-size:0.82rem;">- ${formatCurrency(p.amount)}</span>
+                        <button class="action-icon-btn" onclick="openEditInstallmentModal('${p.installmentGroupId}')" title="Editar Parcelamento">✏️</button>
                     </div>
                 `;
                 container.appendChild(itemEl);
@@ -3615,10 +3590,51 @@ let currentShares = {};
                 }
                 const avgYieldMonthly = yieldPct / monthsElapsed;
 
+                let withdrawalsLogsHtml = '';
+                const sortedWithdrawals = [...(fund.withdrawals || [])].sort((a, b) => new Date(b.date) - new Date(a.date));
+
+                sortedWithdrawals.forEach(w => {
+                    withdrawalsLogsHtml += `
+                        <div class="log-item">
+                            <span>🪙 Saque • ${isoToBrDate(w.date)}</span>
+                            <div style="display:flex; align-items:center; gap:6px;">
+                                <span style="font-weight:700; color: #3fb950;">+${formatCurrency(w.amount)}</span>
+                                <button class="action-icon-btn delete" onclick="deleteCofrinhoWithdrawal('${fund.id}', '${w.id}'); event.stopPropagation();" title="Apagar">🗑️</button>
+                            </div>
+                        </div>
+                    `;
+                });
+
+                const bodyActionsHtml = `
+                    <div class="invest-body">
+                        <div class="card-action-box">
+                            <div class="card-action-title" style="color: #3fb950;">🪙 Novo Saque</div>
+                            <div style="display:flex; gap:6px;">
+                                <input type="date" id="saqueDate-${fund.id}" class="form-control" value="${getTodayIsoDateStr()}" style="padding:0.4rem; font-size:0.8rem;">
+                                <input type="text" inputmode="numeric" id="saqueAmount-${fund.id}" class="form-control smart-money" placeholder="R$ 0,00" style="padding:0.4rem; font-size:0.8rem;">
+                                <button class="btn btn-primary" onclick="addCofrinhoWithdrawal('${fund.id}')" style="width:auto; padding:0.4rem 0.8rem; font-size:0.78rem; background: #238636;">Sacar</button>
+                            </div>
+                        </div>
+
+                        <div style="font-size:0.78rem; font-weight:700; color:#8b949e; margin: 0.8rem 0 0.4rem 0;">📜 Histórico de Saques</div>
+                        <div class="log-list">
+                            ${withdrawalsLogsHtml || '<div style="font-size:0.73rem; color:#8b949e;">Nenhum saque registrado ainda.</div>'}
+                        </div>
+
+                        <div style="display:flex; justify-content:flex-end; align-items:center; margin-top:1rem; border-top:1px solid #21262d; padding-top:0.6rem;">
+                            <button class="btn btn-danger" style="width:auto; padding:0.3rem 0.7rem; font-size:0.75rem;" onclick="deleteFund('${fund.id}')">🗑️ Excluir Cofrinho</button>
+                        </div>
+                    </div>
+                `;
+
                 return `
-                    <div class="invest-header" onclick="openInvestModal('${fund.id}')">
+                    <div class="invest-header" onclick="toggleInvestCard('${fund.id}')">
                         <div class="invest-header-top">
-                            <span class="invest-title" style="color: #f0f6fc; font-size: 1.1rem;">${fund.name}</span>
+                            <span class="invest-title">
+                                🐷 ${fund.name} 
+                                <span onclick="openEditFundNameModal('${fund.id}', '${fund.name.replace(/'/g, "\\'") }'); event.stopPropagation();" style="cursor:pointer; font-size:0.9rem; margin-left:8px; opacity: 0.7;">✏️</span>
+                            </span>
+                            <span class="invest-arrow">▼</span>
                         </div>
                         
                         <div style="margin: 10px 0; display: flex; justify-content: space-between; align-items: center; background: #161b22; padding: 8px 12px; border-radius: 8px; border: 1px solid #21262d;">
@@ -3645,6 +3661,7 @@ let currentShares = {};
                             </div>
                         </div>
                     </div>
+                    ${bodyActionsHtml}
                 `;
             }
 
@@ -3660,6 +3677,61 @@ let currentShares = {};
                 ? `<div style="margin-top: 6px; font-size: 0.72rem; color: #8b949e; border-top: 1px solid #30363d; padding-top: 4px;">💸 Lucro Realizado/Sacado: <b>${formatCurrency(totalWithdrawn)}</b></div>` 
                 : '';
 
+            let historyLogsHtml = '';
+            const allLogs = [
+                ...(fund.deposits || []).map(d => ({ type: 'aporte', id: d.id, date: d.date, amount: d.amount })),
+                ...(fund.balanceLogs || []).filter(b => !b.isSystem).map(b => ({ type: 'saldo', id: b.id, date: b.date, amount: b.amount })),
+                ...(fund.withdrawals || []).map(w => ({ type: 'resgate', id: w.id, date: w.date, amount: w.amount }))
+            ].sort((a, b) => new Date(b.date) - new Date(a.date));
+
+            allLogs.forEach(log => {
+                let logIcon = '🔄', label = 'Saldo', color = '#d29922', sign = '';
+                if (log.type === 'aporte') { logIcon = '➕'; label = 'Aporte'; color = '#58a6ff'; sign = '+'; }
+                else if (log.type === 'resgate') { logIcon = '🪙'; label = 'Resgate'; color = '#ff7b72'; sign = '-'; }
+
+                historyLogsHtml += `
+                    <div class="log-item">
+                        <span>${logIcon} ${label} • ${isoToBrDate(log.date)}</span>
+                        <div style="display:flex; align-items:center; gap:6px;">
+                            <span style="font-weight:700; color: ${color};">${sign}${formatCurrency(log.amount)}</span>
+                            <button class="action-icon-btn delete" onclick="deleteInvestLog('${fund.id}', '${log.id}', '${log.type}'); event.stopPropagation();" title="Apagar">🗑️</button>
+                        </div>
+                    </div>
+                `;
+            });
+
+            const bodyActionsHtml = `
+                <div class="invest-body">
+                    <div class="card-action-box">
+                        <div class="card-action-title">➕ Novo Aporte</div>
+                        <div style="display:flex; gap:6px;">
+                            <input type="date" id="depDate-${fund.id}" class="form-control" value="${getTodayIsoDateStr()}" style="padding:0.4rem; font-size:0.8rem;">
+                            <input type="text" inputmode="numeric" id="depAmount-${fund.id}" class="form-control smart-money" placeholder="R$ 0,00" style="padding:0.4rem; font-size:0.8rem;">
+                            <button class="btn btn-primary" onclick="addFundDeposit('${fund.id}')" style="width:auto; padding:0.4rem 0.8rem; font-size:0.78rem;">Aportar</button>
+                        </div>
+                    </div>
+
+                    <div class="card-action-box">
+                        <div class="card-action-title">🔄 Atualizar Saldo</div>
+                        <div style="display:flex; gap:6px;">
+                            <input type="date" id="balDate-${fund.id}" class="form-control" value="${getTodayIsoDateStr()}" style="padding:0.4rem; font-size:0.8rem;">
+                            <input type="text" inputmode="numeric" id="balAmount-${fund.id}" class="form-control smart-money" placeholder="R$ Atual" style="padding:0.4rem; font-size:0.8rem;">
+                            <button class="btn btn-secondary" onclick="addFundBalanceLog('${fund.id}')" style="width:auto; padding:0.4rem 0.8rem; font-size:0.78rem; border-color:#58a6ff; color:#58a6ff;">Atualizar</button>
+                        </div>
+                    </div>
+
+                    <div style="font-size:0.78rem; font-weight:700; color:#8b949e; margin: 0.8rem 0 0.4rem 0;">📜 Histórico de Lançamentos</div>
+                    <div class="log-list">
+                        ${historyLogsHtml || '<div style="font-size:0.73rem; color:#8b949e;">Nenhum histórico registrado.</div>'}
+                    </div>
+
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-top:1rem; border-top:1px solid #21262d; padding-top:0.6rem;">
+                        <button class="btn btn-secondary" style="width:auto; padding:0.3rem 0.7rem; font-size:0.75rem; border-color:#d29922; color:#d29922;" onclick="openFinishFundModal('${fund.id}')">🏁 Finalizar / Resgatar</button>
+                        <button class="btn btn-danger" style="width:auto; padding:0.3rem 0.7rem; font-size:0.75rem;" onclick="deleteFund('${fund.id}')">🗑️ Excluir</button>
+                    </div>
+                </div>
+            `;
+
             const realProfit = latestBalance - totalDeposited;
             const profitPercentage = totalDeposited > 0 ? ((realProfit / totalDeposited) * 100) : 0;
             const proj = calculateCompoundProjection(fund.deposits, fund.balanceLogs);
@@ -3669,9 +3741,13 @@ let currentShares = {};
             const projSign = proj.profitAmount >= 0 ? '+' : '';
 
             return `
-                <div class="invest-header" onclick="openInvestModal('${fund.id}')">
+                <div class="invest-header" onclick="toggleInvestCard('${fund.id}')">
                     <div class="invest-header-top">
-                        <span class="invest-title" style="color: #f0f6fc; font-size: 1.1rem;">${fund.name}</span>
+                        <span class="invest-title">
+                            📈 ${fund.name} 
+                            <span onclick="openEditFundNameModal('${fund.id}', '${fund.name.replace(/'/g, "\\'") }'); event.stopPropagation();" style="cursor:pointer; font-size:0.9rem; margin-left:8px; opacity: 0.7;">✏️</span>
+                        </span>
+                        <span class="invest-arrow">▼</span>
                     </div>
                     <div class="invest-metrics">
                         <div class="invest-metric-box">
@@ -3692,10 +3768,9 @@ let currentShares = {};
                         🚀 Projeção 12 meses <b class="${projClass}">${projSign}${formatCurrency(proj.profitAmount)} (${projSign}${proj.projectedPct.toFixed(2)}%)</b>
                     </div>
                 </div>
+                ${bodyActionsHtml}
             `;
         }
-
-        
 
         function renderInvestmentsScreen() {
             const investContainer = document.getElementById('investmentsContainer');
