@@ -2575,22 +2575,45 @@
                             <span style="font-weight: 600; font-size: 0.88rem; color: #f0f6fc;">🔄 ${item.name}</span>
                             <span style="font-size: 0.73rem; color: #8b949e; margin-top: 2px;">${cleanCat}</span>
                         </div>
-                        <div style="display: flex; align-items: center; gap: 10px;">
-                            <span style="font-weight: 700; color: #f85149; font-size: 0.88rem;">-${formatCurrency(item.amount)}</span>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <div style="display: flex; flex-direction: column; align-items: flex-end;">
+                                <span style="font-weight: 700; color: #f85149; font-size: 0.88rem;">-${formatCurrency(item.amount)}</span>
+                                <span style="font-size: 0.68rem; color: #58a6ff; margin-top: 2px;">-${formatCurrency(dailyItemRate)}/dia</span>
+                            </div>
                             <span class="fixed-arrow">▼</span>
                         </div>
                     </div>
                     <div class="fixed-body">
-                        <div style="font-size: 0.78rem; color: #8b949e; margin-bottom: 10px;">
-                            Impacto diário: <b style="color: #58a6ff;">-${formatCurrency(dailyItemRate)}/dia</b>
-                        </div>
-                        <div style="text-align: right;">
-                            <button class="btn btn-danger" style="width: auto; padding: 0.35rem 0.8rem; font-size: 0.75rem;" onclick="deleteFixedExpense('${item.id}')">🗑️ Apagar Gasto Fixo</button>
+                        <div style="display: flex; gap: 8px; margin-top: 4px;">
+                            <button class="btn" style="flex: 1; background: #d29922; color: #fff; font-size: 0.78rem; padding: 0.5rem;" onclick="editFixedExpense('${item.id}')">✏️ Editar</button>
+                            <button class="btn btn-danger" style="flex: 1; font-size: 0.78rem; padding: 0.5rem;" onclick="deleteFixedExpense('${item.id}')">🗑️ Apagar</button>
                         </div>
                     </div>
                 `;
                 listContainer.appendChild(el);
             });
+        }
+
+        function editFixedExpense(id) {
+            event?.stopPropagation();
+            const expenses = db.config.fixedExpenses || [];
+            const item = expenses.find(e => e.id === id);
+            if (!item) return;
+
+            const newName = prompt("Editar nome do gasto fixo:", item.name);
+            if (newName === null) return;
+            const newAmountStr = prompt("Editar valor (R$):", formatMoneyInput(item.amount));
+            if (newAmountStr === null) return;
+
+            const parsedAmount = parseFloat(newAmountStr.replace(/\./g, '').replace(',', '.')) || 0;
+            if (newName.trim() && parsedAmount > 0) {
+                item.name = newName.trim();
+                item.amount = parsedAmount;
+                saveDatabase();
+                renderFixedExpenses();
+            } else {
+                alert("Nome ou valor inválido!");
+            }
         }
 
         function toggleFixedCard(id) {
