@@ -434,12 +434,22 @@
             transform: rotate(180deg);
         }
 
-        .history-metrics, .installment-metrics, .invest-metrics {
+        .history-metrics, .invest-metrics {
             display: grid;
             grid-template-columns: 1fr 1fr 1fr;
             gap: 6px;
             background: #161b22;
             padding: 0.6rem;
+            border-radius: 10px;
+            border: 1px solid #21262d;
+            margin-top: 0.4rem;
+        }
+        .installment-metrics {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            background: #161b22;
+            padding: 0.6rem 0.8rem;
             border-radius: 10px;
             border: 1px solid #21262d;
             margin-top: 0.4rem;
@@ -2312,7 +2322,7 @@
                     card.innerHTML = `
                         <div class="installment-header">
                             <div class="installment-header-top">
-                                <span class="installment-title" style="color: #f0f6fc;">${inst.description}</span>
+                                <span class="installment-title">${inst.description}</span>
                             </div>
                             <div class="category-info" style="margin-top: 6px;">
                                 <span>Progresso: Parcela ${currentParcelNum} de ${inst.totalInstallments}</span>
@@ -2323,16 +2333,12 @@
                             </div>
                             <div class="installment-metrics">
                                 <div class="installment-metric-box">
-                                    <span class="installment-metric-label">Parcela</span>
+                                    <span class="installment-metric-label">Parcela do Mês</span>
                                     <span class="installment-metric-val text-red">-${formatCurrency(inst.totalAmount / inst.totalInstallments)}</span>
                                 </div>
                                 <div class="installment-metric-box">
-                                    <span class="installment-metric-label">Total</span>
+                                    <span class="installment-metric-label">Valor Total</span>
                                     <span class="installment-metric-val text-neutral">${formatCurrency(inst.totalAmount)}</span>
-                                </div>
-                                <div class="installment-metric-box">
-                                    <span class="installment-metric-label">Categoria</span>
-                                    <span class="installment-metric-val text-blue" style="font-size:0.75rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:85px;">${inst.category}</span>
                                 </div>
                             </div>
                         </div>
@@ -2355,8 +2361,8 @@
                             <div class="installment-header-top">
                                 <span class="installment-title" style="color: #8b949e;">✅ ${inst.description} (Quitado)</span>
                             </div>
-                            <div style="font-size: 0.75rem; color: #8b949e; margin-top: 4px;">
-                                Total pago: ${formatCurrency(inst.totalAmount)} em ${inst.totalInstallments}x
+                            <div style="font-size: 0.78rem; color: #8b949e; margin-top: 4px;">
+                                Total pago: <b style="color: #f0f6fc;">${formatCurrency(inst.totalAmount)}</b> em <b>${inst.totalInstallments}x</b>
                             </div>
                         </div>
                     `;
