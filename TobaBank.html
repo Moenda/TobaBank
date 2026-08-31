@@ -3163,7 +3163,6 @@
                             <span class="invest-title" style="font-size: 1rem; font-weight: 700; color: #58a6ff;">
                                 ${fund.name}
                             </span>
-                            <span style="font-size: 0.75rem; color: #8b949e; background: #161b22; padding: 3px 8px; border-radius: 6px; border: 1px solid #21262d;">Gerenciar ⚙️</span>
                         </div>
                         
                         <div style="margin: 10px 0; display: flex; justify-content: space-between; align-items: center; background: #161b22; padding: 8px 12px; border-radius: 8px; border: 1px solid #21262d;">
@@ -3216,7 +3215,6 @@
                         <span class="invest-title" style="font-size: 1rem; font-weight: 700; color: #58a6ff;">
                             ${fund.name}
                         </span>
-                        <span style="font-size: 0.75rem; color: #8b949e; background: #161b22; padding: 3px 8px; border-radius: 6px; border: 1px solid #21262d;">Gerenciar ⚙️</span>
                     </div>
                     <div class="invest-metrics" style="margin-top: 8px;">
                         <div class="invest-metric-box">
@@ -3244,7 +3242,6 @@
             if (!fund) return;
 
             document.getElementById('popupFundIdInput').value = fund.id;
-            document.getElementById('popupFundTitle.innerText' in document.getElementById('popupFundTitle') ? 'popupFundTitle' : '').innerText = fund.name;
             const titleEl = document.getElementById('popupFundTitle');
             if (titleEl) titleEl.innerText = fund.name;
 
@@ -3275,8 +3272,8 @@
             } else {
                 allLogs.forEach(log => {
                     let logIcon = '🔄', label = 'Saldo', color = '#d29922', sign = '';
-                    if (log.type === 'aporte') { logIcon = '➕'; label = 'Aporte'; color = '#58a6ff;'; sign = '+'; }
-                    else if (log.type === 'resgate') { logIcon = '🪙'; label = 'Retirada'; color = '#ff7b72;'; sign = '-'; }
+                    if (log.type === 'aporte') { logIcon = '➕'; label = 'Aporte'; color = '#58a6ff'; sign = '+'; }
+                    else if (log.type === 'resgate') { logIcon = '🪙'; label = 'Retirada'; color = '#ff7b72'; sign = '-'; }
 
                     const item = document.createElement('div');
                     item.className = 'log-item';
