@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
@@ -2240,7 +2240,7 @@
                 itemEl.onclick = () => openEditInstallmentModal(p.id);
                 itemEl.innerHTML = `
                     <div class="expense-details">
-                        <span class="expense-desc">💳 ${p.description}</span>
+                        <span class="expense-desc">${p.description}</span>
                         <span class="expense-meta">${cleanCat} • Parcela ${p.currentParcel}/${p.totalInstallments}</span>
                     </div>
                     <div class="expense-right">
@@ -2308,11 +2308,11 @@
                     const card = document.createElement('div');
                     card.className = 'installment-card';
                     card.id = `instCard-${inst.id}`;
+                    card.onclick = () => openEditInstallmentModal(inst.id);
                     card.innerHTML = `
-                        <div class="installment-header" onclick="toggleInstallmentCard('${inst.id}')">
+                        <div class="installment-header">
                             <div class="installment-header-top">
-                                <span class="installment-title">💳 ${inst.description}</span>
-                                <span class="installment-arrow">▼</span>
+                                <span class="installment-title" style="color: #f0f6fc;">${inst.description}</span>
                             </div>
                             <div class="category-info" style="margin-top: 6px;">
                                 <span>Progresso: Parcela ${currentParcelNum} de ${inst.totalInstallments}</span>
@@ -2336,12 +2336,6 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="installment-body">
-                            <div style="display:flex; justify-content:space-between; align-items:center; border-top:1px solid #21262d; padding-top:0.8rem; margin-top:0.4rem;">
-                                <button class="btn btn-secondary" style="width:auto; padding:0.4rem 0.8rem; font-size:0.8rem;" onclick="openEditInstallmentModal('${inst.id}')">✏️ Editar Compra</button>
-                                <button class="btn btn-danger" style="width:auto; padding:0.4rem 0.8rem; font-size:0.8rem;" onclick="deleteInstallmentGroup('${inst.id}')">🗑️ Excluir</button>
-                            </div>
-                        </div>
                     `;
                     activeContainer.appendChild(card);
                 });
@@ -2353,17 +2347,16 @@
                 finishedList.forEach(inst => {
                     const card = document.createElement('div');
                     card.className = 'installment-card';
-                    card.style.opacity = '0.7';
+                    card.id = `instCard-${inst.id}`;
+                    card.onclick = () => openEditInstallmentModal(inst.id);
+                    card.style.opacity = '0.75';
                     card.innerHTML = `
-                        <div class="installment-header" style="cursor: default;">
+                        <div class="installment-header">
                             <div class="installment-header-top">
                                 <span class="installment-title" style="color: #8b949e;">✅ ${inst.description} (Quitado)</span>
                             </div>
                             <div style="font-size: 0.75rem; color: #8b949e; margin-top: 4px;">
                                 Total pago: ${formatCurrency(inst.totalAmount)} em ${inst.totalInstallments}x
-                            </div>
-                            <div style="margin-top: 0.6rem; text-align: right;">
-                                <button class="btn btn-danger" style="width:auto; padding:0.25rem 0.6rem; font-size:0.75rem;" onclick="deleteInstallmentGroup('${inst.id}')">🗑️ Excluir Histórico</button>
                             </div>
                         </div>
                     `;
