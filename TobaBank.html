@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
@@ -124,6 +124,47 @@
             display: none;
         }
         .tab-content.active {
+            display: block;
+        }
+
+        /* Home Accordion Cards */
+        .home-acc-card {
+            background: #0d1117;
+            border: 1px solid #21262d;
+            border-radius: 14px;
+            margin-bottom: 1rem;
+            overflow: hidden;
+            transition: border-color 0.2s ease;
+        }
+        .home-acc-header {
+            padding: 0.9rem 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            user-select: none;
+        }
+        .home-acc-title {
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: #f0f6fc;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .home-acc-arrow {
+            font-size: 0.75rem;
+            color: #8b949e;
+            transition: transform 0.2s;
+        }
+        .home-acc-card.expanded .home-acc-arrow {
+            transform: rotate(180deg);
+        }
+        .home-acc-body {
+            display: none;
+            padding: 0 1rem 1rem 1rem;
+        }
+        .home-acc-card.expanded .home-acc-body {
             display: block;
         }
 
@@ -778,15 +819,38 @@
                     </div>
                 </div>
 
-                <div class="section-title">
-                    <span>📊 Gastos por Categoria</span>
+                <!-- ACORDEON 1: GASTOS POR CATEGORIA -->
+                <div class="home-acc-card expanded" id="homeCatCard">
+                    <div class="home-acc-header" onclick="toggleHomeAcc('homeCatCard')">
+                        <span class="home-acc-title">📊 Gastos por Categoria</span>
+                        <span class="home-acc-arrow">▼</span>
+                    </div>
+                    <div class="home-acc-body">
+                        <div id="categoryBarsContainer"></div>
+                    </div>
                 </div>
-                <div id="categoryBarsContainer"></div>
 
-                <div class="section-title" style="margin-top: 1.8rem;">
-                    <span>💸 Lançamentos do Mês</span>
+                <!-- ACORDEON 2: PARCELAS DO MÊS -->
+                <div class="home-acc-card" id="homeInstCard">
+                    <div class="home-acc-header" onclick="toggleHomeAcc('homeInstCard')">
+                        <span class="home-acc-title">💳 Parcelas do Mês</span>
+                        <span class="home-acc-arrow">▼</span>
+                    </div>
+                    <div class="home-acc-body">
+                        <div class="expense-list" id="homeInstallmentsListContainer"></div>
+                    </div>
                 </div>
-                <div class="expense-list" id="expenseListContainer"></div>
+
+                <!-- ACORDEON 3: LANÇAMENTOS DO MÊS -->
+                <div class="home-acc-card expanded" id="homeTransCard">
+                    <div class="home-acc-header" onclick="toggleHomeAcc('homeTransCard')">
+                        <span class="home-acc-title">💸 Lançamentos do Mês</span>
+                        <span class="home-acc-arrow">▼</span>
+                    </div>
+                    <div class="home-acc-body">
+                        <div class="expense-list" id="expenseListContainer"></div>
+                    </div>
+                </div>
             </div>
 
             <div class="tab-content" id="tabInstallments">
@@ -2210,58 +2274,64 @@
             });
         }
 
-        // Renderiza a listagem ordenada de despesas do mês atual combinando gastos à vista e parcelas vigentes
         function renderExpenseListWithInstallments(transactions, activeInstallments) {
-            const container = document.getElementById('expenseListContainer');
-            if (!container) return;
-            container.innerHTML = '';
-
-            if (transactions.length === 0 && activeInstallments.length === 0) {
-                container.innerHTML = '<div class="empty-state">Nenhum lançamento neste mês. Clique em "+ Gasto" para começar!</div>';
-                return;
+            const transContainer = document.getElementById('expenseListContainer');
+            const instContainer = document.getElementById('homeInstallmentsListContainer');
+            
+            if (transContainer) {
+                transContainer.innerHTML = '';
+                if (transactions.length === 0) {
+                    transContainer.innerHTML = '<div class="empty-state">Nenhum lançamento à vista neste mês.</div>';
+                } else {
+                    const sortedTransactions = [...transactions].sort((a, b) => new Date(b.date) - new Date(a.date));
+                    sortedTransactions.forEach(t => {
+                        let cleanCat = t.category.includes(' - ') ? t.category.split(' - ')[1] : t.category;
+                        const itemEl = document.createElement('div');
+                        itemEl.className = 'expense-item';
+                        itemEl.onclick = () => openExpenseModal(t.id);
+                        itemEl.innerHTML = `
+                            <div class="expense-details">
+                                <span class="expense-desc">${t.description}</span>
+                                <span class="expense-meta">${cleanCat} • ${isoToBrDate(t.date)}</span>
+                            </div>
+                            <div class="expense-right">
+                                <div class="expense-amount">
+                                    <span class="expense-amount-value">-${formatCurrency(t.amount)}</span>
+                                </div>
+                            </div>
+                        `;
+                        transContainer.appendChild(itemEl);
+                    });
+                }
             }
 
-            const sortedTransactions = [...transactions].sort((a, b) => new Date(b.date) - new Date(a.date));
-
-            sortedTransactions.forEach(t => {
-                let cleanCat = t.category.includes(' - ') ? t.category.split(' - ')[1] : t.category;
-                const itemEl = document.createElement('div');
-                itemEl.className = 'expense-item';
-                itemEl.onclick = () => openExpenseModal(t.id);
-                itemEl.innerHTML = `
-                    <div class="expense-details">
-                        <span class="expense-desc">${t.description}</span>
-                        <span class="expense-meta">${cleanCat} • ${isoToBrDate(t.date)}</span>
-                    </div>
-                    <div class="expense-right">
-                        <div class="expense-amount">
-                            <span class="expense-amount-value">-${formatCurrency(t.amount)}</span>
-                        </div>
-                    </div>
-                `;
-                container.appendChild(itemEl);
-            });
-
-            activeInstallments.forEach(p => {
-                let cleanCat = p.category.includes(' - ') ? p.category.split(' - ')[1] : p.category;
-                const itemEl = document.createElement('div');
-                itemEl.className = 'expense-item';
-                itemEl.style.borderLeft = '3px solid #d29922';
-                itemEl.onclick = () => openEditInstallmentModal(p.id);
-                itemEl.innerHTML = `
-                    <div class="expense-details">
-                        <span class="expense-desc">${p.description}</span>
-                        <span class="expense-meta">${cleanCat} • Parcela ${p.currentParcel}/${p.totalInstallments}</span>
-                    </div>
-                    <div class="expense-right">
-                        <div class="expense-amount">
-                            <span class="expense-amount-value" style="color: #d29922;">-${formatCurrency(p.amount)}</span>
-                            <span class="expense-amount-daily" style="color: #58a6ff;">(Rateado no diário)</span>
-                        </div>
-                    </div>
-                `;
-                container.appendChild(itemEl);
-            });
+            if (instContainer) {
+                instContainer.innerHTML = '';
+                if (activeInstallments.length === 0) {
+                    instContainer.innerHTML = '<div class="empty-state">Nenhuma parcela ativa neste mês.</div>';
+                } else {
+                    activeInstallments.forEach(p => {
+                        let cleanCat = p.category.includes(' - ') ? p.category.split(' - ')[1] : p.category;
+                        const itemEl = document.createElement('div');
+                        itemEl.className = 'expense-item';
+                        itemEl.style.borderLeft = '3px solid #d29922';
+                        itemEl.onclick = () => openEditInstallmentModal(p.id);
+                        itemEl.innerHTML = `
+                            <div class="expense-details">
+                                <span class="expense-desc">${p.description}</span>
+                                <span class="expense-meta">${cleanCat} • Parcela ${p.currentParcel}/${p.totalInstallments}</span>
+                            </div>
+                            <div class="expense-right">
+                                <div class="expense-amount">
+                                    <span class="expense-amount-value" style="color: #d29922;">-${formatCurrency(p.amount)}</span>
+                                    <span class="expense-amount-daily" style="color: #58a6ff;">(Rateado)</span>
+                                </div>
+                            </div>
+                        `;
+                        instContainer.appendChild(itemEl);
+                    });
+                }
+            }
         }
 
         // Renderiza os cards das compras parceladas ativas e a seção de parcelamentos já quitados
@@ -2427,6 +2497,11 @@
                 saveDatabase();
                 document.getElementById('expenseModal').classList.remove('active');
             }
+        }
+
+        function toggleHomeAcc(cardId) {
+            const card = document.getElementById(cardId);
+            if (card) card.classList.toggle('expanded');
         }
 
         // Valida e salva uma nova despesa à vista ou gera o grupo de parcelas se for compra a prazo
