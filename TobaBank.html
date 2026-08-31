@@ -271,6 +271,12 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .expense-item:hover {
+            border-color: #30363d;
+            background: #12161f;
         }
         .expense-details {
             display: flex;
@@ -1416,7 +1422,10 @@
                     <label>Data da 1ª Parcela</label>
                     <input type="date" id="editInstStartDate" class="form-control" required>
                 </div>
-                <button type="submit" class="btn btn-primary">Salvar Alterações</button>
+                <div style="display: flex; gap: 8px; margin-top: 1rem;">
+                    <button type="submit" class="btn btn-primary" style="flex: 2;">Salvar Alterações</button>
+                    <button type="button" class="btn btn-danger" onclick="deleteInstallmentFromEditModal()" style="flex: 1;">🗑️ Apagar</button>
+                </div>
             </form>
         </div>
     </div>
@@ -2205,6 +2214,7 @@
                 let cleanCat = t.category.includes(' - ') ? t.category.split(' - ')[1] : t.category;
                 const itemEl = document.createElement('div');
                 itemEl.className = 'expense-item';
+                itemEl.onclick = () => openExpenseModal(t.id);
                 itemEl.innerHTML = `
                     <div class="expense-details">
                         <span class="expense-desc">${t.description}</span>
@@ -2214,8 +2224,6 @@
                         <div class="expense-amount">
                             <span class="expense-amount-value">-${formatCurrency(t.amount)}</span>
                         </div>
-                        <button class="action-icon-btn" onclick="openExpenseModal('${t.id}')" title="Editar">✏️</button>
-                        <button class="action-icon-btn delete" onclick="deleteExpense('${t.id}')" title="Apagar">🗑️</button>
                     </div>
                 `;
                 container.appendChild(itemEl);
@@ -2226,6 +2234,7 @@
                 const itemEl = document.createElement('div');
                 itemEl.className = 'expense-item';
                 itemEl.style.borderLeft = '3px solid #d29922';
+                itemEl.onclick = () => openEditInstallmentModal(p.id);
                 itemEl.innerHTML = `
                     <div class="expense-details">
                         <span class="expense-desc">💳 ${p.description}</span>
@@ -2495,6 +2504,16 @@
             if (confirm('Deseja realmente apagar esta compra parcelada inteira?')) {
                 db.installments = db.installments.filter(i => i.id !== instId);
                 saveDatabase();
+            }
+        }
+
+        // Exclui uma compra parcelada diretamente a partir do modal de edição
+        function deleteInstallmentFromEditModal() {
+            const id = document.getElementById('editInstId').value;
+            if (id && confirm('Deseja realmente apagar esta compra parcelada inteira?')) {
+                db.installments = db.installments.filter(i => i.id !== id);
+                saveDatabase();
+                document.getElementById('editInstallmentModal').classList.remove('active');
             }
         }
 
