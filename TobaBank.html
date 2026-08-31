@@ -2783,18 +2783,22 @@ let currentShares = {};
                     if (!db.investmentFunds) db.investmentFunds = [];
                     if (!db.splitterGroups) db.splitterGroups = [];
 
-                    if (db.config.fixedTotal && !db.config.fixedExpenses) {
-                        db.config.fixedExpenses = [];
-                        if (db.config.fixedTotal > 0) {
-                            db.config.fixedExpenses.push({
-                                id: Date.now().toString(),
-                                name: 'Gastos Legado (Atualize)',
-                                amount: db.config.fixedTotal,
-                                category: 'Outros'
-                            });
+                    // BLINDAGEM: Se o mês atual não tiver orçamento mas houver meses anteriores, herda o último orçamento válido!
+                    const currentMonthKey = getCurrentMonthKey();
+                    if (!db.months[currentMonthKey]) db.months[currentMonthKey] = {};
+                    if (!db.months[currentMonthKey].dailyBudget || db.months[currentMonthKey].dailyBudget === 0) {
+                        const existingMonths = Object.keys(db.months).sort();
+                        if (existingMonths.length > 0) {
+                            const lastValidMonth = existingMonths[existingMonths.length - 1];
+                            if (db.months[lastValidMonth] && db.months[lastValidMonth].dailyBudget) {
+                                db.months[currentMonthKey].dailyBudget = db.months[lastValidMonth].dailyBudget;
+                            }
                         }
                     }
-                    if (!db.config.fixedExpenses) db.config.fixedExpenses = [];
+
+                    db.config.fixedExpenses.forEach(item => {
+                        if (item.category === undefined) item.category = 'Outros';
+                    });
 
                     db.investmentFunds.forEach(f => {
                         if (f.isFinished === undefined) f.isFinished = false;
@@ -2809,11 +2813,7 @@ let currentShares = {};
                         if (!g.members) g.members = [];
                     });
 
-                    if (db.config.startDate && db.config.startDate.includes('/')) {
-                        const [d, m, y] = db.config.startDate.split('/');
-                        db.config.startDate = `${y}-${m.padStart(2,'0')}-${d.padStart(2,'0')}`;
-                    }
-                    db.version = 29;
+                    db.version = 30;
                 } catch (e) {
                     console.error("Erro ao carregar banco de dados", e);
                 }
@@ -3123,7 +3123,9 @@ let currentShares = {};
             const totalDaysInMonth = getDaysInMonth(now.getFullYear(), now.getMonth());
             const effectiveDays = getEffectiveDaysInMonth(now.getFullYear(), now.getMonth());
 
-            const baseDailyBudget = (db.months[currentMonthKey] || {}).dailyBudget || 0;
+            if (!db.months[currentMonthKey]) db.months[currentMonthKey] = {};
+            const baseDailyBudget = db.months[currentMonthKey].dailyBudget || 100; // Fallback de segurança para R$ 100 se vier zerado
+
             const grossMonthlyBudget = baseDailyBudget * effectiveDays;
             const activeInstallmentsMonth = getActiveInstallmentsForMonth(currentMonthKey);
             const monthInstallmentsTotal = activeInstallmentsMonth.reduce((acc, p) => acc + p.amount, 0);
