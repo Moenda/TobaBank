@@ -4374,14 +4374,21 @@
             const lineColors = ['#58a6ff', '#3fb950', '#d29922', '#ff7b72', '#bc8cff', '#7ee787', '#ffb6c1', '#00ced1'];
             const activeFunds = (db.investmentFunds || []).filter(f => !f.isFinished);
 
-            let labels = ['Mês -2', 'Mês -1', 'Atual'];
             let countPoints = 3;
-            if (period === '6m') {
-                labels = ['Mês -5', 'Mês -4', 'Mês -3', 'Mês -2', 'Mês -1', 'Atual'];
-                countPoints = 6;
-            } else if (period === '1y') {
-                labels = ['M-11', 'M-10', 'M-9', 'M-8', 'M-7', 'M-6', 'M-5', 'M-4', 'M-3', 'M-2', 'M-1', 'Atual'];
-                countPoints = 12;
+            if (period === '6m') countPoints = 6;
+            else if (period === '1y') countPoints = 12;
+
+            let labels = [];
+            const now = new Date();
+            const shortMonths = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+            
+            for (let i = countPoints - 1; i >= 0; i--) {
+                let d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+                if (i === 0) {
+                    labels.push('Atual');
+                } else {
+                    labels.push(`${shortMonths[d.getMonth()]}/${String(d.getFullYear()).slice(-2)}`);
+                }
             }
 
             const datasets = [];
@@ -4551,11 +4558,11 @@
             let labels = [];
             let dataPoints = [];
             const currentDate = new Date();
+            const shortMonths = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
 
             for (let i = 0; i <= months; i++) {
                 let futureDate = new Date(currentDate.getFullYear(), currentDate.getMonth() + i, 1);
-                let labelStr = formatMonthYearLabel(futureDate.getFullYear(), futureDate.getMonth());
-                labels.push(labelStr);
+                labels.push(`${shortMonths[futureDate.getMonth()]}/${String(futureDate.getFullYear()).slice(-2)}`);
 
                 let daysInFuture = i * 30.416;
                 let projected = totalCurrentBal * Math.pow(1 + globalDailyRate, daysInFuture);
@@ -4610,7 +4617,7 @@
 
             document.getElementById('projectionSummaryBox').innerHTML = `
                 <div style="font-size: 0.8rem; color: #8b949e; text-transform: uppercase;">Projeção para ${yearsStr}</div>
-                <div style="font-size: 1.4rem; font-weight: 700; color: #3fb950; margin: 4px 0;">${formatCurrency(finalVal)}</div>
+                <div style="font-size: 1.4rem; font-weight: 700; color: #3fb950; margin: 4px 0;">${formatCurrency(parseFloat(finalVal))}</div>
                 <div style="font-size: 0.85rem; color: #58a6ff;">Lucro estimado: +${formatCurrency(profit)} (+${profitPct.toFixed(2)}%)</div>
             `;
         }
