@@ -1061,20 +1061,6 @@
             </div>
         </div>
 
-        <div class="invest-action-accordion" id="accWithdraw">
-            <div class="invest-action-header" onclick="toggleInvestActionAcc('accWithdraw')">
-                <span style="color: #f0f6fc;" id="popupWithdrawAccTitle">🪙 Retirar Saldo / Resgate</span>
-                <span class="invest-action-arrow">▼</span>
-            </div>
-            <div class="invest-action-body">
-                <div style="display: flex; flex-direction: column; gap: 8px;">
-                    <input type="date" id="popupWithdrawDate" class="form-control" style="padding:0.5rem; font-size:0.8rem;">
-                    <input type="text" inputmode="numeric" id="popupWithdrawAmount" class="form-control smart-money" placeholder="R$ 0,00" style="padding:0.5rem; font-size:0.8rem;">
-                    <button class="btn btn-secondary" id="popupWithdrawBtn" onclick="submitPopupWithdraw()" style="border-color:#d29922; color:#d29922; font-size:0.8rem;">Efetuar Retirada</button>
-                </div>
-            </div>
-        </div>
-
         <div class="app-view" id="viewTools">
             <div class="section-title" style="margin-top: 0.5rem;">
                 <span>🛠️ Hub de Ferramentas</span>
@@ -3337,28 +3323,33 @@
             const headerCofrinho = document.getElementById('popupHeaderCofrinho');
             const normalActions = document.getElementById('popupNormalInvestActions');
             const withdrawAccordion = document.getElementById('accWithdraw');
+            const historyAccHeader = document.querySelector('#accHistory .invest-action-header span:first-child');
 
             if (fund.isCofrinho) {
                 if (headerInvest) headerInvest.style.display = 'none';
                 if (headerCofrinho) headerCofrinho.style.display = 'flex';
                 if (normalActions) normalActions.style.display = 'none';
+                if (historyAccHeader) historyAccHeader.innerText = '📜 Histórico de Saques'; // Muda título pro cofrinho
                 
-                // No cofrinho, transformamos o acordeon de retirada em um bloco fixo visível sem precisar expandir, ou mantemos limpo
                 if (withdrawAccordion) {
                     withdrawAccordion.style.display = 'block';
-                    // Remove o comportamento de acordeon fechado e joga direto o form
                     withdrawAccordion.className = 'invest-action-accordion expanded';
+                    withdrawAccordion.style.border = 'none'; // Some com a borda
+                    withdrawAccordion.style.background = 'transparent';
+                    withdrawAccordion.style.marginBottom = '0';
+                    
                     const accHeader = withdrawAccordion.querySelector('.invest-action-header');
-                    if (accHeader) {
-                        accHeader.innerHTML = '<span style="color: #f0f6fc;">🪙 Novo Saque para o Bolso</span>';
-                        accHeader.style.cursor = 'default';
-                        accHeader.onclick = null;
-                    }
+                    if (accHeader) accHeader.style.display = 'none'; // Some com a seta e título de cima
+
+                    const accBody = withdrawAccordion.querySelector('.invest-action-body');
+                    if (accBody) accBody.style.padding = '0'; // Tira o espaço sobrando
+
                     const btn = document.getElementById('popupWithdrawBtn');
                     if (btn) {
-                        btn.innerText = 'Efetuar Saque';
-                        btn.style.borderColor = '#3fb950';
-                        btn.style.color = '#3fb950';
+                        btn.innerText = '💸 Efetuar Saque';
+                        btn.style.background = '#238636';
+                        btn.style.color = '#fff';
+                        btn.style.borderColor = '#2ea043';
                     }
                 }
 
@@ -3370,19 +3361,28 @@
                 if (headerInvest) headerInvest.style.display = 'flex';
                 if (headerCofrinho) headerCofrinho.style.display = 'none';
                 if (normalActions) normalActions.style.display = 'block';
+                if (historyAccHeader) historyAccHeader.innerText = '📜 Histórico de Lançamentos'; // Volta o original pro Fundo
                 
                 if (withdrawAccordion) {
                     withdrawAccordion.style.display = 'block';
-                    withdrawAccordion.className = 'invest-action-accordion'; // volta a ser acordeon normal fechado
+                    withdrawAccordion.className = 'invest-action-accordion'; 
+                    withdrawAccordion.style.border = '1px solid #21262d';
+                    withdrawAccordion.style.background = '#0d1117';
+                    withdrawAccordion.style.marginBottom = '0.8rem';
+                    
                     const accHeader = withdrawAccordion.querySelector('.invest-action-header');
                     if (accHeader) {
+                        accHeader.style.display = 'flex';
                         accHeader.innerHTML = '<span style="color: #f0f6fc;">🪙 Retirar Saldo / Resgate</span><span class="invest-action-arrow">▼</span>';
-                        accHeader.style.cursor = 'pointer';
-                        accHeader.onclick = () => toggleInvestActionAcc('accWithdraw');
                     }
+
+                    const accBody = withdrawAccordion.querySelector('.invest-action-body');
+                    if (accBody) accBody.style.padding = '0 1rem 1rem 1rem';
+
                     const btn = document.getElementById('popupWithdrawBtn');
                     if (btn) {
                         btn.innerText = 'Efetuar Retirada';
+                        btn.style.background = '#21262d';
                         btn.style.borderColor = '#d29922';
                         btn.style.color = '#d29922';
                     }
@@ -3406,11 +3406,15 @@
             document.getElementById('popupWithdrawAmount').value = '';
 
             ['accUpdateBal', 'accNewDep', 'accHistory'].forEach(id => {
-                document.getElementById(id)?.classList.remove('expanded');
+                const el = document.getElementById(id);
+                if (el) el.classList.remove('expanded');
             });
             
-            // Abre o histórico por padrão para facilitar a visão dos saques
-            document.getElementById('accHistory')?.classList.add('expanded');
+            if (!fund.isCofrinho) {
+                document.getElementById('accWithdraw')?.classList.remove('expanded');
+            } else {
+                document.getElementById('accHistory')?.classList.add('expanded');
+            }
 
             const historyList = document.getElementById('popupHistoryLogsList');
             historyList.innerHTML = '';
