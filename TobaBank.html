@@ -3336,17 +3336,31 @@
             const headerInvest = document.getElementById('popupHeaderInvest');
             const headerCofrinho = document.getElementById('popupHeaderCofrinho');
             const normalActions = document.getElementById('popupNormalInvestActions');
-            
-            // Textos dinâmicos para Cofrinho vs Investimento
-            const withdrawAccTitle = document.getElementById('popupWithdrawAccTitle');
-            const withdrawBtn = document.getElementById('popupWithdrawBtn');
+            const withdrawAccordion = document.getElementById('accWithdraw');
 
             if (fund.isCofrinho) {
                 if (headerInvest) headerInvest.style.display = 'none';
                 if (headerCofrinho) headerCofrinho.style.display = 'flex';
                 if (normalActions) normalActions.style.display = 'none';
-                if (withdrawAccTitle) withdrawAccTitle.innerText = '🪙 Novo Saque';
-                if (withdrawBtn) withdrawBtn.innerText = 'Efetuar Saque';
+                
+                // No cofrinho, transformamos o acordeon de retirada em um bloco fixo visível sem precisar expandir, ou mantemos limpo
+                if (withdrawAccordion) {
+                    withdrawAccordion.style.display = 'block';
+                    // Remove o comportamento de acordeon fechado e joga direto o form
+                    withdrawAccordion.className = 'invest-action-accordion expanded';
+                    const accHeader = withdrawAccordion.querySelector('.invest-action-header');
+                    if (accHeader) {
+                        accHeader.innerHTML = '<span style="color: #f0f6fc;">🪙 Novo Saque para o Bolso</span>';
+                        accHeader.style.cursor = 'default';
+                        accHeader.onclick = null;
+                    }
+                    const btn = document.getElementById('popupWithdrawBtn');
+                    if (btn) {
+                        btn.innerText = 'Efetuar Saque';
+                        btn.style.borderColor = '#3fb950';
+                        btn.style.color = '#3fb950';
+                    }
+                }
 
                 const totalDeposited = (fund.deposits || []).reduce((acc, d) => acc + d.amount, 0);
                 const totalWithdrawn = (fund.withdrawals || []).reduce((acc, w) => acc + w.amount, 0);
@@ -3356,8 +3370,23 @@
                 if (headerInvest) headerInvest.style.display = 'flex';
                 if (headerCofrinho) headerCofrinho.style.display = 'none';
                 if (normalActions) normalActions.style.display = 'block';
-                if (withdrawAccTitle) withdrawAccTitle.innerText = '🪙 Retirar Saldo / Resgate';
-                if (withdrawBtn) withdrawBtn.innerText = 'Efetuar Retirada';
+                
+                if (withdrawAccordion) {
+                    withdrawAccordion.style.display = 'block';
+                    withdrawAccordion.className = 'invest-action-accordion'; // volta a ser acordeon normal fechado
+                    const accHeader = withdrawAccordion.querySelector('.invest-action-header');
+                    if (accHeader) {
+                        accHeader.innerHTML = '<span style="color: #f0f6fc;">🪙 Retirar Saldo / Resgate</span><span class="invest-action-arrow">▼</span>';
+                        accHeader.style.cursor = 'pointer';
+                        accHeader.onclick = () => toggleInvestActionAcc('accWithdraw');
+                    }
+                    const btn = document.getElementById('popupWithdrawBtn');
+                    if (btn) {
+                        btn.innerText = 'Efetuar Retirada';
+                        btn.style.borderColor = '#d29922';
+                        btn.style.color = '#d29922';
+                    }
+                }
 
                 const totalDeposited = (fund.deposits || []).reduce((acc, d) => acc + d.amount, 0);
                 let startDateStr = 'N/A';
@@ -3376,16 +3405,19 @@
             document.getElementById('popupWithdrawDate').value = getTodayIsoDateStr();
             document.getElementById('popupWithdrawAmount').value = '';
 
-            ['accUpdateBal', 'accNewDep', 'accWithdraw', 'accHistory'].forEach(id => {
+            ['accUpdateBal', 'accNewDep', 'accHistory'].forEach(id => {
                 document.getElementById(id)?.classList.remove('expanded');
             });
+            
+            // Abre o histórico por padrão para facilitar a visão dos saques
+            document.getElementById('accHistory')?.classList.add('expanded');
 
             const historyList = document.getElementById('popupHistoryLogsList');
             historyList.innerHTML = '';
 
             const allLogs = fund.isCofrinho ? [
                 ...(fund.deposits || []).map(d => ({ type: 'aporte', id: d.id, date: d.date, amount: d.amount })),
-                ...(fund.withdrawals || []).map(w => ({ type: 'resgate', id: w.id, date: w.date, amount: w.amount }))
+                ...(fund.withdrawals || []).map(w => ({ type: 'saque', id: w.id, date: w.date, amount: w.amount }))
             ].sort((a, b) => new Date(b.date) - new Date(a.date)) : [
                 ...(fund.deposits || []).map(d => ({ type: 'aporte', id: d.id, date: d.date, amount: d.amount })),
                 ...(fund.balanceLogs || []).filter(b => !b.isSystem).map(b => ({ type: 'saldo', id: b.id, date: b.date, amount: b.amount })),
@@ -3398,7 +3430,8 @@
                 allLogs.forEach(log => {
                     let logIcon = '🔄', label = 'Saldo', color = '#d29922', sign = '';
                     if (log.type === 'aporte') { logIcon = '➕'; label = fund.isCofrinho ? 'Base' : 'Aporte'; color = '#58a6ff'; sign = '+'; }
-                    else if (log.type === 'resgate') { logIcon = '🪙'; label = fund.isCofrinho ? 'Saque' : 'Retirada'; color = '#ff7b72'; sign = '-'; }
+                    else if (log.type === 'saque') { logIcon = '🪙'; label = 'Saque'; color = '#3fb950'; sign = '+'; }
+                    else if (log.type === 'resgate') { logIcon = '🪙'; label = 'Retirada'; color = '#ff7b72'; sign = '-'; }
 
                     const item = document.createElement('div');
                     item.className = 'log-item';
