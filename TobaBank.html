@@ -1276,8 +1276,8 @@
                     </div>
                     <div class="invest-action-body">
                         <div style="display: flex; flex-direction: column; gap: 8px;">
-                            <input type="date" id="popupWithdrawDate" class="form-control" style="padding:0.5rem; font-size:0.8rem;">
                             <input type="text" inputmode="numeric" id="popupWithdrawAmount" class="form-control smart-money" placeholder="R$ 0,00" style="padding:0.5rem; font-size:0.8rem;">
+                            <input type="date" id="popupWithdrawDate" class="form-control" style="padding:0.5rem; font-size:0.8rem;">
                             <button class="btn btn-secondary" onclick="submitPopupWithdraw()" style="border-color:#d29922; color:#d29922; font-size:0.8rem;">Efetuar Retirada</button>
                         </div>
                     </div>
@@ -2210,25 +2210,25 @@
                     `;
                 } else if (viewName === 'tools') {
                     actionsContainer.innerHTML = `
-                        <button class="back-nav-btn" onclick="switchView('main')">← Início</button>
+                        <button class="back-nav-btn" onclick="switchView('main')"><span style="color: #8b949e; font-weight: 900; font-size: 1.1rem; line-height: 1; margin-right: 4px;">‹</span> Início</button>
                     `;
                 } else if (viewName === 'investments') {
                     actionsContainer.innerHTML = `
-                        <button class="back-nav-btn" onclick="switchView('tools')">← Ferramentas</button>
+                        <button class="back-nav-btn" onclick="switchView('tools')"><span style="color: #8b949e; font-weight: 900; font-size: 1.1rem; line-height: 1; margin-right: 4px;">‹</span> Ferramentas</button>
                     `;
                     renderInvestmentsScreen();
                 } else if (viewName === 'splitter') {
                     actionsContainer.innerHTML = `
-                        <button class="back-nav-btn" onclick="switchView('tools')">← Ferramentas</button>
+                        <button class="back-nav-btn" onclick="switchView('tools')"><span style="color: #8b949e; font-weight: 900; font-size: 1.1rem; line-height: 1; margin-right: 4px;">‹</span> Ferramentas</button>
                     `;
                     renderSplitterScreen();
                 } else if (viewName === 'splitterDetail') {
                     actionsContainer.innerHTML = `
-                        <button class="back-nav-btn" onclick="switchView('splitter')">← Raxador</button>
+                        <button class="back-nav-btn" onclick="switchView('splitter')"><span style="color: #8b949e; font-weight: 900; font-size: 1.1rem; line-height: 1; margin-right: 4px;">‹</span> Raxador</button>
                     `;
                 } else if (viewName === 'patrimonyChart') {
                     actionsContainer.innerHTML = `
-                        <button class="back-nav-btn" onclick="switchView('investments')">← Investimentos</button>
+                        <button class="back-nav-btn" onclick="switchView('investments')"><span style="color: #8b949e; font-weight: 900; font-size: 1.1rem; line-height: 1; margin-right: 4px;">‹</span> Investimentos</button>
                     `;
                 }
             }
