@@ -4442,7 +4442,9 @@
                         val = latestBal;
                     } else {
                         val = latestBal / Math.pow(1 + dailyRate, daysBack);
-                        if (val < totalDep * 0.5) val = totalDep;
+                        if (latestBal >= totalDep && val < totalDep) {
+                            val = totalDep;
+                        }
                     }
 
                     if (chartMode === 'pct') {
