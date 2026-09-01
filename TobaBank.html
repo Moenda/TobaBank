@@ -4431,9 +4431,10 @@
                 }
 
                 let dailyRate = 0;
+                let firstDate = new Date();
                 const sortedDeposits = [...(fund.deposits||[])].sort((a, b) => new Date(a.date) - new Date(b.date));
                 if (sortedDeposits.length > 0) {
-                    const firstDate = new Date(sortedDeposits[0].date);
+                    firstDate = new Date(sortedDeposits[0].date);
                     const diffTime = latestDate - firstDate;
                     const daysInvested = Math.max(Math.ceil(diffTime / (1000 * 60 * 60 * 24)), 1);
                     if (totalDep > 0 && latestBal > 0) {
@@ -4441,14 +4442,28 @@
                     }
                 }
 
+                const startYearMonth = firstDate.getFullYear() * 12 + firstDate.getMonth();
+                const currentNow = new Date();
+
                 const dataPoints = [];
                 for (let i = countPoints - 1; i >= 0; i--) {
+                    const pointDate = new Date(currentNow.getFullYear(), currentNow.getMonth() - i, 1);
+                    const pointYearMonth = pointDate.getFullYear() * 12 + pointDate.getMonth();
+
+                    // Mágica do Toba Bank: Se o investimento ainda não existia neste mês, injeta null pro gráfico pular e não poluir! 🪄
+                    if (pointYearMonth < startYearMonth) {
+                        dataPoints.push(null);
+                        continue;
+                    }
+
                     const daysBack = i * 30.416;
                     let val = totalDep;
                     if (i === 0) {
                         val = latestBal;
                     } else {
                         val = latestBal / Math.pow(1 + dailyRate, daysBack);
+                        
+                        // Trava do Toba: Se hoje tá no lucro, o passado não pode afundar abaixo do aporte original! 🛑
                         if (latestBal >= totalDep && val < totalDep) {
                             val = totalDep;
                         }
