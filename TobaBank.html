@@ -4472,12 +4472,18 @@
             const now = new Date();
             const shortMonths = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
             
-            for (let i = countPoints - 1; i >= 0; i--) {
-                let d = new Date(now.getFullYear(), now.getMonth() - i, 1);
-                if (i === 0) {
-                    labels.push('Atual');
-                } else {
-                    labels.push(`${shortMonths[d.getMonth()]}/${String(d.getFullYear()).slice(-2)}`);
+            if (chartAlignMode) {
+                for (let i = 0; i < countPoints; i++) {
+                    labels.push(i === 0 ? 'Mês 0 (Início)' : `Mês ${i}`);
+                }
+            } else {
+                for (let i = countPoints - 1; i >= 0; i--) {
+                    let d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+                    if (i === 0) {
+                        labels.push('Atual');
+                    } else {
+                        labels.push(`${shortMonths[d.getMonth()]}/${String(d.getFullYear()).slice(-2)}`);
+                    }
                 }
             }
 
@@ -4564,24 +4570,18 @@
                     }
                 }
 
+                const filteredValidPoints = rawPoints.filter(val => val !== null);
                 const dataPoints = [];
-                let baseOffset = null;
+                let baseOffset = filteredValidPoints.length > 0 ? filteredValidPoints[0] : 0;
 
-                if (chartAlignMode) {
-                    for (let val of rawPoints) {
-                        if (val !== null) {
-                            baseOffset = val;
-                            break;
-                        }
-                    }
-                }
-
+                let validIndex = 0;
                 rawPoints.forEach(val => {
                     if (val === null) {
                         dataPoints.push(null);
                     } else {
-                        if (chartAlignMode && baseOffset !== null) {
-                            dataPoints.push((val - baseOffset).toFixed(2));
+                        if (chartAlignMode) {
+                            dataPoints.push((filteredValidPoints[validIndex] - baseOffset).toFixed(2));
+                            validIndex++;
                         } else {
                             dataPoints.push(val.toFixed(2));
                         }
