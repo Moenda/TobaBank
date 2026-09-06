@@ -1422,11 +1422,13 @@
                 <button class="tab-btn" id="tabChartFutureBtn" onclick="switchChartTab('future')">🔮 Bola de Cristal (Futuro)</button>
             </div>
 
-            <!-- ABA 1: PASSADO (RETROVISOR) -->
             <div id="chartPastContainer" style="display: block;">
-                <div style="display: flex; gap: 8px; margin-bottom: 12px;">
+                <div style="display: flex; gap: 8px; margin-bottom: 8px;">
                     <button class="btn btn-secondary active" id="chartModeBrl" onclick="changeChartMode('brl')" style="flex:1;">R$ Valor Bruto</button>
                     <button class="btn btn-secondary" id="chartModePct" onclick="changeChartMode('pct')" style="flex:1;">% Crescimento</button>
+                </div>
+                <div style="display: flex; gap: 8px; margin-bottom: 12px;">
+                    <button class="btn btn-secondary" id="chartModeAlign" onclick="toggleAlignMode()" style="flex:1; border-color: #30363d; color: #8b949e;">🏁 Alinhado na Partida (Off)</button>
                 </div>
 
                 <div class="period-selector">
@@ -1889,7 +1891,27 @@
         let currentChartPeriod = '3m';
         let currentProjPeriod = '6m';
         let chartMode = 'brl';
+        let chartAlignMode = false;
         let chartVisibleAssets = new Set();
+
+        function toggleAlignMode() {
+            chartAlignMode = !chartAlignMode;
+            const btn = document.getElementById('chartModeAlign');
+            if (btn) {
+                if (chartAlignMode) {
+                    btn.classList.add('active');
+                    btn.style.borderColor = '#3fb950';
+                    btn.style.color = '#3fb950';
+                    btn.innerText = '🏁 Alinhado na Partida (On)';
+                } else {
+                    btn.classList.remove('active');
+                    btn.style.borderColor = '#30363d';
+                    btn.style.color = '#8b949e';
+                    btn.innerText = '🏁 Alinhado na Partida (Off)';
+                }
+            }
+            renderPatrimonyChart(currentChartPeriod);
+        }
 
         function loadDatabase() {
             const data = localStorage.getItem(STORAGE_KEY);
@@ -4533,13 +4555,13 @@
                 const startYearMonth = firstDate.getFullYear() * 12 + firstDate.getMonth();
                 const currentNow = new Date();
 
-                const dataPoints = [];
+                const rawPoints = [];
                 for (let i = countPoints - 1; i >= 0; i--) {
                     const pointDate = new Date(currentNow.getFullYear(), currentNow.getMonth() - i, 1);
                     const pointYearMonth = pointDate.getFullYear() * 12 + pointDate.getMonth();
 
                     if (pointYearMonth < startYearMonth) {
-                        dataPoints.push(null);
+                        rawPoints.push(null);
                         continue;
                     }
 
@@ -4549,19 +4571,38 @@
                         val = latestBal;
                     } else {
                         val = latestBal / Math.pow(1 + dailyRate, daysBack);
-                        
                         if (latestBal >= totalDep && val < totalDep) {
                             val = totalDep;
                         }
                     }
 
-                    if (chartMode === 'pct') {
+                    if (chartMode === 'pct' || chartAlignMode) {
                         const pctGrowth = totalDep > 0 ? ((val - totalDep) / totalDep) * 100 : 0;
-                        dataPoints.push(pctGrowth.toFixed(2));
+                        rawPoints.push(pctGrowth);
                     } else {
-                        dataPoints.push(val.toFixed(2));
+                        rawPoints.push(val);
                     }
                 }
+
+                const dataPoints = [];
+                let baseOffset = 0;
+                let foundFirst = false;
+
+                rawPoints.forEach(val => {
+                    if (val === null) {
+                        dataPoints.push(null);
+                    } else {
+                        if (chartAlignMode) {
+                            if (!foundFirst) {
+                                baseOffset = val;
+                                foundFirst = true;
+                            }
+                            dataPoints.push((val - baseOffset).toFixed(2));
+                        } else {
+                            dataPoints.push(val.toFixed(2));
+                        }
+                    }
+                });
 
                 datasets.push({
                     label: fund.name,
