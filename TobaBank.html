@@ -1295,7 +1295,7 @@
                 </div>
 
                 <div style="display: flex; gap: 8px; margin-top: 1.2rem; border-top: 1px solid #30363d; padding-top: 1rem;">
-                    <button class="btn btn-secondary" style="font-size: 0.8rem; border-color:#d29922; color:#d29922;" onclick="openTotalFinishFundModalFromPopup()">🏁 Finalizar Investimento</button>
+                    <button class="btn btn-secondary" style="font-size: 0.8rem; border-color:#d29922; color:#d29922;" onclick="openTotalFinishFundModalFromPopup()">🏁 Finalizar</button>
                     <button class="btn btn-danger" style="font-size: 0.8rem;" onclick="deleteFundFromPopup()">🗑️ Excluir</button>
                 </div>
             </div>
@@ -2618,13 +2618,13 @@
         function reactivateFundFromPopup() {
             const id = document.getElementById('popupFinishedIdInput').value;
             document.getElementById('finishedActionPopup').classList.remove('active');
-            reactivateFund(id); // Chama sua função existente de reativação
+            toggleFinishFund(id);
         }
 
         function deleteFinishedFundFromPopup() {
             const id = document.getElementById('popupFinishedIdInput').value;
             document.getElementById('finishedActionPopup').classList.remove('active');
-            deleteFinishedFund(id); // Chama sua função existente de exclusão de finalizado
+            deleteFund(id);
         }
 
         function openExpenseModal(id = null, presetDateIso = null) {
@@ -3202,8 +3202,10 @@
                     const card = document.createElement('div');
                     card.className = 'invest-card';
                     card.style.opacity = '0.9';
+                    card.style.cursor = 'pointer';
+                    card.onclick = () => openFinishedActionPopup(fund.id);
                     card.innerHTML = `
-                        <div class="invest-header" style="cursor: default;">
+                        <div class="invest-header" style="cursor: pointer;">
                             <div class="invest-header-top">
                                 <span class="invest-title" style="color:#58a6ff;">${titleText}</span>
                             </div>
@@ -3222,10 +3224,6 @@
                                     <span>Lucro: <span class="${profitClass}" style="font-weight:700;">${realProfitNet >= 0 ? '+' : ''}${formatCurrency(realProfitNet)} (${realProfitNet >= 0 ? '+' : ''}${profitPercentageNet.toFixed(2)}%)</span></span>
                                     <span style="color:#f85149; font-weight:700;">IR: -${formatCurrency(ir)}</span>
                                 </div>
-                            </div>
-                            <div style="margin-top:0.8rem; text-align:right;">
-                                <button class="btn btn-secondary" style="width:auto; padding:0.3rem 0.7rem; font-size:0.75rem; border-color:#58a6ff; color:#58a6ff;" onclick="toggleFinishFund('${fund.id}')">🔄 Reativar</button>
-                                <button class="btn btn-danger" style="width:auto; padding:0.3rem 0.7rem; font-size:0.75rem;" onclick="deleteFund('${fund.id}')">🗑️ Excluir</button>
                             </div>
                         </div>
                     `;
@@ -3426,7 +3424,7 @@
                     const accHeader = withdrawAccordion.querySelector('.invest-action-header');
                     if (accHeader) {
                         accHeader.style.display = 'flex';
-                        accHeader.innerHTML = '<span style="color: #f0f6fc;">🪙 Retirar Saldo / Resgate</span><span class="invest-action-arrow">▼</span>';
+                        accHeader.innerHTML = '<span style="color: #f0f6fc;">🪙 Retirar Saldo</span><span class="invest-action-arrow">▼</span>';
                     }
 
                     const accBody = withdrawAccordion.querySelector('.invest-action-body');
