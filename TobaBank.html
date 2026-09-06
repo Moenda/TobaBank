@@ -2595,22 +2595,50 @@
         }
 
         function openFinishedActionPopup(id) {
-            const finishedList = db.finishedInvestments || [];
+            const finishedList = db.investmentFunds || [];
             const item = finishedList.find(f => String(f.id) === String(id));
             if (!item) return;
 
+            const totalDeposited = (item.deposits || []).reduce((acc, d) => acc + d.amount, 0);
+            let finalGross = totalDeposited;
+            let finalDateStr = 'N/A';
+            let startDateStr = 'N/A';
+
+            if (item.deposits && item.deposits.length > 0) {
+                const sortedDeps = [...item.deposits].sort((a, b) => new Date(a.date) - new Date(b.date));
+                const sd = new Date(sortedDeps[0].date);
+                sd.setMinutes(sd.getMinutes() + sd.getTimezoneOffset());
+                startDateStr = `${String(sd.getDate()).padStart(2, '0')}/${String(sd.getMonth() + 1).padStart(2, '0')}/${String(sd.getFullYear()).slice(-2)}`;
+            }
+
+            if (item.balanceLogs && item.balanceLogs.length > 0) {
+                const sortedLogs = [...item.balanceLogs].sort((a, b) => new Date(b.date) - new Date(a.date));
+                finalGross = item.closeAmount !== undefined ? item.closeAmount : sortedLogs[0].amount;
+                const dateToUse = item.closeDate ? item.closeDate : sortedLogs[0].date;
+                const d = new Date(dateToUse);
+                d.setMinutes(d.getMinutes() + d.getTimezoneOffset());
+                finalDateStr = `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}/${String(d.getFullYear()).slice(-2)}`;
+            }
+
+            const ir = item.irAmount || 0;
+            const finalNet = Math.max(finalGross - ir, 0);
+            const totalWithdrawn = (item.withdrawals || []).reduce((acc, w) => acc + w.amount, 0);
+            const allOut = finalNet + totalWithdrawn;
+            const realProfitNet = allOut - totalDeposited;
+            const profitPercentageNet = totalDeposited > 0 ? ((realProfitNet / totalDeposited) * 100) : 0;
+            const profitSign = realProfitNet >= 0 ? '+' : '';
+
             document.getElementById('popupFinishedIdInput').value = item.id;
             document.getElementById('popupFinishedTitle').innerText = item.name;
-            document.getElementById('popupFinishedPeriod').innerText = `${isoToBrDate(item.startDate)} a ${isoToBrDate(item.endDate)}`;
-            document.getElementById('popupFinishedDep').innerText = formatCurrency(item.totalDeposited);
-            document.getElementById('popupFinishedWd').innerText = formatCurrency(item.totalWithdrawn);
+            document.getElementById('popupFinishedPeriod').innerText = `${startDateStr} a ${finalDateStr}`;
+            document.getElementById('popupFinishedDep').innerText = formatCurrency(totalDeposited);
+            document.getElementById('popupFinishedWd').innerText = formatCurrency(allOut);
             
             const profitEl = document.getElementById('popupFinishedProfit');
-            const profitSign = item.netProfit >= 0 ? '+' : '';
-            profitEl.innerText = `${profitSign}${formatCurrency(item.netProfit)} (${profitSign}${item.netProfitPct.toFixed(2)}%)`;
-            profitEl.className = item.netProfit >= 0 ? 'text-green' : 'text-red';
+            profitEl.innerText = `${profitSign}${formatCurrency(realProfitNet)} (${profitSign}${profitPercentageNet.toFixed(2)}%)`;
+            profitEl.className = realProfitNet >= 0 ? 'text-green' : 'text-red';
 
-            document.getElementById('popupFinishedIr').innerText = `-${formatCurrency(item.irAmount || 0)}`;
+            document.getElementById('popupFinishedIr').innerText = `-${formatCurrency(ir)}`;
 
             document.getElementById('finishedActionPopup').classList.add('active');
         }
@@ -2944,7 +2972,6 @@
                 mActiveInstallments.forEach(p => combined.push({ category: p.category, amount: p.amount }));
                 renderCategoryBars(combined, totalSpent, `catBars-${mKey}`);
 
-                // Renderiza os gastos à vista com clique para editar
                 const transListEl = document.getElementById(`historyTransList-${mKey}`);
                 if (mTransactions.length === 0) {
                     transListEl.innerHTML = '<div class="empty-state" style="font-size:0.75rem;">Nenhum gasto à vista.</div>';
@@ -2967,7 +2994,6 @@
                     });
                 }
 
-                // Renderiza as parcelas com clique para editar
                 const instListEl = document.getElementById(`historyInstList-${mKey}`);
                 if (mActiveInstallments.length === 0) {
                     instListEl.innerHTML = '<div class="empty-state" style="font-size:0.75rem;">Nenhuma parcela ativa.</div>';
@@ -3380,20 +3406,20 @@
                 if (headerInvest) headerInvest.style.display = 'none';
                 if (headerCofrinho) headerCofrinho.style.display = 'flex';
                 if (normalActions) normalActions.style.display = 'none';
-                if (historyAccHeader) historyAccHeader.innerText = '📜 Histórico de Saques'; // Muda título pro cofrinho
+                if (historyAccHeader) historyAccHeader.innerText = '📜 Histórico de Saques';
                 
                 if (withdrawAccordion) {
                     withdrawAccordion.style.display = 'block';
                     withdrawAccordion.className = 'invest-action-accordion expanded';
-                    withdrawAccordion.style.border = 'none'; // Some com a borda
+                    withdrawAccordion.style.border = 'none';
                     withdrawAccordion.style.background = 'transparent';
                     withdrawAccordion.style.marginBottom = '0';
                     
                     const accHeader = withdrawAccordion.querySelector('.invest-action-header');
-                    if (accHeader) accHeader.style.display = 'none'; // Some com a seta e título de cima
+                    if (accHeader) accHeader.style.display = 'none';
 
                     const accBody = withdrawAccordion.querySelector('.invest-action-body');
-                    if (accBody) accBody.style.padding = '0'; // Tira o espaço sobrando
+                    if (accBody) accBody.style.padding = '0';
 
                     const btn = document.getElementById('popupWithdrawBtn');
                     if (btn) {
@@ -3412,7 +3438,7 @@
                 if (headerInvest) headerInvest.style.display = 'flex';
                 if (headerCofrinho) headerCofrinho.style.display = 'none';
                 if (normalActions) normalActions.style.display = 'block';
-                if (historyAccHeader) historyAccHeader.innerText = '📜 Histórico de Lançamentos'; // Volta o original pro Fundo
+                if (historyAccHeader) historyAccHeader.innerText = '📜 Histórico de Lançamentos';
                 
                 if (withdrawAccordion) {
                     withdrawAccordion.style.display = 'block';
@@ -3584,7 +3610,7 @@
                 else if (type === 'resgate') fund.withdrawals = fund.withdrawals.filter(w => w.id !== logId);
                 else fund.balanceLogs = fund.balanceLogs.filter(b => b.id !== logId);
                 saveDatabase();
-                openInvestActionPopup(fundId); // Atualiza a lista no popup
+                openInvestActionPopup(fundId);
                 renderInvestmentsScreen();
             }
         }
@@ -3599,7 +3625,6 @@
             const fundId = document.getElementById('popupFundIdInput').value;
             document.getElementById('investActionPopup').classList.remove('active');
             openFinishFundModal(fundId);
-            // Trava direto no resgate total para fechar o card
             const rescueSelect = document.getElementById('rescueTypeSelect');
             if (rescueSelect) {
                 rescueSelect.value = 'total';
@@ -4513,7 +4538,6 @@
                     const pointDate = new Date(currentNow.getFullYear(), currentNow.getMonth() - i, 1);
                     const pointYearMonth = pointDate.getFullYear() * 12 + pointDate.getMonth();
 
-                    // Mágica do Toba Bank: Se o investimento ainda não existia neste mês, injeta null pro gráfico pular e não poluir! 🪄
                     if (pointYearMonth < startYearMonth) {
                         dataPoints.push(null);
                         continue;
@@ -4526,7 +4550,6 @@
                     } else {
                         val = latestBal / Math.pow(1 + dailyRate, daysBack);
                         
-                        // Trava do Toba: Se hoje tá no lucro, o passado não pode afundar abaixo do aporte original! 🛑
                         if (latestBal >= totalDep && val < totalDep) {
                             val = totalDep;
                         }
