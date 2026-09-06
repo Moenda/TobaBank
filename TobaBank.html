@@ -33,7 +33,6 @@
             margin-bottom: 2rem;
         }
         
-        /* Invest Popup Overlay */
         .invest-popup-overlay {
             position: fixed;
             top: 0; left: 0;
@@ -96,7 +95,6 @@
             transform: rotate(180deg);
         }
 
-        /* Header */
         .top-header {
             display: flex;
             justify-content: space-between;
@@ -157,7 +155,6 @@
         .add-btn:hover { background: #2ea043; }
         .config-btn:hover, .tools-btn:hover, .back-nav-btn:hover { background: #30363d; }
 
-        /* Fixed Expense Cards */
         .fixed-card {
             background: #0d1117;
             border: 1px solid #21262d;
@@ -190,7 +187,6 @@
             transform: rotate(180deg);
         }
 
-        /* Navigation Tabs */
         .tab-nav {
             display: flex;
             background: #0d1117;
@@ -219,7 +215,6 @@
             box-shadow: 0 2px 8px rgba(0,0,0,0.3);
         }
 
-        /* Views Display */
         .app-view {
             display: none;
         }
@@ -227,7 +222,6 @@
             display: block;
         }
 
-        /* Tab Content Display */
         .tab-content {
             display: none;
         }
@@ -235,7 +229,6 @@
             display: block;
         }
 
-        /* Home Accordion Cards */
         .home-acc-card {
             background: #0d1117;
             border: 1px solid #21262d;
@@ -276,7 +269,6 @@
             display: block;
         }
 
-        /* Badge Mês & Histórico Button */
         .month-header-row {
             display: flex;
             justify-content: space-between;
@@ -309,7 +301,6 @@
             border-color: #58a6ff;
         }
 
-        /* Metrics Cards Grid */
         .metrics-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -355,7 +346,6 @@
             line-height: 1.35;
         }
 
-        /* Advice Alert Banner */
         .advice-banner {
             background: rgba(248, 81, 73, 0.1);
             border: 1px solid rgba(248, 81, 73, 0.3);
@@ -372,7 +362,6 @@
             display: flex;
         }
 
-        /* Section Titles */
         .section-title {
             font-size: 0.9rem;
             color: #f0f6fc;
@@ -382,7 +371,6 @@
             align-items: center;
         }
 
-        /* Categorias (Barras) */
         .category-item {
             margin-bottom: 0.8rem;
         }
@@ -405,7 +393,6 @@
             transition: width 0.3s ease;
         }
 
-        /* Expense List */
         .expense-list {
             display: flex;
             flex-direction: column;
@@ -475,7 +462,6 @@
         .action-icon-btn:hover { color: #f0f6fc; }
         .action-icon-btn.delete:hover { color: #f85149; }
 
-        /* Tools Hub Grid & Tool Cards */
         .tools-grid {
             display: grid;
             grid-template-columns: 1fr;
@@ -530,7 +516,6 @@
             white-space: nowrap;
         }
 
-        /* History, Installments & Investment Accordion Cards */
         .history-card, .installment-card, .invest-card, .splitter-card {
             background: #0d1117;
             border: 1px solid #21262d;
@@ -562,7 +547,6 @@
             gap: 6px;
         }
         
-        /* Acordeons fechados por padrão */
         .installment-body, .history-body, .invest-body {
             display: none;
             padding: 0 1rem 1rem 1rem;
@@ -619,7 +603,6 @@
             margin-top: 2px;
         }
 
-        /* Forms inside cards */
         .card-action-box {
             background: #161b22;
             border: 1px solid #21262d;
@@ -634,7 +617,6 @@
             margin-bottom: 0.6rem;
         }
 
-        /* Checkbox Switch */
         .switch-container {
             display: flex;
             align-items: center;
@@ -652,7 +634,6 @@
             cursor: pointer;
         }
 
-        /* Modais */
         .modal-overlay {
             position: fixed;
             top: 0; left: 0;
@@ -742,7 +723,6 @@
             font-size: 0.85rem;
         }
 
-        /* Invest Card Specifics */
         .invest-summary-card {
             background: #0d1117;
             border: 1px solid #30363d;
@@ -1428,7 +1408,7 @@
                     <button class="btn btn-secondary" id="chartModePct" onclick="changeChartMode('pct')" style="flex:1;">% Crescimento</button>
                 </div>
                 <div style="display: flex; gap: 8px; margin-bottom: 12px;">
-                    <button class="btn btn-secondary" id="chartModeAlign" onclick="toggleAlignMode()" style="flex:1; border-color: #30363d; color: #8b949e;">🏁 Alinhado na Partida (Off)</button>
+                    <button class="btn btn-secondary" id="chartModeAlign" onclick="toggleAlignMode()" style="flex:1; border-color: #30363d; color: #8b949e; background: #0d1117;">🏁 Alinhado na Partida (Off)</button>
                 </div>
 
                 <div class="period-selector">
@@ -1899,14 +1879,14 @@
             const btn = document.getElementById('chartModeAlign');
             if (btn) {
                 if (chartAlignMode) {
-                    btn.classList.add('active');
                     btn.style.borderColor = '#3fb950';
                     btn.style.color = '#3fb950';
+                    btn.style.background = 'rgba(63, 185, 80, 0.1)';
                     btn.innerText = '🏁 Alinhado na Partida (On)';
                 } else {
-                    btn.classList.remove('active');
                     btn.style.borderColor = '#30363d';
                     btn.style.color = '#8b949e';
+                    btn.style.background = '#0d1117';
                     btn.innerText = '🏁 Alinhado na Partida (Off)';
                 }
             }
@@ -4585,18 +4565,22 @@
                 }
 
                 const dataPoints = [];
-                let baseOffset = 0;
-                let foundFirst = false;
+                let baseOffset = null;
+
+                if (chartAlignMode) {
+                    for (let val of rawPoints) {
+                        if (val !== null) {
+                            baseOffset = val;
+                            break;
+                        }
+                    }
+                }
 
                 rawPoints.forEach(val => {
                     if (val === null) {
                         dataPoints.push(null);
                     } else {
-                        if (chartAlignMode) {
-                            if (!foundFirst) {
-                                baseOffset = val;
-                                foundFirst = true;
-                            }
+                        if (chartAlignMode && baseOffset !== null) {
                             dataPoints.push((val - baseOffset).toFixed(2));
                         } else {
                             dataPoints.push(val.toFixed(2));
