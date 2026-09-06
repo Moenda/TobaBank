@@ -4562,7 +4562,7 @@
                         }
                     }
 
-                    if (chartMode === 'pct' || chartAlignMode) {
+                    if (chartMode === 'pct') {
                         const pctGrowth = totalDep > 0 ? ((val - totalDep) / totalDep) * 100 : 0;
                         rawPoints.push(pctGrowth);
                     } else {
