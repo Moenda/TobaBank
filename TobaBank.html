@@ -4570,23 +4570,24 @@
                     }
                 }
 
-                const filteredValidPoints = rawPoints.filter(val => val !== null);
                 const dataPoints = [];
-                let baseOffset = filteredValidPoints.length > 0 ? filteredValidPoints[0] : 0;
-
-                let validIndex = 0;
-                rawPoints.forEach(val => {
-                    if (val === null) {
+                
+                if (chartAlignMode) {
+                    const filteredValidPoints = rawPoints.filter(val => val !== null);
+                    const baseOffset = filteredValidPoints.length > 0 ? filteredValidPoints[0] : 0;
+                    
+                    filteredValidPoints.forEach(val => {
+                        dataPoints.push((val - baseOffset).toFixed(2));
+                    });
+                    
+                    while (dataPoints.length < countPoints) {
                         dataPoints.push(null);
-                    } else {
-                        if (chartAlignMode) {
-                            dataPoints.push((filteredValidPoints[validIndex] - baseOffset).toFixed(2));
-                            validIndex++;
-                        } else {
-                            dataPoints.push(val.toFixed(2));
-                        }
                     }
-                });
+                } else {
+                    rawPoints.forEach(val => {
+                        dataPoints.push(val === null ? null : val.toFixed(2));
+                    });
+                }
 
                 datasets.push({
                     label: fund.name,
