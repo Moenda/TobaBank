@@ -2930,6 +2930,12 @@
                     <div class="history-body">
                         <div class="section-title" style="margin: 0.5rem 0 0.5rem 0; font-size: 0.8rem;">📊 Categorias (${monthFormatted})</div>
                         <div id="catBars-${mKey}"></div>
+
+                        <div class="section-title" style="margin: 1rem 0 0.5rem 0; font-size: 0.8rem; color: #58a6ff;">💸 Lançamentos do Mês</div>
+                        <div class="expense-list" id="historyTransList-${mKey}"></div>
+
+                        <div class="section-title" style="margin: 1rem 0 0.5rem 0; font-size: 0.8rem; color: #d29922;">💳 Parcelas do Mês</div>
+                        <div class="expense-list" id="historyInstList-${mKey}"></div>
                     </div>
                 `;
                 container.appendChild(card);
@@ -2937,6 +2943,53 @@
                 const combined = [...mTransactions];
                 mActiveInstallments.forEach(p => combined.push({ category: p.category, amount: p.amount }));
                 renderCategoryBars(combined, totalSpent, `catBars-${mKey}`);
+
+                // Renderiza os gastos à vista com clique para editar
+                const transListEl = document.getElementById(`historyTransList-${mKey}`);
+                if (mTransactions.length === 0) {
+                    transListEl.innerHTML = '<div class="empty-state" style="font-size:0.75rem;">Nenhum gasto à vista.</div>';
+                } else {
+                    [...mTransactions].sort((a,b) => new Date(b.date) - new Date(a.date)).forEach(t => {
+                        let cleanCat = t.category.includes(' - ') ? t.category.split(' - ')[1] : t.category;
+                        const itemEl = document.createElement('div');
+                        itemEl.className = 'expense-item';
+                        itemEl.onclick = () => openExpenseModal(t.id);
+                        itemEl.innerHTML = `
+                            <div class="expense-details">
+                                <span class="expense-desc">${t.description}</span>
+                                <span class="expense-meta">${cleanCat} • ${isoToBrDate(t.date)}</span>
+                            </div>
+                            <div class="expense-right">
+                                <span class="expense-amount-value">-${formatCurrency(t.amount)}</span>
+                            </div>
+                        `;
+                        transListEl.appendChild(itemEl);
+                    });
+                }
+
+                // Renderiza as parcelas com clique para editar
+                const instListEl = document.getElementById(`historyInstList-${mKey}`);
+                if (mActiveInstallments.length === 0) {
+                    instListEl.innerHTML = '<div class="empty-state" style="font-size:0.75rem;">Nenhuma parcela ativa.</div>';
+                } else {
+                    mActiveInstallments.forEach(p => {
+                        let cleanCat = p.category.includes(' - ') ? p.category.split(' - ')[1] : p.category;
+                        const itemEl = document.createElement('div');
+                        itemEl.className = 'expense-item';
+                        itemEl.style.borderLeft = '3px solid #d29922';
+                        itemEl.onclick = () => openEditInstallmentModal(p.id);
+                        itemEl.innerHTML = `
+                            <div class="expense-details">
+                                <span class="expense-desc">${p.description}</span>
+                                <span class="expense-meta">${cleanCat} • Parcela ${p.currentParcel}/${p.totalInstallments}</span>
+                            </div>
+                            <div class="expense-right">
+                                <span class="expense-amount-value" style="color: #d29922;">-${formatCurrency(p.amount)}</span>
+                            </div>
+                        `;
+                        instListEl.appendChild(itemEl);
+                    });
+                }
             });
         }
 
