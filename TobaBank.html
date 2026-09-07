@@ -4587,6 +4587,16 @@
                         dataPoints.push(val === null ? null : val.toFixed(2));
                     });
                 }
+
+                datasets.push({
+                    label: fund.name,
+                    data: dataPoints,
+                    borderColor: color,
+                    backgroundColor: color,
+                    borderWidth: 2,
+                    tension: 0.2,
+                    pointRadius: 3
+                });
             });
 
             if (patrimonyChartInstance) patrimonyChartInstance.destroy();
